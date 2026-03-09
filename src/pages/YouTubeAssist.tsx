@@ -161,7 +161,7 @@ const YouTubeAssist = () => {
             For YouTube Creators Who Want to Grow Consistently
           </div>
           <h1 className="font-heading font-black text-4xl sm:text-5xl md:text-7xl leading-tight mb-6">
-            Publish YouTube Videos <br />
+            Publish YouTube Videos<br />
             <span className="text-gradient">Every Week. Without Burnout.</span>
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10">

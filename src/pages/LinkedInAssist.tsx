@@ -1,5 +1,6 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { Link } from "react-router-dom";
 import {
   Linkedin, Sparkles, ArrowRight, PenTool, BarChart3,
   Lightbulb, Users, FileText, Target, TrendingUp,
@@ -8,7 +9,7 @@ import {
   Star, Quote, Zap, Shield, BookOpen, Palette, Eye, Send,
   ThumbsUp, Share2, Copy, Bold, Italic, List, Hash,
   Bookmark, Library, GraduationCap, Fingerprint, Sparkle,
-  X as XIcon,
+  X as XIcon, Youtube, Link as LinkIcon, Grid3X3
 } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -105,16 +106,333 @@ const workflowSections = [
   },
 ];
 
-const toolkitItems = [
-  { icon: Clock, title: "Smart Scheduling", desc: "Schedule posts at peak engagement windows. Auto-publish so you never think about timing again." },
-  { icon: Mic, title: "Voice to Post", desc: "Record a quick voice note with your idea. AI turns it into a formatted LinkedIn post in your voice." },
-  { icon: Layout, title: "Carousel Generator", desc: "Turn your ideas into swipeable LinkedIn carousels that drive saves and shares." },
-  { icon: FileText, title: "Content Management", desc: "Drag-and-drop Kanban board for every post. Draft, review, approved, scheduled." },
-  { icon: MessageCircle, title: "First Comment, Automated", desc: "Write your CTA comment once. BrandPilot posts it automatically the moment your post goes live." },
-  { icon: Repeat, title: "Content Repurposing", desc: "Turn YouTube videos, blog posts, and PDFs into LinkedIn-ready posts. One source, multiple formats." },
-  { icon: Hash, title: "130+ Viral Templates", desc: "Access proven post templates designed specifically to go viral on LinkedIn." },
-  { icon: Search, title: "AI Writing Assistant", desc: "Select text for AI to adjust length, rephrase, add emojis, hashtags, and more." },
-  { icon: BarChart3, title: "Analytics Dashboard", desc: "Track impressions, engagement rate, follower growth, and content performance." },
+const visualFeatures = [
+  {
+    title: "Content Repurposing",
+    link: "/tools/content-repurposing",
+    desc: "Turn YouTube videos, blog posts, and PDFs into LinkedIn-ready posts. One source, multiple formats — no rewriting required.",
+    mockup: (
+      <div className="bg-white rounded-xl shadow-lg w-full max-w-[300px] p-4 mx-auto">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <div className="w-5 h-5 text-indigo-500"><Sparkles className="w-full h-full" /></div>
+            <span className="text-sm font-bold text-slate-800">Repurpose Content</span>
+          </div>
+          <div className="border border-slate-200 text-slate-600 text-[10px] px-2 py-1 rounded-md flex items-center gap-1 font-medium">
+            <PenTool className="w-3 h-3" /> Write From Scratch
+          </div>
+        </div>
+        <div className="text-[10px] text-slate-500 mb-3">Select a template to generate high-quality posts with AI.</div>
+        <div className="space-y-2">
+          <div className="flex items-center gap-3 p-2.5 border border-slate-200 rounded-lg">
+            <div className="w-4 h-4 text-red-500"><Youtube className="w-full h-full" /></div>
+            <div>
+              <div className="text-[11px] font-bold text-slate-800">Generate a post from a Youtube video</div>
+              <div className="text-[9px] text-slate-500">Share a Youtube video link and generate a post from it</div>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 p-2.5 border border-slate-200 rounded-lg">
+            <div className="w-4 h-4 text-emerald-500"><LinkIcon className="w-full h-full" /></div>
+            <div>
+              <div className="text-[11px] font-bold text-slate-800">Generate a post from an article</div>
+              <div className="text-[9px] text-slate-500">Share a link to a blog post and generate a post from it</div>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 p-2.5 border border-indigo-500 rounded-lg bg-indigo-50/50">
+            <div className="w-4 h-4 text-indigo-500"><FileText className="w-full h-full" /></div>
+            <div>
+              <div className="text-[11px] font-bold text-slate-800">Generate a post from a PDF</div>
+              <div className="text-[9px] text-slate-500">Upload a PDF and generate a post from it</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  },
+  {
+    title: "Voice to Post",
+    link: "/tools/voice-to-post",
+    desc: "Speak your ideas. AI captures your thinking and turns it into a publish-ready LinkedIn post in your voice.",
+    mockup: (
+      <div className="bg-white rounded-xl shadow-lg w-full max-w-[300px] p-4 mx-auto">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-sm font-bold text-slate-800">Voice Notes</span>
+          <div className="bg-blue-500 text-white text-[10px] px-3 py-1.5 rounded-full flex items-center gap-1 font-medium">
+            <Mic className="w-3 h-3" /> Add Voice Note
+          </div>
+        </div>
+        <div className="text-[10px] text-slate-500 mb-3">Turn your voice notes into engaging LinkedIn content.</div>
+        <div className="border border-indigo-200 rounded-lg p-3 mb-3 bg-white shadow-sm">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold text-slate-800">New Voice Note</span>
+              <span className="text-[9px] text-indigo-600 bg-indigo-100 px-2 py-0.5 rounded-full font-medium">Speaking...</span>
+            </div>
+            <XIcon className="w-3 h-3 text-slate-400" />
+          </div>
+          <div className="flex items-center gap-1 h-4">
+            {[...Array(24)].map((_, i) => (
+              <div key={i} className={`w-1.5 rounded-full ${i < 12 ? 'bg-blue-500' : 'bg-slate-200'}`} style={{ height: `${Math.max(30, Math.random() * 100)}%` }}></div>
+            ))}
+          </div>
+        </div>
+        <div className="flex items-center gap-2 text-[10px] text-slate-500 mb-3 font-medium">
+          <Sparkles className="w-3 h-3 text-slate-400" /> Transcript Is Ready...
+        </div>
+        <div className="flex items-center gap-3 p-3 border border-indigo-500 rounded-lg bg-white shadow-sm mb-3">
+          <div className="w-8 h-8 text-white bg-indigo-600 rounded-md p-1.5 flex items-center justify-center"><Brain className="w-full h-full" /></div>
+          <div>
+            <div className="text-xs font-bold text-slate-800">Content DNA Active</div>
+            <div className="text-[9px] text-slate-500">Your unique writing style is being applied.</div>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 text-[10px] text-slate-500 font-medium">
+          <Sparkles className="w-3 h-3 text-slate-400" /> LinkedIn Posts Generated...
+        </div>
+      </div>
+    )
+  },
+  {
+    title: "Carousel Maker",
+    link: "/tools/carousel-maker",
+    desc: "Turn ideas and key points into scroll-stopping LinkedIn carousels. Visual content gets 3x more engagement.",
+    mockup: (
+      <div className="bg-white rounded-xl shadow-lg w-full max-w-[300px] p-4 mx-auto">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-sm font-bold text-slate-800">Carousel Maker</span>
+          <XIcon className="w-3 h-3 text-slate-400" />
+        </div>
+        <div className="text-[10px] text-slate-500 mb-3">Design high-performing LinkedIn carousel posts in seconds.</div>
+        <div className="flex gap-4 mb-4 border-b border-slate-200 pb-2">
+          <span className="text-xs font-bold text-blue-500 border-b-2 border-blue-500 pb-2 -mb-[9px]">Templates</span>
+          <span className="text-xs font-medium text-slate-400">Save</span>
+          <span className="text-xs font-medium text-slate-400">Text to Carousel</span>
+        </div>
+        <div className="flex gap-2 overflow-hidden">
+          <div className="w-24 h-32 bg-[#1e1b4b] rounded-lg p-3 flex flex-col justify-between shrink-0 relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-1 bg-blue-500"></div>
+            <div className="text-[10px] font-black text-white leading-tight mt-2">HOW TO WRITE HOOK THAT DON'T SUCK</div>
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-1">
+                <div className="w-3 h-3 rounded-full bg-slate-400"></div>
+                <span className="text-[6px] text-slate-300">Jan Sinczer</span>
+              </div>
+              <div className="w-4 h-4 rounded-full bg-white/20 flex items-center justify-center"><ArrowRight className="w-2 h-2 text-white" /></div>
+            </div>
+          </div>
+          <div className="w-24 h-32 bg-[#1f2937] rounded-lg p-3 flex flex-col justify-between shrink-0 relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-1 bg-green-500"></div>
+            <div className="text-[9px] font-black text-white leading-tight mt-2">18 PRINCIPLES FOR THE 'PERFECT' LINKEDIN POST</div>
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-1">
+                <div className="w-3 h-3 rounded-full bg-slate-400"></div>
+                <span className="text-[6px] text-slate-300">Kari Rasmussen</span>
+              </div>
+              <div className="w-4 h-4 rounded-full bg-white/20 flex items-center justify-center"><ArrowRight className="w-2 h-2 text-white" /></div>
+            </div>
+          </div>
+          <div className="w-24 h-32 bg-[#4f46e5] rounded-lg p-3 flex flex-col justify-between shrink-0 relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-1 bg-purple-500"></div>
+            <div className="text-[10px] font-black text-white leading-tight mt-2">CONTENT PLAN STRATEGY</div>
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-1">
+                <div className="w-3 h-3 rounded-full bg-indigo-300"></div>
+                <span className="text-[6px] text-indigo-200">LOKI BRIGHT</span>
+              </div>
+              <div className="w-4 h-4 rounded-full bg-white/20 flex items-center justify-center"><ArrowRight className="w-2 h-2 text-white" /></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  },
+  {
+    title: "Content Management",
+    link: "/tools/content-management",
+    desc: "Drag-and-drop Kanban board for every post. Draft, review, approved, scheduled — always know where things stand.",
+    mockup: (
+      <div className="bg-white rounded-xl shadow-lg w-full max-w-[300px] p-4 mx-auto">
+        <div className="flex items-center justify-between mb-4">
+          <span className="text-sm font-bold text-slate-800">Kanban Board</span>
+          <div className="bg-blue-500 text-white text-[10px] px-3 py-1.5 rounded-md flex items-center gap-1 font-medium">
+            <PenTool className="w-3 h-3" /> Add Draft
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <div className="flex-1 bg-slate-50 rounded-lg p-2 border border-slate-100">
+            <div className="text-[9px] font-bold text-slate-600 mb-3 flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-slate-400"></span> Drafts <span className="text-slate-400 font-normal ml-auto bg-white px-1 rounded-full text-[8px]">8</span></div>
+            <div className="bg-white border border-slate-200 rounded-md p-2 mb-2 shadow-sm">
+              <div className="flex items-center justify-between mb-1.5">
+                <div className="text-[7px] text-slate-400">10:15 AM</div>
+                <div className="flex -space-x-1">
+                  <div className="w-3 h-3 rounded-full bg-slate-200 border border-white"></div>
+                  <div className="w-3 h-3 rounded-full bg-slate-300 border border-white"></div>
+                </div>
+              </div>
+              <div className="text-[8px] font-medium text-slate-700 leading-tight">Most companies get employee advocacy backwa...</div>
+            </div>
+            <div className="bg-white border border-blue-400 shadow-md rounded-md p-2 rotate-3 scale-105 relative z-10 cursor-grab">
+              <div className="flex items-center justify-between mb-1.5">
+                <div className="text-[7px] text-slate-400">10:15 AM</div>
+                <div className="w-3 h-3 rounded-full bg-slate-200 border border-white"></div>
+              </div>
+              <div className="text-[8px] font-medium text-slate-700 leading-tight">LinkedIn is a platform for profe...</div>
+              <div className="absolute -right-16 top-1/2 -translate-y-1/2 text-[8px] text-slate-400 flex items-center gap-1 bg-white/80 px-1 rounded backdrop-blur-sm">
+                <ArrowRight className="w-2 h-2" /> Drag to change status
+              </div>
+            </div>
+          </div>
+          <div className="flex-1 bg-slate-50 rounded-lg p-2 border border-slate-100">
+            <div className="text-[9px] font-bold text-slate-600 mb-3 flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-blue-400"></span> In-Review <span className="text-slate-400 font-normal ml-auto bg-white px-1 rounded-full text-[8px]">2</span></div>
+            <div className="bg-white border border-slate-200 rounded-md p-2 mb-2 shadow-sm">
+              <div className="flex items-center justify-between mb-1.5">
+                <div className="text-[7px] text-slate-400">10:15 AM</div>
+                <div className="w-3 h-3 rounded-full bg-slate-200 border border-white"></div>
+              </div>
+              <div className="text-[8px] font-medium text-slate-700 leading-tight">I keep seeing B2B teams apply B2C-derived...</div>
+            </div>
+          </div>
+          <div className="flex-1 bg-slate-50 rounded-lg p-2 border border-slate-100">
+            <div className="text-[9px] font-bold text-slate-600 mb-3 flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-green-400"></span> Approved <span className="text-slate-400 font-normal ml-auto bg-white px-1 rounded-full text-[8px]">3</span></div>
+            <div className="bg-white border border-slate-200 rounded-md p-2 mb-2 shadow-sm">
+              <div className="flex items-center justify-between mb-1.5">
+                <div className="text-[7px] text-slate-400">10:15 AM</div>
+                <div className="w-3 h-3 rounded-full bg-slate-200 border border-white"></div>
+              </div>
+              <div className="text-[8px] font-medium text-slate-700 leading-tight">AI is changing Customer Success but not in...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  },
+  {
+    title: "Scheduling & Calendar",
+    link: "/tools/scheduling-calendar",
+    desc: "Plan your week in one view. Schedule posts at peak times and keep a consistent publishing rhythm.",
+    mockup: (
+      <div className="bg-white rounded-xl shadow-lg w-full max-w-[300px] p-4 mx-auto relative">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-sm font-bold text-slate-800">Calendar</span>
+        </div>
+        <div className="text-[10px] text-slate-500 mb-3">Manage your content calendar from here.</div>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-1">
+            <div className="w-5 h-5 rounded border border-slate-200 flex items-center justify-center text-slate-500">&lt;</div>
+            <div className="px-2 py-0.5 rounded border border-slate-200 text-[9px] font-medium text-slate-700">Today</div>
+            <div className="w-5 h-5 rounded border border-slate-200 flex items-center justify-center text-slate-500">&gt;</div>
+          </div>
+          <div className="flex gap-1 bg-slate-100 p-0.5 rounded-md">
+            <span className="text-[9px] bg-white shadow-sm text-blue-600 px-2 py-1 rounded font-medium flex items-center gap-1"><Calendar className="w-2 h-2" /> Week</span>
+            <span className="text-[9px] text-slate-500 px-2 py-1 font-medium flex items-center gap-1"><Grid3X3 className="w-2 h-2" /> Month</span>
+          </div>
+        </div>
+        <div className="grid grid-cols-6 gap-1 mb-2">
+          {['SUN 12', 'MON 13', 'TUE 14', 'WED 15', 'THU 16', 'FRI 17'].map((d, i) => (
+            <div key={d} className="flex flex-col items-center">
+              <div className={`text-[7px] font-bold ${i === 5 ? 'text-blue-500 bg-blue-50 px-1 rounded-full' : 'text-slate-400'}`}>{d}</div>
+              <div className="text-[6px] text-slate-300 mt-1">09:00 AM</div>
+            </div>
+          ))}
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="h-12 border border-slate-100 rounded-md bg-slate-50/50 mt-1"></div>
+          ))}
+        </div>
+        
+        {/* Overlay Schedule Setting */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[220px] bg-white rounded-xl shadow-xl border border-blue-200 p-4 z-10">
+          <div className="flex justify-between items-center mb-3">
+            <div className="text-xs font-bold text-slate-800">Schedule Setting</div>
+            <XIcon className="w-3 h-3 text-slate-400" />
+          </div>
+          <div className="text-[9px] font-medium text-slate-800 mb-1.5">Schedule Details</div>
+          <div className="border border-slate-200 rounded-md p-2 text-[9px] text-slate-600 mb-3 flex justify-between items-center bg-white">
+            <span>(GMT+5:30) India Standard Time</span>
+            <ChevronDown className="w-3 h-3 text-slate-400" />
+          </div>
+          <div className="flex justify-between items-center mb-1 px-1">
+            <span className="text-[6px] text-slate-400 font-bold">MON</span>
+            <span className="text-[6px] text-slate-400 font-bold">TUE</span>
+            <span className="text-[6px] text-slate-400 font-bold">WED</span>
+            <span className="text-[6px] text-slate-400 font-bold">THU</span>
+            <span className="text-[6px] text-slate-400 font-bold">FRI</span>
+            <span className="text-[6px] text-slate-400 font-bold">SAT</span>
+            <span className="text-[6px] text-slate-400 font-bold">SUN</span>
+          </div>
+          <div className="flex items-center justify-between mb-3">
+            <div className="border border-slate-200 rounded-md p-1.5 text-[9px] font-medium text-slate-700 bg-white flex items-center gap-1">
+              09:00 AM <XIcon className="w-2 h-2 text-slate-400" />
+            </div>
+            <div className="flex gap-1.5">
+              {[1,0,1,1,1,0,0].map((active, i) => (
+                <div key={i} className={`w-3.5 h-3.5 rounded flex items-center justify-center ${active ? 'bg-blue-500 text-white' : 'border border-slate-200 bg-white'}`}>
+                  {active ? <CheckCircle2 className="w-2.5 h-2.5" /> : null}
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="border border-slate-200 rounded-md p-1.5 text-[9px] text-slate-400 bg-white flex justify-between items-center w-24">
+            <span>Select a time</span>
+            <ChevronDown className="w-2 h-2" />
+          </div>
+        </div>
+      </div>
+    )
+  },
+  {
+    title: "Schedule First Comment",
+    link: "/tools/schedule-first-comment",
+    desc: "Auto-publish a follow-up comment the moment your post goes live. Add CTAs, hashtags, or context that drives clicks.",
+    mockup: (
+      <div className="bg-white rounded-xl shadow-lg w-full max-w-[300px] p-4 mx-auto">
+        <div className="border border-slate-200 rounded-lg p-3 mb-4 bg-slate-50 shadow-sm">
+          <div className="flex items-center justify-between border-b border-slate-200 pb-2 mb-2">
+            <div className="flex items-center gap-1.5 text-[10px] font-medium text-slate-600">
+              <div className="bg-blue-100 p-0.5 rounded-full"><ThumbsUp className="w-3 h-3 text-blue-600" /></div> You and 1 others
+            </div>
+            <div className="text-[10px] text-slate-500 hover:underline cursor-pointer">0 Comments</div>
+          </div>
+          <div className="flex justify-between px-2">
+            <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-600"><ThumbsUp className="w-3.5 h-3.5" /> Like</div>
+            <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-600"><MessageSquare className="w-3.5 h-3.5" /> Comment</div>
+            <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-600"><Share2 className="w-3.5 h-3.5" /> Share</div>
+            <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-600"><Send className="w-3.5 h-3.5" /> Send</div>
+          </div>
+        </div>
+        
+        <div className="border border-slate-200 rounded-lg p-4 shadow-sm">
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="text-xs font-bold text-slate-800">Schedule Comments On Your Post</span>
+            <XIcon className="w-3 h-3 text-slate-400" />
+          </div>
+          <div className="text-[10px] text-slate-500 mb-4">Expand or plug your offerings in the comments</div>
+          
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-8 h-4 bg-green-500 rounded-full relative shadow-inner">
+              <div className="w-3 h-3 bg-white rounded-full absolute right-[2px] top-[2px] shadow-sm"></div>
+            </div>
+            <div>
+              <div className="text-[10px] font-bold text-slate-800">Auto-plug</div>
+              <div className="text-[8px] text-slate-500">Reply automatically to your post if it gets great engagement.</div>
+            </div>
+          </div>
+          
+          <div className="border border-slate-200 rounded-lg p-3 bg-slate-50">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-[10px] font-bold text-slate-700">Comment #1</span>
+              <span className="text-[10px] font-bold text-blue-500 cursor-pointer">+ Pick Auto-plug Comment</span>
+            </div>
+            <div className="bg-white border border-slate-200 rounded-md p-2 text-[10px] text-slate-400 mb-3 h-10 shadow-inner">
+              Add your comment here...
+            </div>
+            <div className="flex items-center gap-1.5 text-[8px] font-bold text-green-700 bg-green-100 px-2 py-1 rounded-md w-fit">
+              <CheckCircle2 className="w-3 h-3" /> You're the first to comment on this post!
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
 ];
 
 const beforeAfter = {
@@ -290,7 +608,7 @@ const LinkedInAssist = () => {
       <Navbar />
 
       {/* ────────── Hero ────────── */}
-      <section className="pt-28 pb-20 relative overflow-hidden">
+      <section className="pt-28 pb-20 relative overflow-hidden bg-slate-50 dark:bg-slate-950">
         <div className="absolute inset-0 bg-gradient-surface opacity-80" />
         <div className="relative z-10 container mx-auto px-4 text-center max-w-4xl">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass text-sm text-accent font-medium mb-8">
@@ -363,7 +681,7 @@ const LinkedInAssist = () => {
       </section>
 
       {/* ────────── Stats Bar ────────── */}
-      <section className="py-10 border-y border-border/30">
+      <section className="py-10 border-y border-border/30 bg-blue-50 dark:bg-blue-950">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 max-w-4xl mx-auto text-center">
             {stats.map((s) => (
@@ -377,7 +695,7 @@ const LinkedInAssist = () => {
       </section>
 
       {/* ────────── Interactive Post Generator ────────── */}
-      <section className="py-20">
+      <section className="py-20 bg-zinc-50 dark:bg-zinc-900">
         <div className="container mx-auto px-4 max-w-4xl">
           <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="text-center mb-12">
             <h2 className="font-heading font-bold text-3xl md:text-5xl mb-4">
@@ -392,8 +710,7 @@ const LinkedInAssist = () => {
       </section>
 
       {/* ────────── Core Features (tabbed) ────────── */}
-      <section className="py-20 relative">
-        <div className="absolute inset-0 bg-gradient-card opacity-20" />
+      <section className="py-20 relative bg-slate-100 dark:bg-slate-900">
         <div className="relative container mx-auto px-4 max-w-6xl">
           <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="text-center mb-12">
             <h2 className="font-heading font-bold text-3xl md:text-5xl mb-4">
@@ -453,7 +770,7 @@ const LinkedInAssist = () => {
       </section>
 
       {/* ────────── How It Works ────────── */}
-      <section className="py-20">
+      <section className="py-20 bg-neutral-50 dark:bg-neutral-950">
         <div className="container mx-auto px-4 max-w-4xl">
           <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="text-center mb-14">
             <h2 className="font-heading font-bold text-3xl md:text-5xl mb-4">
@@ -484,8 +801,7 @@ const LinkedInAssist = () => {
       </section>
 
       {/* ────────── Create / Discover / Think Workflow ────────── */}
-      <section className="py-20 relative">
-        <div className="absolute inset-0 bg-gradient-card opacity-20" />
+      <section className="py-20 relative bg-blue-100 dark:bg-blue-900">
         <div className="relative container mx-auto px-4 max-w-5xl">
           {/* Section tabs */}
           <div className="flex justify-center gap-2 mb-12">
@@ -551,7 +867,7 @@ const LinkedInAssist = () => {
       </section>
 
       {/* ────────── Before / After ────────── */}
-      <section className="py-20">
+      <section className="py-20 bg-zinc-100 dark:bg-zinc-950">
         <div className="container mx-auto px-4 max-w-5xl">
           <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="text-center mb-14">
             <h2 className="font-heading font-bold text-3xl md:text-5xl mb-4">
@@ -609,8 +925,7 @@ const LinkedInAssist = () => {
       </section>
 
       {/* ────────── Toolkit Grid ────────── */}
-      <section className="py-20 relative">
-        <div className="absolute inset-0 bg-gradient-card opacity-20" />
+      <section className="py-20 relative bg-slate-50 dark:bg-slate-950">
         <div className="relative container mx-auto px-4 max-w-6xl">
           <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="text-center mb-14">
             <h2 className="font-heading font-bold text-3xl md:text-5xl mb-4">
@@ -618,22 +933,25 @@ const LinkedInAssist = () => {
             </h2>
             <p className="text-muted-foreground">The tools that take you from "I should post more" to actually doing it.</p>
           </motion.div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {toolkitItems.map((t, i) => (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {visualFeatures.map((f, i) => (
               <motion.div
-                key={t.title}
+                key={f.title}
                 variants={fadeUp}
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.06 }}
-                className="glass rounded-2xl p-6 group hover:border-primary/40 transition-all"
               >
-                <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
-                  <t.icon className="h-5 w-5 text-accent" />
-                </div>
-                <h3 className="font-heading font-bold text-sm mb-2">{t.title}</h3>
-                <p className="text-xs text-muted-foreground leading-relaxed">{t.desc}</p>
+                <Link to={f.link} className="rounded-2xl overflow-hidden border border-border/30 bg-card shadow-sm flex flex-col group h-full block hover:border-primary/50 transition-colors cursor-pointer">
+                  <div className="bg-[#0ea5e9] p-6 flex justify-center items-center relative overflow-hidden h-[260px] group-hover:opacity-90 transition-opacity">
+                    {f.mockup}
+                  </div>
+                  <div className="p-6 bg-card flex-1">
+                    <h3 className="font-heading font-bold text-lg mb-2 group-hover:text-primary transition-colors">{f.title}</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
+                  </div>
+                </Link>
               </motion.div>
             ))}
           </div>
@@ -641,7 +959,7 @@ const LinkedInAssist = () => {
       </section>
 
       {/* ────────── Personas ────────── */}
-      <section className="py-20">
+      <section className="py-20 bg-gray-50 dark:bg-gray-900">
         <div className="container mx-auto px-4 max-w-5xl">
           <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="text-center mb-12">
             <h2 className="font-heading font-bold text-3xl md:text-4xl mb-4">
@@ -663,8 +981,7 @@ const LinkedInAssist = () => {
       </section>
 
       {/* ────────── Testimonials ────────── */}
-      <section className="py-20 relative">
-        <div className="absolute inset-0 bg-gradient-card opacity-20" />
+      <section className="py-20 relative bg-blue-50 dark:bg-blue-950">
         <div className="relative container mx-auto px-4 max-w-6xl">
           <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="text-center mb-14">
             <h2 className="font-heading font-bold text-3xl md:text-5xl mb-4">
@@ -706,7 +1023,7 @@ const LinkedInAssist = () => {
       </section>
 
       {/* ────────── FAQ ────────── */}
-      <section className="py-20">
+      <section className="py-20 bg-zinc-50 dark:bg-zinc-900">
         <div className="container mx-auto px-4 max-w-3xl">
           <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="text-center mb-12">
             <h2 className="font-heading font-bold text-3xl md:text-4xl mb-4">
@@ -739,7 +1056,7 @@ const LinkedInAssist = () => {
       </section>
 
       {/* ────────── CTA ────────── */}
-      <section className="py-20">
+      <section className="py-20 bg-white dark:bg-black">
         <div className="container mx-auto px-4 text-center max-w-3xl">
           <div className="glass rounded-3xl p-12 md:p-16 relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-primary opacity-10" />
