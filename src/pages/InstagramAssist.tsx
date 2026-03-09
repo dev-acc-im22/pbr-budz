@@ -341,7 +341,7 @@ const InstagramAssist = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="font-heading font-black text-4xl sm:text-5xl md:text-7xl leading-tight mb-6"
+            className="font-heading font-extrabold text-4xl sm:text-5xl md:text-7xl leading-tight mb-6"
           >
             Build a Stunning <span className="text-gradient">Instagram Brand</span> with AI
           </motion.h1>

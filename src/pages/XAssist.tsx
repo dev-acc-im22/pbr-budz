@@ -87,7 +87,7 @@ const XAssist = () => {
                 <Twitter className="h-4 w-4" />
                 For Serious 𝕏 Creators
               </div>
-              <h1 className="font-heading font-black text-4xl sm:text-5xl md:text-6xl leading-tight mb-6">
+              <h1 className="font-heading font-extrabold text-4xl sm:text-5xl md:text-6xl leading-tight mb-6">
                 Grow Faster on 𝕏 with{" "}
                 <span className="text-gradient">Hidden Insights</span>
               </h1>

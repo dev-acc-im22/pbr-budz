@@ -301,7 +301,7 @@ const LinkedInAssist = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="font-heading font-black text-4xl sm:text-5xl md:text-7xl leading-tight mb-6"
+            className="font-heading font-extrabold text-4xl sm:text-5xl md:text-7xl leading-tight mb-6"
           >
             Writing like an industry expert{" "}
             <span className="text-gradient">has never been easier</span>
