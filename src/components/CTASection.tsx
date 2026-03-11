@@ -9,13 +9,13 @@ const CTASection = () => {
           <div className="absolute inset-0 bg-gradient-primary opacity-10" />
           <div className="relative z-10">
             <h2 className="font-heading font-black text-3xl md:text-5xl mb-4">
-              Ready to Build Your <span className="text-gradient">Brand Empire?</span>
+              Ready to Build Your <span className="bg-gradient-to-r from-violet-600 via-purple-500 to-fuchsia-500 dark:from-violet-400 dark:via-purple-400 dark:to-fuchsia-400 bg-clip-text text-transparent">Brand Empire?</span>
             </h2>
             <p className="text-muted-foreground max-w-lg mx-auto mb-8">
               Join thousands of creators using AI to dominate every social platform. Start free — no credit card required.
             </p>
             <Link
-              to="/"
+              to="/login"
               className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-gradient-primary text-primary-foreground font-bold text-base glow-primary hover:scale-105 transition-transform"
             >
               <Sparkles className="h-5 w-5" />

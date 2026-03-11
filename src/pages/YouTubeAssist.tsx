@@ -7,11 +7,13 @@ import {
   XCircle, Star, Users, FileText, Zap, Target, TrendingUp, Copy,
   Bold, Italic, List, Hash, Play, Plus, Trash2, Layout
 } from "lucide-react";
-import ytDashboard from "@/assets/yt-dashboard-mock.jpg";
-import scriptEditor from "@/assets/script-editor-mock.jpg";
+const ytDashboard = "https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?auto=format&fit=crop&w=1920&q=80";
+const scriptEditor = "https://images.unsplash.com/photo-1455390582262-044cdead2708?auto=format&fit=crop&w=1920&q=80";
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAuth } from "@/contexts/AuthContext";
+import YouTubeAssistTool from "./tools/YouTubeAssistTool";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -105,8 +107,8 @@ But what if I told you that you could predict a video's success *before* you eve
   return (
     <div className="glass rounded-2xl p-6 md:p-8">
       <div className="flex items-center justify-between mb-4">
-        <span className="text-xs font-semibold text-accent uppercase tracking-wider">Free AI Script Generator</span>
-        <button className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-gradient-primary text-primary-foreground text-xs font-bold hover:scale-105 transition-transform">
+        <span className="text-xs font-semibold text-red-500 uppercase tracking-wider">Free AI Script Generator</span>
+        <button className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-gradient-to-r from-red-600 to-red-500 text-white text-xs font-bold hover:scale-105 transition-transform">
           <Sparkles className="h-3.5 w-3.5" />
           Generate Script
         </button>
@@ -127,7 +129,7 @@ But what if I told you that you could predict a video's success *before* you eve
       <textarea
         value={scriptText}
         onChange={(e) => setScriptText(e.target.value)}
-        className="w-full bg-transparent border border-border/50 rounded-xl p-4 text-sm leading-relaxed resize-none focus:outline-none focus:ring-2 focus:ring-primary/40 min-h-[300px] mb-3"
+        className="w-full bg-transparent border border-border/50 rounded-xl p-4 text-sm leading-relaxed resize-none focus:outline-none focus:ring-2 focus:ring-red-500/40 min-h-[300px] mb-3"
         placeholder="Start writing your script or ask AI to generate one..."
       />
 
@@ -136,7 +138,7 @@ But what if I told you that you could predict a video's success *before* you eve
           <span className="text-xs text-muted-foreground">Est. time: ~4 mins</span>
           <span className="text-xs text-muted-foreground">Words: 124</span>
         </div>
-        <button className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-accent/10 text-accent text-xs font-semibold hover:bg-accent/20 transition-colors">
+        <button className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-red-500/10 text-red-500 text-xs font-semibold hover:bg-red-500/20 transition-colors">
           <Copy className="h-3.5 w-3.5" />
           Copy Script
         </button>
@@ -147,6 +149,11 @@ But what if I told you that you could predict a video's success *before* you eve
 
 const YouTubeAssist = () => {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
+  const { isAuthenticated, isMockMode } = useAuth();
+
+  if (isAuthenticated || isMockMode) {
+    return <YouTubeAssistTool />;
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -155,28 +162,62 @@ const YouTubeAssist = () => {
       {/* Hero */}
       <section className="pt-28 pb-20 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-surface opacity-80" />
+        
+        {/* Floating YouTube Icons */}
+        <motion.div 
+          animate={{ y: [0, -20, 0], rotate: [0, 5, 0] }} 
+          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute top-32 left-[5%] md:left-[15%] text-red-500/40 z-0 hidden sm:block"
+        >
+          <Youtube className="w-16 h-16 md:w-24 md:h-24" />
+        </motion.div>
+        
+        <motion.div 
+          animate={{ y: [0, 20, 0], rotate: [0, -10, 0] }} 
+          transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+          className="absolute top-48 right-[5%] md:right-[15%] text-red-500/30 z-0 hidden sm:block"
+        >
+          <Youtube className="w-12 h-12 md:w-20 md:h-20" />
+        </motion.div>
+
+        <motion.div 
+          animate={{ y: [0, -15, 0], rotate: [0, -5, 0] }} 
+          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+          className="absolute bottom-32 left-[10%] md:left-[20%] text-red-500/20 z-0 hidden sm:block"
+        >
+          <Youtube className="w-10 h-10 md:w-16 md:h-16" />
+        </motion.div>
+
+        <motion.div 
+          animate={{ y: [0, 25, 0], rotate: [0, 15, 0] }} 
+          transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+          className="absolute top-24 right-[20%] md:right-[30%] text-red-500/20 z-0 hidden sm:block"
+        >
+          <Youtube className="w-8 h-8 md:w-12 md:h-12" />
+        </motion.div>
+
         <div className="relative z-10 container mx-auto px-4 text-center max-w-4xl">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass text-sm text-accent font-medium mb-8">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass text-sm text-red-500 font-medium mb-8">
             <Youtube className="h-4 w-4" />
             For YouTube Creators Who Want to Grow Consistently
           </div>
           <h1 className="font-heading font-black text-4xl sm:text-5xl md:text-7xl leading-tight mb-6">
             Publish YouTube Videos<br />
-            <span className="text-gradient">Every Week. Without Burnout.</span>
+            <span className="bg-gradient-to-r from-red-600 to-red-500 bg-clip-text text-transparent">Every Week. Without Burnout.</span>
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10">
             Research, ideas, and scripts generated in minutes — so you can focus on filming. Join 10,000+ creators growing their YouTube channels with BrandPilot AI.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-            <button className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-gradient-primary text-primary-foreground font-bold glow-primary hover:scale-105 transition-transform">
+            <Link to="/login" state={{ from: "/youtube-assist" }} className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-gradient-to-r from-red-600 to-red-500 text-white font-bold shadow-[0_0_30px_-5px_rgba(239,68,68,0.4)] hover:scale-105 transition-transform">
               <Sparkles className="h-5 w-5" />
               Start Creating Today
-            </button>
+            </Link>
           </div>
 
           {/* App preview */}
-          <div className="mt-10 rounded-2xl overflow-hidden glass border border-border/50 glow-primary max-w-3xl mx-auto">
-            <img src={ytDashboard} alt="YouTube Assist Dashboard" className="w-full" />
+          <div className="mt-10 rounded-2xl overflow-hidden glass border border-border/50 shadow-[0_0_30px_-5px_rgba(239,68,68,0.4)] max-w-3xl mx-auto">
+            <img src={ytDashboard} alt="YouTube Assist Dashboard" className="w-full" referrerPolicy="no-referrer" />
           </div>
         </div>
       </section>
@@ -186,7 +227,7 @@ const YouTubeAssist = () => {
         <div className="container mx-auto px-4 max-w-4xl">
           <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="text-center mb-12">
             <h2 className="font-heading font-bold text-3xl md:text-5xl mb-4">
-              Write Scripts <span className="text-gradient">Faster Than Ever</span>
+              Write Scripts <span className="bg-gradient-to-r from-red-600 to-red-500 bg-clip-text text-transparent">Faster Than Ever</span>
             </h2>
             <p className="text-muted-foreground max-w-xl mx-auto">
               Draft, edit, and optimize your YouTube scripts with AI right in the browser.
@@ -204,8 +245,8 @@ const YouTubeAssist = () => {
             <div className={`grid md:grid-cols-2 gap-12 items-center ${f.reverse ? "md:flex-row-reverse" : ""}`}>
               <div className={f.reverse ? "md:order-2" : ""}>
                 <div className="inline-flex items-center gap-2 mb-4">
-                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <f.icon className="h-5 w-5 text-accent" />
+                  <div className="w-10 h-10 rounded-lg bg-red-500/10 flex items-center justify-center">
+                    <f.icon className="h-5 w-5 text-red-500" />
                   </div>
                 </div>
                 <h2 className="font-heading font-bold text-2xl md:text-4xl mb-4">{f.title}</h2>
@@ -213,7 +254,7 @@ const YouTubeAssist = () => {
               </div>
               <div className={`${f.reverse ? "md:order-1" : ""}`}>
                 <div className="rounded-2xl overflow-hidden glass border border-border/50">
-                  <img src={f.image} alt={f.title} className="w-full" />
+                  <img src={f.image} alt={f.title} className="w-full" referrerPolicy="no-referrer" />
                 </div>
               </div>
             </div>
@@ -242,21 +283,21 @@ const YouTubeAssist = () => {
                 <span className="font-heading font-bold text-destructive text-sm">4-5 hours per script • Hit or miss results</span>
               </div>
             </div>
-            <div className="glass rounded-2xl p-8 border-primary/30 glow-primary">
+            <div className="glass rounded-2xl p-8 border-red-500/30 shadow-[0_0_30px_-5px_rgba(239,68,68,0.2)]">
               <div className="flex items-center gap-2 mb-6">
-                <CheckCircle2 className="h-6 w-6 text-accent" />
+                <CheckCircle2 className="h-6 w-6 text-red-500" />
                 <h3 className="font-heading font-bold text-lg">New Way: BrandPilot AI</h3>
               </div>
               <ul className="space-y-3">
                 {["AI finds viral topics in your niche", "AI researches proven frameworks", "AI writes scripts that sound like YOU", "AI edits and optimizes for retention"].map((item) => (
                   <li key={item} className="flex items-start gap-3 text-sm text-foreground">
-                    <CheckCircle2 className="h-4 w-4 text-accent shrink-0 mt-0.5" />
+                    <CheckCircle2 className="h-4 w-4 text-red-500 shrink-0 mt-0.5" />
                     {item}
                   </li>
                 ))}
               </ul>
               <div className="mt-6 pt-4 border-t border-border/50 text-center">
-                <span className="font-heading font-bold text-accent text-sm">12 minutes per script • Consistent winners</span>
+                <span className="font-heading font-bold text-red-500 text-sm">12 minutes per script • Consistent winners</span>
               </div>
             </div>
           </div>
@@ -268,13 +309,13 @@ const YouTubeAssist = () => {
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="font-heading font-bold text-3xl md:text-5xl mb-4">
-              3 Simple Steps to <span className="text-gradient">Grow Your Channel</span>
+              3 Simple Steps to <span className="bg-gradient-to-r from-red-600 to-red-500 bg-clip-text text-transparent">Grow Your Channel</span>
             </h2>
           </div>
           <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
             {steps.map((s, i) => (
               <div key={s.num} className="text-center relative">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-primary text-primary-foreground font-heading font-black text-xl mb-4 glow-primary">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-r from-red-600 to-red-500 text-white font-heading font-black text-xl mb-4 shadow-[0_0_30px_-5px_rgba(239,68,68,0.4)]">
                   {s.num}
                 </div>
                 {i < steps.length - 1 && (
@@ -294,14 +335,14 @@ const YouTubeAssist = () => {
         <div className="relative container mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="font-heading font-bold text-3xl md:text-5xl mb-4">
-              Everything You Need to <span className="text-gradient">Dominate YouTube</span>
+              Everything You Need to <span className="bg-gradient-to-r from-red-600 to-red-500 bg-clip-text text-transparent">Dominate YouTube</span>
             </h2>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
             {aiTools.map((t) => (
               <div key={t.title} className="glass rounded-2xl p-6">
-                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-3">
-                  <t.icon className="h-5 w-5 text-accent" />
+                <div className="w-10 h-10 rounded-lg bg-red-500/10 flex items-center justify-center mb-3">
+                  <t.icon className="h-5 w-5 text-red-500" />
                 </div>
                 <h3 className="font-heading font-bold text-sm mb-2">{t.title}</h3>
                 <p className="text-xs text-muted-foreground">{t.desc}</p>
@@ -316,7 +357,7 @@ const YouTubeAssist = () => {
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="font-heading font-bold text-3xl md:text-4xl mb-4">
-              BrandPilot AI vs <span className="text-gradient">Generic AI Tools</span>
+              BrandPilot AI vs <span className="bg-gradient-to-r from-red-600 to-red-500 bg-clip-text text-transparent">Generic AI Tools</span>
             </h2>
           </div>
           <div className="max-w-3xl mx-auto overflow-x-auto">
@@ -325,7 +366,7 @@ const YouTubeAssist = () => {
                 <tr>
                   <th className="text-left py-3 px-4 font-heading text-muted-foreground">Feature</th>
                   {comparisonData.map((c) => (
-                    <th key={c.name} className={`py-3 px-4 font-heading text-center ${c.name === "BrandPilot" ? "text-accent" : "text-muted-foreground"}`}>
+                    <th key={c.name} className={`py-3 px-4 font-heading text-center ${c.name === "BrandPilot" ? "text-red-500" : "text-muted-foreground"}`}>
                       {c.name}
                     </th>
                   ))}
@@ -338,9 +379,9 @@ const YouTubeAssist = () => {
                     {comparisonData.map((c) => (
                       <td key={c.name} className="py-3 px-4 text-center">
                         {typeof c.values[i] === "boolean" ? (
-                          c.values[i] ? <CheckCircle2 className="h-5 w-5 mx-auto text-accent" /> : <XCircle className="h-5 w-5 mx-auto text-muted-foreground/30" />
+                          c.values[i] ? <CheckCircle2 className="h-5 w-5 mx-auto text-red-500" /> : <XCircle className="h-5 w-5 mx-auto text-muted-foreground/30" />
                         ) : (
-                          <span className={c.name === "BrandPilot" ? "text-accent font-bold" : "text-muted-foreground"}>{c.values[i] as string}</span>
+                          <span className={c.name === "BrandPilot" ? "text-red-500 font-bold" : "text-muted-foreground"}>{c.values[i] as string}</span>
                         )}
                       </td>
                     ))}
@@ -358,7 +399,7 @@ const YouTubeAssist = () => {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
             {stats.map((s) => (
               <div key={s.label} className="text-center glass rounded-2xl p-6">
-                <div className="font-heading font-black text-3xl text-gradient mb-1">{s.value}</div>
+                <div className="font-heading font-black text-3xl bg-gradient-to-r from-red-600 to-red-500 bg-clip-text text-transparent mb-1">{s.value}</div>
                 <div className="text-xs text-muted-foreground">{s.label}</div>
               </div>
             ))}
@@ -371,7 +412,7 @@ const YouTubeAssist = () => {
         <div className="container mx-auto px-4 max-w-3xl">
           <div className="text-center mb-12">
             <h2 className="font-heading font-bold text-3xl md:text-4xl mb-4">
-              Frequently Asked <span className="text-gradient">Questions</span>
+              Frequently Asked <span className="bg-gradient-to-r from-red-600 to-red-500 bg-clip-text text-transparent">Questions</span>
             </h2>
           </div>
           <div className="space-y-3">
@@ -394,16 +435,16 @@ const YouTubeAssist = () => {
       <section className="py-20">
         <div className="container mx-auto px-4 text-center max-w-3xl">
           <div className="glass rounded-3xl p-12 md:p-16 relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-primary opacity-10" />
+            <div className="absolute inset-0 bg-gradient-to-r from-red-600 to-red-500 opacity-10" />
             <div className="relative z-10">
               <h2 className="font-heading font-black text-3xl md:text-5xl mb-4">
-                Start Growing Your <span className="text-gradient">YouTube Channel</span> Today
+                Start Growing Your <span className="bg-gradient-to-r from-red-600 to-red-500 bg-clip-text text-transparent">YouTube Channel</span> Today
               </h2>
               <p className="text-muted-foreground mb-8 max-w-lg mx-auto">Join 10,000+ creators who script faster and grow smarter with AI.</p>
-              <button className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-gradient-primary text-primary-foreground font-bold glow-primary hover:scale-105 transition-transform">
+              <Link to="/login" state={{ from: "/youtube-assist" }} className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-gradient-to-r from-red-600 to-red-500 text-white font-bold shadow-[0_0_30px_-5px_rgba(239,68,68,0.4)] hover:scale-105 transition-transform">
                 <Sparkles className="h-5 w-5" />
                 Start Creating Today
-              </button>
+              </Link>
             </div>
           </div>
         </div>

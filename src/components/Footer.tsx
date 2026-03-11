@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import logoIcon from "@/assets/logo-icon.png";
+const logoIcon = "https://api.dicebear.com/7.x/shapes/svg?seed=BrandPilot&backgroundColor=0a0a0a";
 
 const Footer = () => {
   return (
@@ -8,7 +8,7 @@ const Footer = () => {
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-10">
           <div>
             <Link to="/" className="flex items-center gap-2 mb-3">
-              <img src={logoIcon} alt="BrandPilot AI" className="h-8 w-8" />
+              <img src={logoIcon} alt="BrandPilot AI" className="h-8 w-8" referrerPolicy="no-referrer" />
               <span className="font-heading font-bold text-gradient">BrandPilot AI</span>
             </Link>
             <p className="text-sm text-muted-foreground">

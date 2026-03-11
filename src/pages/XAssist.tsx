@@ -7,8 +7,8 @@ import {
   Search, Clock, Shield, Zap, Brain, Users, CheckCircle2,
   XCircle, Star,
 } from "lucide-react";
-import xDashboard from "@/assets/x-dashboard-mock.jpg";
-import contentStudio from "@/assets/content-studio-mock.jpg";
+const xDashboard = "https://images.unsplash.com/photo-1611605698335-8b1569810432?auto=format&fit=crop&w=1920&q=80";
+const contentStudio = "https://images.unsplash.com/photo-1432821596592-e2c18b78144f?auto=format&fit=crop&w=1920&q=80";
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 
@@ -95,11 +95,11 @@ const XAssist = () => {
                 Understand your audience, refine your content, and accelerate your 𝕏 growth — all in one place. Powered by AI that learns your voice.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <button className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-gradient-primary text-primary-foreground font-bold glow-primary hover:scale-105 transition-transform">
+                <Link to="/login" className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-gradient-primary text-primary-foreground font-bold glow-primary hover:scale-105 transition-transform">
                   <Sparkles className="h-5 w-5" />
                   Get Started Free
                   <ArrowRight className="h-5 w-5" />
-                </button>
+                </Link>
               </div>
               <div className="flex items-center gap-3 mt-6">
                 <div className="flex -space-x-2">
@@ -113,7 +113,7 @@ const XAssist = () => {
               </div>
             </div>
             <div className="rounded-2xl overflow-hidden glass border border-border/50 glow-primary">
-              <img src={xDashboard} alt="xAssist Dashboard" className="w-full" />
+              <img src={xDashboard} alt="xAssist Dashboard" className="w-full" referrerPolicy="no-referrer" />
             </div>
           </div>
         </div>
@@ -163,7 +163,7 @@ const XAssist = () => {
               </div>
               <div className={f.reverse ? "md:order-1" : ""}>
                 <div className="rounded-2xl overflow-hidden glass border border-border/50">
-                  <img src={f.image} alt={f.title} className="w-full" />
+                  <img src={f.image} alt={f.title} className="w-full" referrerPolicy="no-referrer" />
                 </div>
               </div>
             </div>
@@ -277,10 +277,10 @@ const XAssist = () => {
               <p className="text-muted-foreground mb-8 max-w-lg mx-auto">
                 Join 1,400+ creators using AI to grow faster, post smarter, and build their brand on 𝕏.
               </p>
-              <button className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-gradient-primary text-primary-foreground font-bold glow-primary hover:scale-105 transition-transform">
+              <Link to="/login" className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-gradient-primary text-primary-foreground font-bold glow-primary hover:scale-105 transition-transform">
                 <Sparkles className="h-5 w-5" />
                 Get Started Free
-              </button>
+              </Link>
             </div>
           </div>
         </div>

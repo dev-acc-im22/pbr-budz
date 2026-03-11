@@ -40,7 +40,7 @@ const FAQSection = () => {
       <div className="container mx-auto px-4 max-w-3xl">
         <div className="text-center mb-16">
           <h2 className="font-heading font-bold text-3xl md:text-5xl mb-4">
-            Frequently Asked <span className="text-gradient">Questions</span>
+            Frequently Asked <span className="bg-gradient-to-r from-violet-600 via-purple-500 to-fuchsia-500 dark:from-violet-400 dark:via-purple-400 dark:to-fuchsia-400 bg-clip-text text-transparent">Questions</span>
           </h2>
           <p className="text-muted-foreground">
             Everything you need to know about BrandPilot AI.

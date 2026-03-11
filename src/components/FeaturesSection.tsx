@@ -40,7 +40,7 @@ const FeaturesSection = () => {
       <div className="relative container mx-auto px-4">
         <div className="text-center mb-16">
           <h2 className="font-heading font-bold text-3xl md:text-5xl mb-4">
-            Everything You Need to <span className="text-gradient">Stand Out</span>
+            Everything You Need to <span className="bg-gradient-to-r from-violet-600 via-purple-500 to-fuchsia-500 dark:from-violet-400 dark:via-purple-400 dark:to-fuchsia-400 bg-clip-text text-transparent">Stand Out</span>
           </h2>
           <p className="text-muted-foreground max-w-xl mx-auto">
             A complete AI toolkit designed for creators, influencers, and professionals who want to build a powerful personal brand.

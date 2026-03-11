@@ -1,13 +1,13 @@
 import { Sparkles, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
-import heroBg from "@/assets/hero-bg.jpg";
+const heroBg = "https://images.unsplash.com/photo-1557683316-973673baf926?auto=format&fit=crop&w=1920&q=80";
 
 const HeroSection = () => {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
       {/* Background */}
       <div className="absolute inset-0">
-        <img src={heroBg} alt="" className="w-full h-full object-cover opacity-30" />
+        <img src={heroBg} alt="" className="w-full h-full object-cover opacity-30" referrerPolicy="no-referrer" />
         <div className="absolute inset-0 bg-gradient-surface opacity-80" />
       </div>
 
@@ -19,7 +19,7 @@ const HeroSection = () => {
 
         <h1 className="font-heading font-extrabold text-4xl sm:text-5xl md:text-7xl leading-tight mb-6 animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
           Build Your Brand<br />
-          <span className="text-gradient">Across Every Platform</span>
+          <span className="bg-gradient-to-r from-violet-600 via-purple-500 to-fuchsia-500 dark:from-violet-400 dark:via-purple-400 dark:to-fuchsia-400 bg-clip-text text-transparent">Across Every Platform</span>
         </h1>
 
         <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
@@ -50,7 +50,7 @@ const HeroSection = () => {
             { value: "50M+", label: "Posts Optimized" },
           ].map((s) => (
             <div key={s.label} className="text-center">
-              <div className="font-heading font-extrabold text-2xl md:text-3xl text-gradient">{s.value}</div>
+              <div className="font-heading font-extrabold text-2xl md:text-3xl bg-gradient-to-r from-violet-600 via-purple-500 to-fuchsia-500 dark:from-violet-400 dark:via-purple-400 dark:to-fuchsia-400 bg-clip-text text-transparent">{s.value}</div>
               <div className="text-xs text-muted-foreground mt-1">{s.label}</div>
             </div>
           ))}

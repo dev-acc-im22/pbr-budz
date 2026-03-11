@@ -1,4 +1,5 @@
 import { Check, X } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const plans = [
   {
@@ -60,7 +61,7 @@ const PricingSection = () => {
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <h2 className="font-heading font-bold text-3xl md:text-5xl mb-4">
-            Simple, <span className="text-gradient">Transparent</span> Pricing
+            Simple, <span className="bg-gradient-to-r from-violet-600 via-purple-500 to-fuchsia-500 dark:from-violet-400 dark:via-purple-400 dark:to-fuchsia-400 bg-clip-text text-transparent">Transparent</span> Pricing
           </h2>
           <p className="text-muted-foreground max-w-xl mx-auto">
             Start free. Upgrade when you're ready to dominate.
@@ -102,15 +103,16 @@ const PricingSection = () => {
                   </li>
                 ))}
               </ul>
-              <button
-                className={`w-full py-3 rounded-xl font-bold text-sm transition-all ${
+              <Link
+                to="/login"
+                className={`w-full py-3 rounded-xl font-bold text-sm transition-all text-center block ${
                   plan.highlighted
                     ? "bg-gradient-primary text-primary-foreground glow-primary hover:scale-105"
                     : "glass text-foreground hover:bg-secondary/80"
                 }`}
               >
                 {plan.cta}
-              </button>
+              </Link>
             </div>
           ))}
         </div>

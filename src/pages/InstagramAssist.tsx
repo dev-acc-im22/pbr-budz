@@ -12,8 +12,8 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 // Asset imports
-import instagramDashboard from "@/assets/linkedin-dashboard-mock.jpg";
-import contentStudio from "@/assets/content-studio-mock.jpg";
+const instagramDashboard = "https://images.unsplash.com/photo-1611162617474-5b21e879e113?auto=format&fit=crop&w=1920&q=80";
+const contentStudio = "https://images.unsplash.com/photo-1516245834210-c4c142787335?auto=format&fit=crop&w=1920&q=80";
 
 /* ═══════════════════ DATA ═══════════════════ */
 
@@ -343,7 +343,7 @@ const InstagramAssist = () => {
             transition={{ duration: 0.6 }}
             className="font-heading font-extrabold text-4xl sm:text-5xl md:text-7xl leading-tight mb-6"
           >
-            Build a Stunning <span className="text-gradient">Instagram Brand</span> with AI
+            Build a Stunning <span className="bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 bg-clip-text text-transparent">Instagram Brand</span> with AI
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 15 }}
@@ -369,7 +369,7 @@ const InstagramAssist = () => {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 max-w-4xl mx-auto text-center">
             {stats.map((s) => (
               <div key={s.value}>
-                <p className="font-heading font-black text-3xl md:text-4xl text-gradient mb-1">{s.value}</p>
+                <p className="font-heading font-black text-3xl md:text-4xl bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 bg-clip-text text-transparent mb-1">{s.value}</p>
                 <p className="text-sm text-muted-foreground">{s.label}</p>
               </div>
             ))}
@@ -382,7 +382,7 @@ const InstagramAssist = () => {
         <div className="container mx-auto px-4 max-w-4xl">
           <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="text-center mb-12">
             <h2 className="font-heading font-bold text-3xl md:text-5xl mb-4">
-              Free Instagram <span className="text-gradient">Caption Generator</span>
+              Free Instagram <span className="bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 bg-clip-text text-transparent">Caption Generator</span>
             </h2>
             <p className="text-muted-foreground max-w-xl mx-auto">
               Create scroll-stopping captions that drive engagement. Write, format, preview, and copy — all in one place.
@@ -398,7 +398,7 @@ const InstagramAssist = () => {
         <div className="relative container mx-auto px-4 max-w-6xl">
           <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="text-center mb-12">
             <h2 className="font-heading font-bold text-3xl md:text-5xl mb-4">
-              AI that understands <span className="text-gradient">Instagram's algorithm</span>
+              AI that understands <span className="bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 bg-clip-text text-transparent">Instagram's algorithm</span>
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">Built specifically for Instagram creators. Every feature is designed to help you grow.</p>
           </motion.div>
@@ -446,6 +446,7 @@ const InstagramAssist = () => {
                   alt={coreFeatures[activeFeature].badge}
                   className="w-full rounded-xl object-cover"
                   loading="lazy"
+                  referrerPolicy="no-referrer"
                 />
               </div>
             </motion.div>
@@ -458,7 +459,7 @@ const InstagramAssist = () => {
         <div className="container mx-auto px-4 max-w-4xl">
           <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="text-center mb-14">
             <h2 className="font-heading font-bold text-3xl md:text-5xl mb-4">
-              From idea to viral post. <span className="text-gradient">Three simple steps.</span>
+              From idea to viral post. <span className="bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 bg-clip-text text-transparent">Three simple steps.</span>
             </h2>
             <p className="text-muted-foreground">Start with an idea, a trend, or just a feeling — BrandPilot handles the rest.</p>
           </motion.div>
@@ -490,7 +491,7 @@ const InstagramAssist = () => {
         <div className="relative container mx-auto px-4">
           <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="text-center mb-16">
             <h2 className="font-heading font-bold text-3xl md:text-5xl mb-4">
-              8 AI Tools for <span className="text-gradient">Instagram Growth</span>
+              8 AI Tools for <span className="bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 bg-clip-text text-transparent">Instagram Growth</span>
             </h2>
           </motion.div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
@@ -520,7 +521,7 @@ const InstagramAssist = () => {
         <div className="container mx-auto px-4">
           <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="text-center mb-16">
             <h2 className="font-heading font-bold text-3xl md:text-4xl mb-4">
-              Everything you need in <span className="text-gradient">one platform</span>
+              Everything you need in <span className="bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 bg-clip-text text-transparent">one platform</span>
             </h2>
             <p className="text-muted-foreground max-w-xl mx-auto">From content creation to performance tracking — BrandPilot has you covered.</p>
           </motion.div>
@@ -552,7 +553,7 @@ const InstagramAssist = () => {
         <div className="relative container mx-auto px-4">
           <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="text-center mb-16">
             <h2 className="font-heading font-bold text-3xl md:text-5xl mb-4">
-              The <span className="text-gradient">transformation</span> is real
+              The <span className="bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 bg-clip-text text-transparent">transformation</span> is real
             </h2>
           </motion.div>
 
@@ -601,7 +602,7 @@ const InstagramAssist = () => {
         <div className="container mx-auto px-4">
           <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="text-center mb-12">
             <h2 className="font-heading font-bold text-3xl md:text-4xl mb-4">
-              Perfect for <span className="text-gradient">every creator</span>
+              Perfect for <span className="bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 bg-clip-text text-transparent">every creator</span>
             </h2>
           </motion.div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto">
@@ -632,7 +633,7 @@ const InstagramAssist = () => {
         <div className="relative container mx-auto px-4">
           <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="text-center mb-12">
             <h2 className="font-heading font-bold text-3xl md:text-4xl mb-4">
-              Real results from <span className="text-gradient">real creators</span>
+              Real results from <span className="bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 bg-clip-text text-transparent">real creators</span>
             </h2>
           </motion.div>
           <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
@@ -667,7 +668,7 @@ const InstagramAssist = () => {
         <div className="container mx-auto px-4">
           <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="text-center mb-16">
             <h2 className="font-heading font-bold text-3xl md:text-5xl mb-4">
-              Simple <span className="text-gradient">Instagram growth</span> pricing
+              Simple <span className="bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 bg-clip-text text-transparent">Instagram growth</span> pricing
             </h2>
             <p className="text-muted-foreground max-w-xl mx-auto">
               Start free, upgrade when you're ready to dominate Instagram.
@@ -734,7 +735,7 @@ const InstagramAssist = () => {
         <div className="container mx-auto px-4 max-w-3xl">
           <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="text-center mb-12">
             <h2 className="font-heading font-bold text-3xl md:text-4xl mb-4">
-              Frequently Asked <span className="text-gradient">Questions</span>
+              Frequently Asked <span className="bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 bg-clip-text text-transparent">Questions</span>
             </h2>
           </motion.div>
           <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="space-y-3">
@@ -758,13 +759,13 @@ const InstagramAssist = () => {
             <div className="absolute inset-0 bg-gradient-primary opacity-10" />
             <div className="relative z-10">
               <h2 className="font-heading font-black text-3xl md:text-5xl mb-4">
-                Grow Your <span className="text-gradient">Instagram</span> Today
+                Grow Your <span className="bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 bg-clip-text text-transparent">Instagram</span> Today
               </h2>
               <p className="text-muted-foreground mb-8 max-w-lg mx-auto">Join 800+ creators building stunning Instagram brands with AI.</p>
-              <button className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-gradient-primary text-primary-foreground font-bold glow-primary hover:scale-105 transition-transform">
+              <Link to="/login" className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-gradient-primary text-primary-foreground font-bold glow-primary hover:scale-105 transition-transform">
                 <Sparkles className="h-5 w-5" />
                 Get Started Free
-              </button>
+              </Link>
             </div>
           </motion.div>
         </div>

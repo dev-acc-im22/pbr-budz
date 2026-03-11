@@ -13,8 +13,8 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import linkedinDashboardMock from "@/assets/linkedin-dashboard-mock.jpg";
-import linkedinPostcastMock from "@/assets/linkedin-postcast-mock.jpg";
+const linkedinDashboardMock = "https://images.unsplash.com/photo-1616469829581-73993eb86b02?auto=format&fit=crop&w=1920&q=80";
+const linkedinPostcastMock = "https://images.unsplash.com/photo-1590602847861-f357a9332bbc?auto=format&fit=crop&w=1920&q=80";
 
 /* ═══════════════════ DATA ═══════════════════ */
 
@@ -651,11 +651,11 @@ const LinkedInAssist = () => {
             ))}
           </div>
 
-          <button className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-gradient-primary text-primary-foreground font-bold glow-primary hover:scale-105 transition-transform">
+          <Link to="/login" className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-gradient-primary text-primary-foreground font-bold glow-primary hover:scale-105 transition-transform">
             <Sparkles className="h-5 w-5" />
             Get Started Free
             <ArrowRight className="h-4 w-4" />
-          </button>
+          </Link>
           <p className="mt-4 text-xs text-muted-foreground">7-day free trial · Cancel anytime · 1,200+ professionals</p>
 
           {/* Social proof bar */}
@@ -762,6 +762,7 @@ const LinkedInAssist = () => {
                   alt={coreFeatures[activeFeature].badge}
                   className="w-full rounded-xl object-cover"
                   loading="lazy"
+                  referrerPolicy="no-referrer"
                 />
               </div>
             </motion.div>
@@ -860,6 +861,7 @@ const LinkedInAssist = () => {
                 alt={workflowSections[activeWorkflowSection].tabs[activeWorkflowTab]?.title}
                 className="w-full rounded-xl object-cover max-h-[400px]"
                 loading="lazy"
+                referrerPolicy="no-referrer"
               />
             </div>
           </motion.div>
@@ -1067,11 +1069,11 @@ const LinkedInAssist = () => {
               <p className="text-muted-foreground mb-8 max-w-lg mx-auto">
                 Start creating content that sounds like you — not a chatbot. Free for 7 days.
               </p>
-              <button className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-gradient-primary text-primary-foreground font-bold glow-primary hover:scale-105 transition-transform">
+              <Link to="/login" className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-gradient-primary text-primary-foreground font-bold glow-primary hover:scale-105 transition-transform">
                 <Sparkles className="h-5 w-5" />
                 Get Started Free
                 <ArrowRight className="h-4 w-4" />
-              </button>
+              </Link>
             </div>
           </div>
         </div>
