@@ -18,6 +18,8 @@ import CarouselMaker from "./pages/tools/CarouselMaker";
 import ContentManagement from "./pages/tools/ContentManagement";
 import SchedulingCalendar from "./pages/tools/SchedulingCalendar";
 import ScheduleFirstComment from "./pages/tools/ScheduleFirstComment";
+import ContentCalendarLanding from "./pages/ContentCalendarLanding";
+import PinterestAssist from "./pages/PinterestAssist";
 import Pricing from "./pages/Pricing";
 import NotFound from "./pages/NotFound";
 
@@ -27,7 +29,13 @@ const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated, isMockMode } = useAuth();
   const location = useLocation();
 
-  if (!isAuthenticated && !isMockMode && location.pathname !== '/login') {
+  const isProtectedRoute = location.pathname.startsWith('/tools');
+  const isSchedulingCalendar = location.pathname === '/tools/scheduling-calendar';
+
+  if (isProtectedRoute && !isAuthenticated && !isMockMode) {
+    if (isSchedulingCalendar) {
+      return <ContentCalendarLanding />;
+    }
     return (
       <>
         <Navbar />
@@ -61,6 +69,8 @@ const App = () => (
                 <Route path="/tools/content-management" element={<ContentManagement />} />
                 <Route path="/tools/scheduling-calendar" element={<SchedulingCalendar />} />
                 <Route path="/tools/schedule-first-comment" element={<ScheduleFirstComment />} />
+                <Route path="/content-calendar" element={<><Navbar /><ContentCalendarLanding /></>} />
+                <Route path="/pinterest-assist" element={<PinterestAssist />} />
                 <Route path="/pricing" element={<Pricing />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>

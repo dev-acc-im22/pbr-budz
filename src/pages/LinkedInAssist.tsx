@@ -13,6 +13,9 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAuth } from "@/contexts/AuthContext";
+import LinkedInAssistTool from "./tools/LinkedInAssistTool";
+import { LinkedInFullLogo } from "@/components/LinkedInFullLogo";
 const linkedinDashboardMock = "https://images.unsplash.com/photo-1616469829581-73993eb86b02?auto=format&fit=crop&w=1920&q=80";
 const linkedinPostcastMock = "https://images.unsplash.com/photo-1590602847861-f357a9332bbc?auto=format&fit=crop&w=1920&q=80";
 
@@ -157,7 +160,7 @@ const visualFeatures = [
       <div className="bg-white rounded-xl shadow-lg w-full max-w-[300px] p-4 mx-auto">
         <div className="flex items-center justify-between mb-2">
           <span className="text-sm font-bold text-slate-800">Voice Notes</span>
-          <div className="bg-blue-500 text-white text-[10px] px-3 py-1.5 rounded-full flex items-center gap-1 font-medium">
+          <div className="bg-primary text-white text-[10px] px-3 py-1.5 rounded-full flex items-center gap-1 font-medium">
             <Mic className="w-3 h-3" /> Add Voice Note
           </div>
         </div>
@@ -172,7 +175,7 @@ const visualFeatures = [
           </div>
           <div className="flex items-center gap-1 h-4">
             {[...Array(24)].map((_, i) => (
-              <div key={i} className={`w-1.5 rounded-full ${i < 12 ? 'bg-blue-500' : 'bg-slate-200'}`} style={{ height: `${Math.max(30, Math.random() * 100)}%` }}></div>
+              <div key={i} className={`w-1.5 rounded-full ${i < 12 ? 'bg-primary' : 'bg-slate-200'}`} style={{ height: `${Math.max(30, Math.random() * 100)}%` }}></div>
             ))}
           </div>
         </div>
@@ -204,13 +207,13 @@ const visualFeatures = [
         </div>
         <div className="text-[10px] text-slate-500 mb-3">Design high-performing LinkedIn carousel posts in seconds.</div>
         <div className="flex gap-4 mb-4 border-b border-slate-200 pb-2">
-          <span className="text-xs font-bold text-blue-500 border-b-2 border-blue-500 pb-2 -mb-[9px]">Templates</span>
+          <span className="text-xs font-bold text-primary border-b-2 border-primary pb-2 -mb-[9px]">Templates</span>
           <span className="text-xs font-medium text-slate-400">Save</span>
           <span className="text-xs font-medium text-slate-400">Text to Carousel</span>
         </div>
         <div className="flex gap-2 overflow-hidden">
           <div className="w-24 h-32 bg-[#1e1b4b] rounded-lg p-3 flex flex-col justify-between shrink-0 relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-full h-1 bg-blue-500"></div>
+            <div className="absolute top-0 left-0 w-full h-1 bg-primary"></div>
             <div className="text-[10px] font-black text-white leading-tight mt-2">HOW TO WRITE HOOK THAT DON'T SUCK</div>
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-1">
@@ -254,7 +257,7 @@ const visualFeatures = [
       <div className="bg-white rounded-xl shadow-lg w-full max-w-[300px] p-4 mx-auto">
         <div className="flex items-center justify-between mb-4">
           <span className="text-sm font-bold text-slate-800">Kanban Board</span>
-          <div className="bg-blue-500 text-white text-[10px] px-3 py-1.5 rounded-md flex items-center gap-1 font-medium">
+          <div className="bg-primary text-white text-[10px] px-3 py-1.5 rounded-md flex items-center gap-1 font-medium">
             <PenTool className="w-3 h-3" /> Add Draft
           </div>
         </div>
@@ -271,7 +274,7 @@ const visualFeatures = [
               </div>
               <div className="text-[8px] font-medium text-slate-700 leading-tight">Most companies get employee advocacy backwa...</div>
             </div>
-            <div className="bg-white border border-blue-400 shadow-md rounded-md p-2 rotate-3 scale-105 relative z-10 cursor-grab">
+            <div className="bg-white border border-primary/50 shadow-md rounded-md p-2 rotate-3 scale-105 relative z-10 cursor-grab">
               <div className="flex items-center justify-between mb-1.5">
                 <div className="text-[7px] text-slate-400">10:15 AM</div>
                 <div className="w-3 h-3 rounded-full bg-slate-200 border border-white"></div>
@@ -283,7 +286,7 @@ const visualFeatures = [
             </div>
           </div>
           <div className="flex-1 bg-slate-50 rounded-lg p-2 border border-slate-100">
-            <div className="text-[9px] font-bold text-slate-600 mb-3 flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-blue-400"></span> In-Review <span className="text-slate-400 font-normal ml-auto bg-white px-1 rounded-full text-[8px]">2</span></div>
+            <div className="text-[9px] font-bold text-slate-600 mb-3 flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-primary/50"></span> In-Review <span className="text-slate-400 font-normal ml-auto bg-white px-1 rounded-full text-[8px]">2</span></div>
             <div className="bg-white border border-slate-200 rounded-md p-2 mb-2 shadow-sm">
               <div className="flex items-center justify-between mb-1.5">
                 <div className="text-[7px] text-slate-400">10:15 AM</div>
@@ -323,14 +326,14 @@ const visualFeatures = [
             <div className="w-5 h-5 rounded border border-slate-200 flex items-center justify-center text-slate-500">&gt;</div>
           </div>
           <div className="flex gap-1 bg-slate-100 p-0.5 rounded-md">
-            <span className="text-[9px] bg-white shadow-sm text-blue-600 px-2 py-1 rounded font-medium flex items-center gap-1"><Calendar className="w-2 h-2" /> Week</span>
+            <span className="text-[9px] bg-white shadow-sm text-primary px-2 py-1 rounded font-medium flex items-center gap-1"><Calendar className="w-2 h-2" /> Week</span>
             <span className="text-[9px] text-slate-500 px-2 py-1 font-medium flex items-center gap-1"><Grid3X3 className="w-2 h-2" /> Month</span>
           </div>
         </div>
         <div className="grid grid-cols-6 gap-1 mb-2">
           {['SUN 12', 'MON 13', 'TUE 14', 'WED 15', 'THU 16', 'FRI 17'].map((d, i) => (
             <div key={d} className="flex flex-col items-center">
-              <div className={`text-[7px] font-bold ${i === 5 ? 'text-blue-500 bg-blue-50 px-1 rounded-full' : 'text-slate-400'}`}>{d}</div>
+              <div className={`text-[7px] font-bold ${i === 5 ? 'text-primary bg-primary/5 px-1 rounded-full' : 'text-slate-400'}`}>{d}</div>
               <div className="text-[6px] text-slate-300 mt-1">09:00 AM</div>
             </div>
           ))}
@@ -340,7 +343,7 @@ const visualFeatures = [
         </div>
         
         {/* Overlay Schedule Setting */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[220px] bg-white rounded-xl shadow-xl border border-blue-200 p-4 z-10">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[220px] bg-white rounded-xl shadow-xl border border-primary/20 p-4 z-10">
           <div className="flex justify-between items-center mb-3">
             <div className="text-xs font-bold text-slate-800">Schedule Setting</div>
             <XIcon className="w-3 h-3 text-slate-400" />
@@ -365,7 +368,7 @@ const visualFeatures = [
             </div>
             <div className="flex gap-1.5">
               {[1,0,1,1,1,0,0].map((active, i) => (
-                <div key={i} className={`w-3.5 h-3.5 rounded flex items-center justify-center ${active ? 'bg-blue-500 text-white' : 'border border-slate-200 bg-white'}`}>
+                <div key={i} className={`w-3.5 h-3.5 rounded flex items-center justify-center ${active ? 'bg-primary text-white' : 'border border-slate-200 bg-white'}`}>
                   {active ? <CheckCircle2 className="w-2.5 h-2.5" /> : null}
                 </div>
               ))}
@@ -388,7 +391,7 @@ const visualFeatures = [
         <div className="border border-slate-200 rounded-lg p-3 mb-4 bg-slate-50 shadow-sm">
           <div className="flex items-center justify-between border-b border-slate-200 pb-2 mb-2">
             <div className="flex items-center gap-1.5 text-[10px] font-medium text-slate-600">
-              <div className="bg-blue-100 p-0.5 rounded-full"><ThumbsUp className="w-3 h-3 text-blue-600" /></div> You and 1 others
+              <div className="bg-primary/10 p-0.5 rounded-full"><ThumbsUp className="w-3 h-3 text-primary" /></div> You and 1 others
             </div>
             <div className="text-[10px] text-slate-500 hover:underline cursor-pointer">0 Comments</div>
           </div>
@@ -420,7 +423,7 @@ const visualFeatures = [
           <div className="border border-slate-200 rounded-lg p-3 bg-slate-50">
             <div className="flex justify-between items-center mb-2">
               <span className="text-[10px] font-bold text-slate-700">Comment #1</span>
-              <span className="text-[10px] font-bold text-blue-500 cursor-pointer">+ Pick Auto-plug Comment</span>
+              <span className="text-[10px] font-bold text-primary cursor-pointer">+ Pick Auto-plug Comment</span>
             </div>
             <div className="bg-white border border-slate-200 rounded-md p-2 text-[10px] text-slate-400 mb-3 h-10 shadow-inner">
               Add your comment here...
@@ -602,9 +605,14 @@ const LinkedInAssist = () => {
   const [activeFeature, setActiveFeature] = useState(0);
   const [activeWorkflowSection, setActiveWorkflowSection] = useState(0);
   const [activeWorkflowTab, setActiveWorkflowTab] = useState(0);
+  const { isAuthenticated, isMockMode } = useAuth();
+
+  if (isAuthenticated || isMockMode || import.meta.env.VITE_USE_MOCK_DATA === 'true') {
+    return <LinkedInAssistTool />;
+  }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="theme-linkedin min-h-screen bg-background">
       <Navbar />
 
       {/* ────────── Hero ────────── */}
@@ -612,8 +620,7 @@ const LinkedInAssist = () => {
         <div className="absolute inset-0 bg-gradient-surface opacity-80" />
         <div className="relative z-10 container mx-auto px-4 text-center max-w-4xl">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass text-sm text-accent font-medium mb-8">
-            <Linkedin className="h-4 w-4" />
-            #1 AI Personal Brand Tool for LinkedIn
+            #1 AI Personal Brand Tool for <LinkedInFullLogo className="text-base ml-1" />
           </div>
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
@@ -651,7 +658,7 @@ const LinkedInAssist = () => {
             ))}
           </div>
 
-          <Link to="/login" className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-gradient-primary text-primary-foreground font-bold glow-primary hover:scale-105 transition-transform">
+          <Link to="/login" state={{ from: "/linkedin-assist" }} className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-gradient-primary text-primary-foreground font-bold glow-primary hover:scale-105 transition-transform">
             <Sparkles className="h-5 w-5" />
             Get Started Free
             <ArrowRight className="h-4 w-4" />
@@ -681,7 +688,7 @@ const LinkedInAssist = () => {
       </section>
 
       {/* ────────── Stats Bar ────────── */}
-      <section className="py-10 border-y border-border/30 bg-blue-50 dark:bg-blue-950">
+      <section className="py-10 border-y border-border/30 bg-primary/5 dark:bg-primary/5">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 max-w-4xl mx-auto text-center">
             {stats.map((s) => (
@@ -802,7 +809,7 @@ const LinkedInAssist = () => {
       </section>
 
       {/* ────────── Create / Discover / Think Workflow ────────── */}
-      <section className="py-20 relative bg-blue-100 dark:bg-blue-900">
+      <section className="py-20 relative bg-primary/10 dark:bg-primary/10">
         <div className="relative container mx-auto px-4 max-w-5xl">
           {/* Section tabs */}
           <div className="flex justify-center gap-2 mb-12">
@@ -983,7 +990,7 @@ const LinkedInAssist = () => {
       </section>
 
       {/* ────────── Testimonials ────────── */}
-      <section className="py-20 relative bg-blue-50 dark:bg-blue-950">
+      <section className="py-20 relative bg-primary/5 dark:bg-primary/5">
         <div className="relative container mx-auto px-4 max-w-6xl">
           <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="text-center mb-14">
             <h2 className="font-heading font-bold text-3xl md:text-5xl mb-4">
@@ -1069,7 +1076,7 @@ const LinkedInAssist = () => {
               <p className="text-muted-foreground mb-8 max-w-lg mx-auto">
                 Start creating content that sounds like you — not a chatbot. Free for 7 days.
               </p>
-              <Link to="/login" className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-gradient-primary text-primary-foreground font-bold glow-primary hover:scale-105 transition-transform">
+              <Link to="/login" state={{ from: "/linkedin-assist" }} className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-gradient-primary text-primary-foreground font-bold glow-primary hover:scale-105 transition-transform">
                 <Sparkles className="h-5 w-5" />
                 Get Started Free
                 <ArrowRight className="h-4 w-4" />

@@ -9,7 +9,10 @@ import {
   ChevronDown
 } from "lucide-react";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAuth } from "@/contexts/AuthContext";
+import InstaAssistTool from "./tools/InstaAssistTool";
 
 // Asset imports
 const instagramDashboard = "https://images.unsplash.com/photo-1611162617474-5b21e879e113?auto=format&fit=crop&w=1920&q=80";
@@ -324,6 +327,11 @@ What's one thing you've been putting off? Drop it below 👇
 const InstagramAssist = () => {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [activeFeature, setActiveFeature] = useState(0);
+  const { isAuthenticated, isMockMode } = useAuth();
+
+  if (isAuthenticated || isMockMode || import.meta.env.VITE_USE_MOCK_DATA === 'true') {
+    return <InstaAssistTool />;
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -354,11 +362,11 @@ const InstagramAssist = () => {
             Generate viral captions, plan your grid, create Reels scripts, and grow your audience — all powered by AI that understands Instagram's algorithm.
           </motion.p>
 
-          <button className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-gradient-primary text-primary-foreground font-bold glow-primary hover:scale-105 transition-transform">
+          <Link to="/login" state={{ from: "/instagram-assist" }} className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-gradient-primary text-primary-foreground font-bold glow-primary hover:scale-105 transition-transform">
             <Sparkles className="h-5 w-5" />
             Start Growing on Instagram
             <ArrowRight className="h-4 w-4" />
-          </button>
+          </Link>
           <p className="mt-4 text-xs text-muted-foreground">7-day free trial · Cancel anytime · 800+ creators growing</p>
         </div>
       </section>
@@ -762,7 +770,7 @@ const InstagramAssist = () => {
                 Grow Your <span className="bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 bg-clip-text text-transparent">Instagram</span> Today
               </h2>
               <p className="text-muted-foreground mb-8 max-w-lg mx-auto">Join 800+ creators building stunning Instagram brands with AI.</p>
-              <Link to="/login" className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-gradient-primary text-primary-foreground font-bold glow-primary hover:scale-105 transition-transform">
+              <Link to="/login" state={{ from: "/instagram-assist" }} className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-gradient-primary text-primary-foreground font-bold glow-primary hover:scale-105 transition-transform">
                 <Sparkles className="h-5 w-5" />
                 Get Started Free
               </Link>

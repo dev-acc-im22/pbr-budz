@@ -23,7 +23,7 @@ const TestimonialsSection = () => {
       <div className="relative container mx-auto px-4">
         <div className="text-center mb-16">
           <h2 className="font-heading font-bold text-3xl md:text-5xl mb-4">
-            Loved by <span className="bg-gradient-to-r from-violet-600 via-purple-500 to-fuchsia-500 dark:from-violet-400 dark:via-purple-400 dark:to-fuchsia-400 bg-clip-text text-transparent">Creators</span>
+            Loved by <span className="bg-gradient-to-r from-indigo-600 to-indigo-950 bg-clip-text text-transparent">Creators</span>
           </h2>
           <p className="text-muted-foreground max-w-xl mx-auto">
             See how creators and professionals are growing their personal brands with AI.

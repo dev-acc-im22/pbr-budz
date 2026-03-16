@@ -40,7 +40,7 @@ const FeaturesSection = () => {
       <div className="relative container mx-auto px-4">
         <div className="text-center mb-16">
           <h2 className="font-heading font-bold text-3xl md:text-5xl mb-4">
-            Everything You Need to <span className="bg-gradient-to-r from-violet-600 via-purple-500 to-fuchsia-500 dark:from-violet-400 dark:via-purple-400 dark:to-fuchsia-400 bg-clip-text text-transparent">Stand Out</span>
+            Everything You Need to <span className="bg-gradient-to-r from-indigo-600 to-indigo-950 bg-clip-text text-transparent">Stand Out</span>
           </h2>
           <p className="text-muted-foreground max-w-xl mx-auto">
             A complete AI toolkit designed for creators, influencers, and professionals who want to build a powerful personal brand.
@@ -51,11 +51,11 @@ const FeaturesSection = () => {
           {features.map((f, i) => (
             <div
               key={f.title}
-              className="group p-6 rounded-2xl glass hover:border-primary/40 transition-all duration-300 animate-fade-in-up"
+              className="group p-6 rounded-2xl glass hover:border-indigo-600/40 transition-all duration-300 animate-fade-in-up"
               style={{ animationDelay: `${i * 0.08}s` }}
             >
-              <div className="w-11 h-11 rounded-lg bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
-                <f.icon className="h-5 w-5 text-accent" />
+              <div className="w-11 h-11 rounded-lg bg-indigo-600/10 flex items-center justify-center mb-4 group-hover:bg-indigo-600/20 transition-colors">
+                <f.icon className="h-5 w-5 text-indigo-600" />
               </div>
               <h3 className="font-heading font-bold text-base mb-2 text-foreground">{f.title}</h3>
               <p className="text-sm text-muted-foreground leading-relaxed">{f.description}</p>

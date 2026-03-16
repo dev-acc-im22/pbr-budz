@@ -23,24 +23,31 @@ const fadeUp = {
 const features = [
   {
     icon: Lightbulb,
-    title: "Outlier Idea Generator",
-    description: "AI scans thousands of channels to find videos getting 2x-10x more views than normal. It extracts the title structure, psychological hook, and thumbnail concept — then adapts them for your niche.",
+    title: "Title & Tag Generator",
+    description: "Generate highly clickable, SEO-optimized title variations and relevant tags to help your videos rank higher and get more views.",
     image: ytDashboard,
     reverse: false,
   },
   {
     icon: PenTool,
-    title: "AI Script Writing Partner",
-    description: "Our AI learns how you speak and write, then helps you create scripts that sound authentically like you. Real-time canvas editing lets you collaborate with AI in a natural flow — just like having a co-writer.",
+    title: "AI Script Writer",
+    description: "Our AI learns how you speak and write, then helps you create scripts that sound authentically like you. Real-time canvas editing lets you collaborate with AI in a natural flow.",
     image: scriptEditor,
     reverse: true,
   },
   {
-    icon: BarChart3,
-    title: "YouTube Competitor Analysis",
-    description: "Track any channel in your niche. Monitor competitors, spot outlier videos getting 5x-10x more views than normal, and get weekly trend digests delivered to you so you never miss a breakout opportunity.",
+    icon: Eye,
+    title: "Thumbnail Ideas",
+    description: "Generate thumbnail mockups and visual concepts trained on high-performing videos in your niche. Get ideas that drive clicks.",
     image: ytDashboard,
     reverse: false,
+  },
+  {
+    icon: BarChart3,
+    title: "Analytics Dashboard",
+    description: "Track competitor channels to see what's working for them right now. Monitor competitors and spot outlier videos getting 5x-10x more views.",
+    image: scriptEditor,
+    reverse: true,
   },
 ];
 

@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-const logoIcon = "https://api.dicebear.com/7.x/shapes/svg?seed=BrandPilot&backgroundColor=0a0a0a";
+import { Logo } from "@/components/Logo";
 
 const Footer = () => {
   return (
@@ -8,8 +8,8 @@ const Footer = () => {
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-10">
           <div>
             <Link to="/" className="flex items-center gap-2 mb-3">
-              <img src={logoIcon} alt="BrandPilot AI" className="h-8 w-8" referrerPolicy="no-referrer" />
-              <span className="font-heading font-bold text-gradient">BrandPilot AI</span>
+              <Logo className="h-8 w-8" />
+              <span className="font-heading font-bold text-gradient-brand">BrandPilot AI</span>
             </Link>
             <p className="text-sm text-muted-foreground">
               AI-powered personal branding across every social platform.
@@ -27,17 +27,16 @@ const Footer = () => {
           <div>
             <h4 className="font-heading font-bold text-sm mb-3">Product</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li><span className="hover:text-foreground cursor-pointer transition-colors">Features</span></li>
-              <li><span className="hover:text-foreground cursor-pointer transition-colors">Pricing</span></li>
-              <li><span className="hover:text-foreground cursor-pointer transition-colors">API</span></li>
+              <li><Link to="/features" className="hover:text-foreground transition-colors">Features</Link></li>
+              <li><Link to="/pricing" className="hover:text-foreground transition-colors">Pricing</Link></li>
             </ul>
           </div>
           <div>
             <h4 className="font-heading font-bold text-sm mb-3">Company</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li><span className="hover:text-foreground cursor-pointer transition-colors">About</span></li>
-              <li><span className="hover:text-foreground cursor-pointer transition-colors">Blog</span></li>
-              <li><span className="hover:text-foreground cursor-pointer transition-colors">Contact</span></li>
+              <li><Link to="/about" className="hover:text-foreground transition-colors">About</Link></li>
+              <li><Link to="/blog" className="hover:text-foreground transition-colors">Blog</Link></li>
+              <li><Link to="/contact" className="hover:text-foreground transition-colors">Contact</Link></li>
             </ul>
           </div>
         </div>

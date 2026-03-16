@@ -11,6 +11,8 @@ const xDashboard = "https://images.unsplash.com/photo-1611605698335-8b1569810432
 const contentStudio = "https://images.unsplash.com/photo-1432821596592-e2c18b78144f?auto=format&fit=crop&w=1920&q=80";
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import XAssistTool from "./tools/XAssistTool";
 
 const aiTools = [
   { icon: Brain, title: "AI Content Coach", desc: "Your personal content coach that knows your entire X post history and tells you exactly what to post." },
@@ -72,9 +74,14 @@ const faqs = [
 
 const XAssist = () => {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
+  const { isAuthenticated, isMockMode } = useAuth();
+
+  if (isAuthenticated || isMockMode || import.meta.env.VITE_USE_MOCK_DATA === 'true') {
+    return <XAssistTool />;
+  }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="theme-twitter min-h-screen bg-background">
       <Navbar />
 
       {/* Hero */}
@@ -95,7 +102,7 @@ const XAssist = () => {
                 Understand your audience, refine your content, and accelerate your 𝕏 growth — all in one place. Powered by AI that learns your voice.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <Link to="/login" className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-gradient-primary text-primary-foreground font-bold glow-primary hover:scale-105 transition-transform">
+                <Link to="/login" state={{ from: "/x-assist" }} className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-gradient-primary text-primary-foreground font-bold glow-primary hover:scale-105 transition-transform">
                   <Sparkles className="h-5 w-5" />
                   Get Started Free
                   <ArrowRight className="h-5 w-5" />
@@ -277,7 +284,7 @@ const XAssist = () => {
               <p className="text-muted-foreground mb-8 max-w-lg mx-auto">
                 Join 1,400+ creators using AI to grow faster, post smarter, and build their brand on 𝕏.
               </p>
-              <Link to="/login" className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-gradient-primary text-primary-foreground font-bold glow-primary hover:scale-105 transition-transform">
+              <Link to="/login" state={{ from: "/x-assist" }} className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-gradient-primary text-primary-foreground font-bold glow-primary hover:scale-105 transition-transform">
                 <Sparkles className="h-5 w-5" />
                 Get Started Free
               </Link>

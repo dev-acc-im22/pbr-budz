@@ -27,7 +27,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const setMockMode = (value: boolean) => setIsMockModeState(value);
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, isMockMode, login, logout, toggleMockMode, setMockMode }}>
+    <AuthContext.Provider value={{ isAuthenticated: isAuthenticated || isMockMode, isMockMode, login, logout, toggleMockMode, setMockMode }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,0 +1,25 @@
+{
+  "entities": {
+    "Post": {
+      "title": "Post",
+      "description": "A social media post.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "description": "The title of the post." },
+        "content": { "type": "string", "description": "The content of the post." },
+        "platform": { "type": "string", "description": "The platform the post is for.", "enum": ["linkedin", "youtube", "instagram"] },
+        "status": { "type": "string", "description": "The status of the post.", "enum": ["draft", "approved", "scheduled"] },
+        "scheduledDate": { "type": "string", "format": "date-time", "description": "The scheduled date for the post." },
+        "authorUID": { "type": "string", "description": "The UID of the author." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "The creation date of the post." }
+      },
+      "required": ["title", "content", "platform", "status", "authorUID", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/posts/{postId}": {
+      "schema": { "$ref": "Post" },
+      "description": "A collection of social media posts."
+    }
+  }
+}

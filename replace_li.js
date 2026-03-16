@@ -1,0 +1,16 @@
+import fs from 'fs';
+const file = 'src/pages/LinkedInAssist.tsx';
+let content = fs.readFileSync(file, 'utf8');
+content = content.replace(/bg-blue-500/g, 'bg-primary');
+content = content.replace(/text-blue-500/g, 'text-primary');
+content = content.replace(/border-blue-500/g, 'border-primary');
+content = content.replace(/bg-blue-50/g, 'bg-primary/5');
+content = content.replace(/bg-blue-100/g, 'bg-primary/10');
+content = content.replace(/bg-blue-950/g, 'bg-primary/5');
+content = content.replace(/bg-blue-900/g, 'bg-primary/10');
+content = content.replace(/text-blue-600/g, 'text-primary');
+content = content.replace(/border-blue-400/g, 'border-primary/50');
+content = content.replace(/bg-blue-400/g, 'bg-primary/50');
+content = content.replace(/border-blue-200/g, 'border-primary/20');
+fs.writeFileSync(file, content);
+console.log('Replacements done.');

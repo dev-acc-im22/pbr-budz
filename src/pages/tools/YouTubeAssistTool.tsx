@@ -4,34 +4,61 @@ import {
   Youtube, Search, PenTool, BarChart3, Image as ImageIcon, 
   Lightbulb, Repeat, Play, Plus, Trash2, Layout, Copy, 
   Bold, Italic, List, Sparkles, ChevronRight, Video, FileText,
-  TrendingUp, Activity, MessageSquare, Loader2
+  TrendingUp, Activity, MessageSquare, Loader2, Hash, Clock
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useToast } from "@/components/ui/use-toast";
+declare global {
+  interface Window {
+    aistudio?: {
+      hasSelectedApiKey: () => Promise<boolean>;
+      openSelectKey: () => Promise<void>;
+    };
+  }
+}
+
 import { 
-  generateYouTubeIdeas, 
   generateYouTubeScript, 
   modifyYouTubeScript, 
   analyzeCompetitor, 
-  generateThumbnailsAndTitles 
+  generateThumbnailsAndTitles,
+  generateTitlesAndTags,
+  generateThumbnailImage,
+  generateSimilarIdeas,
+  analyzeBooks
 } from "@/services/geminiService";
 
 const YouTubeAssistTool = () => {
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState("ideas");
+  const [activeTab, setActiveTab] = useState("titles");
+
+  const formatScriptHTML = (text: string) => {
+    if (!text) return "";
+    return text
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/\[(.*?)\]/g, '<strong class="text-foreground text-base font-bold tracking-tight">[$1]</strong>')
+      .replace(/\((.*?)\)/g, '<span class="text-muted-foreground font-mono text-xs">($1)</span>');
+  };
+
   const [scriptText, setScriptText] = useState(
-    `[HOOK]\n(0:00-0:15)\n"Have you ever wondered why some small channels blow up overnight while others stay stuck at 100 views for years? \nIt's not luck. It's not the algorithm. It's a specific pattern I call 'The Outlier Strategy.' \nAnd today, I'm going to show you exactly how to use it on your next video."\n\n[INTRO]\n(0:15-0:45)\n"Look, we've all been there. You spend 10 hours writing, filming, and editing a video. You hit publish, refresh the page... and nothing. Crickets.\nBut what if I told you that you could predict a video's success *before* you even hit record?"`
+    formatScriptHTML(`[HOOK]\n(0:00-0:15)\n"Have you ever wondered why some small channels blow up overnight while others stay stuck at 100 views for years? \nIt's not luck. It's not the algorithm. It's a specific pattern I call 'The Outlier Strategy.' \nAnd today, I'm going to show you exactly how to use it on your next video."\n\n[INTRO]\n(0:15-0:45)\n"Look, we've all been there. You spend 10 hours writing, filming, and editing a video. You hit publish, refresh the page... and nothing. Crickets.\nBut what if I told you that you could predict a video's success *before* you even hit record?"`)
   );
   
-  // Ideas State
-  const [ideaTopic, setIdeaTopic] = useState("");
-  const [ideas, setIdeas] = useState([
-    { title: "I Tried the '2-Hour Workday' for 30 Days", views: "1.2M", avg: "150K", hook: "Curiosity + Challenge" },
-    { title: "Why 99% of Productivity Apps are Useless", views: "850K", avg: "90K", hook: "Contrarian + Negative" },
-    { title: "The Only Notion Setup You'll Ever Need", views: "2.1M", avg: "300K", hook: "Ultimate Guide + Promise" },
-    { title: "How I Read 100 Books a Year (Without Speed Reading)", views: "500K", avg: "50K", hook: "Achievement + Objection" }
+  // Titles & Tags State
+  const [titleTopic, setTitleTopic] = useState("");
+  const [generatedTitles, setGeneratedTitles] = useState([
+    "I Tried the '2-Hour Workday' for 30 Days",
+    "Why 99% of Productivity Apps are Useless",
+    "The Only Notion Setup You'll Ever Need",
+    "How I Read 100 Books a Year (Without Speed Reading)",
+    "Stop Wasting Time on To-Do Lists (Do This Instead)"
   ]);
-  const [isGeneratingIdeas, setIsGeneratingIdeas] = useState(false);
+  const [generatedTags, setGeneratedTags] = useState([
+    "productivity", "time management", "notion", "2 hour workday", "work less", "focus", "deep work", "reading habits"
+  ]);
+  const [isGeneratingTitles, setIsGeneratingTitles] = useState(false);
 
   // Editor State
   const [isGeneratingScript, setIsGeneratingScript] = useState(false);
@@ -40,48 +67,74 @@ const YouTubeAssistTool = () => {
   // Competitors State
   const [competitorUrl, setCompetitorUrl] = useState("");
   const [competitors, setCompetitors] = useState([
-    { name: "Ali Abdaal", subs: "5.2M", recentOutlier: "How I built a $5M business in 3 years", outlierViews: "2.4M", status: "Tracking" },
-    { name: "Mrwhosetheboss", subs: "18M", recentOutlier: "I tested the world's most expensive phone", outlierViews: "12M", status: "Tracking" },
-    { name: "Marques Brownlee", subs: "18.5M", recentOutlier: "The Truth About the Apple Vision Pro", outlierViews: "8.1M", status: "Tracking" }
+    { 
+      name: "Ali Abdaal", subs: "5.2M", 
+      recentOutlier: "How I built a $5M business in 3 years", 
+      outlierViews: "2.4M", avgViews: "250K", multiplier: "9.6x", 
+      publishedAt: "2 days ago", duration: "14:20", 
+      status: "Tracking", tags: ["Business", "Entrepreneurship", "Growth"] 
+    },
+    { 
+      name: "Mrwhosetheboss", subs: "18M", 
+      recentOutlier: "I tested the world's most expensive phone", 
+      outlierViews: "12M", avgViews: "3M", multiplier: "4.0x", 
+      publishedAt: "1 week ago", duration: "18:45", 
+      status: "Tracking", tags: ["Tech", "Review", "Smartphone"] 
+    },
+    { 
+      name: "Marques Brownlee", subs: "18.5M", 
+      recentOutlier: "The Truth About the Apple Vision Pro", 
+      outlierViews: "8.1M", avgViews: "2.5M", multiplier: "3.2x", 
+      publishedAt: "3 weeks ago", duration: "22:10", 
+      status: "Tracking", tags: ["Apple", "Vision Pro", "Tech"] 
+    }
   ]);
   const [isAddingCompetitor, setIsAddingCompetitor] = useState(false);
 
+  // Similar Ideas & Book Analysis State
+  const [similarIdeas, setSimilarIdeas] = useState<Record<number, string[]>>({});
+  interface BookRecommendation {
+    title: string;
+    author: string;
+    insight: string;
+  }
+  const [bookRecommendations, setBookRecommendations] = useState<Record<number, BookRecommendation[]>>({});
+  const [isGeneratingIdeas, setIsGeneratingIdeas] = useState<Record<number, boolean>>({});
+  const [isAnalyzingBooks, setIsAnalyzingBooks] = useState<Record<number, boolean>>({});
+
   // Thumbnails State
   const [thumbnailTopic, setThumbnailTopic] = useState("");
-  const [titles, setTitles] = useState([
-    "I Tried the '2-Hour Workday' for 30 Days",
-    "The 2-Hour Workday: Genius or Scam?",
-    "How to Work 2 Hours a Day (And Still Get Paid)",
-    "Stop Working 8 Hours a Day. Do This Instead.",
-    "I Quit the 9-to-5 for the 2-Hour Workday"
-  ]);
   const [thumbnails, setThumbnails] = useState([
     { concept: "Split Screen", desc: "Left side: You looking exhausted at a desk (8 hours). Right side: You relaxing on a beach with a laptop (2 hours)." },
     { concept: "The Proof", desc: "Close up of your face looking shocked, holding a phone showing a large bank deposit. Text: 'ONLY 2 HOURS?'" },
     { concept: "The Calendar", desc: "A calendar with 90% of the day crossed out in red marker. You pointing at the remaining 2 hours with a smirk." }
   ]);
   const [isGeneratingThumbnails, setIsGeneratingThumbnails] = useState(false);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+  const [activeThumbnailIndex, setActiveThumbnailIndex] = useState<number | null>(null);
 
-  const handleGenerateIdeas = async () => {
-    if (!ideaTopic) return;
-    setIsGeneratingIdeas(true);
+  const handleGenerateTitles = async () => {
+    if (!titleTopic) return;
+    setIsGeneratingTitles(true);
     try {
-      const newIdeas = await generateYouTubeIdeas(ideaTopic);
-      setIdeas(newIdeas);
-      toast({ title: "Ideas Generated!", description: "Found some great outlier concepts for you." });
+      const data = await generateTitlesAndTags(titleTopic);
+      setGeneratedTitles(data.titles);
+      setGeneratedTags(data.tags);
+      toast({ title: "Titles & Tags Generated!", description: "SEO-optimized concepts are ready." });
     } catch (error) {
-      toast({ title: "Error", description: "Failed to generate ideas.", variant: "destructive" });
+      toast({ title: "Error", description: "Failed to generate titles and tags.", variant: "destructive" });
     } finally {
-      setIsGeneratingIdeas(false);
+      setIsGeneratingTitles(false);
     }
   };
 
-  const handleGenerateScript = async (idea: any) => {
+  const handleGenerateScript = async (idea: { title: string; hook: string }) => {
     setActiveTab("editor");
     setIsGeneratingScript(true);
     try {
       const script = await generateYouTubeScript(idea.title, idea.hook);
-      setScriptText(script);
+      setScriptText(formatScriptHTML(script));
       toast({ title: "Script Generated!", description: "Your AI draft is ready to edit." });
     } catch (error) {
       toast({ title: "Error", description: "Failed to generate script.", variant: "destructive" });
@@ -94,8 +147,16 @@ const YouTubeAssistTool = () => {
     if (!scriptText) return;
     setIsModifyingScript(true);
     try {
-      const newScript = await modifyYouTubeScript(scriptText, instruction);
-      setScriptText(newScript);
+      // Strip HTML before sending to AI
+      const plainText = scriptText
+        .replace(/<br\s*[/]?>/gi, '\n')
+        .replace(/<\/div>/gi, '\n')
+        .replace(/<\/p>/gi, '\n')
+        .replace(/<[^>]*>?/gm, '')
+        .replace(/\n\n+/g, '\n\n')
+        .trim();
+      const newScript = await modifyYouTubeScript(plainText, instruction);
+      setScriptText(formatScriptHTML(newScript));
       toast({ title: "Script Updated!", description: `Applied: ${instruction}` });
     } catch (error) {
       toast({ title: "Error", description: "Failed to modify script.", variant: "destructive" });
@@ -121,12 +182,39 @@ const YouTubeAssistTool = () => {
     }
   };
 
+  const handleGenerateSimilarIdeas = async (index: number, title: string) => {
+    setIsGeneratingIdeas(prev => ({ ...prev, [index]: true }));
+    try {
+      const ideas = await generateSimilarIdeas(title);
+      setSimilarIdeas(prev => ({ ...prev, [index]: ideas }));
+      toast({ title: "Ideas Generated!", description: "Check out these similar video ideas." });
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to generate similar ideas.", variant: "destructive" });
+    } finally {
+      setIsGeneratingIdeas(prev => ({ ...prev, [index]: false }));
+    }
+  };
+
+  const handleAnalyzeBooks = async (index: number, topic: string) => {
+    setIsAnalyzingBooks(prev => ({ ...prev, [index]: true }));
+    try {
+      const books = await analyzeBooks(topic);
+      setBookRecommendations(prev => ({ ...prev, [index]: books }));
+      toast({ title: "Books Analyzed!", description: "Here are some book recommendations." });
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to analyze books.", variant: "destructive" });
+    } finally {
+      setIsAnalyzingBooks(prev => ({ ...prev, [index]: false }));
+    }
+  };
+
   const handleGenerateThumbnails = async () => {
     if (!thumbnailTopic) return;
     setIsGeneratingThumbnails(true);
+    setPreviewImage(null);
+    setActiveThumbnailIndex(null);
     try {
       const data = await generateThumbnailsAndTitles(thumbnailTopic);
-      setTitles(data.titles);
       setThumbnails(data.thumbnails);
       toast({ title: "Concepts Generated!", description: "Here are some high-CTR ideas." });
     } catch (error) {
@@ -136,67 +224,138 @@ const YouTubeAssistTool = () => {
     }
   };
 
+  const handleGenerateImage = async (concept: string, desc: string, index: number) => {
+    // Check for API key selection
+    if (window.aistudio && typeof window.aistudio.hasSelectedApiKey === 'function') {
+      const hasKey = await window.aistudio.hasSelectedApiKey();
+      if (!hasKey) {
+        if (typeof window.aistudio.openSelectKey === 'function') {
+          await window.aistudio.openSelectKey();
+          // Assume success and proceed, as per guidelines
+        }
+      }
+    }
+
+    setIsGeneratingImage(true);
+    setActiveThumbnailIndex(index);
+    setPreviewImage(null);
+    try {
+      const imageUrl = await generateThumbnailImage(concept, desc);
+      if (imageUrl) {
+        setPreviewImage(imageUrl);
+        toast({ title: "Thumbnail Generated!", description: "Image preview is ready." });
+      } else {
+        toast({ title: "Error", description: "Failed to generate image.", variant: "destructive" });
+      }
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to generate image.", variant: "destructive" });
+    } finally {
+      setIsGeneratingImage(false);
+    }
+  };
+
   const renderContent = () => {
     switch (activeTab) {
-      case "ideas":
+      case "titles":
         return (
           <div className="space-y-6">
             <div className="glass p-6 rounded-2xl border border-border/50">
-              <h2 className="text-xl font-bold mb-2 flex items-center gap-2">
-                <Lightbulb className="w-5 h-5 text-red-500" />
-                Outlier Idea Generator
-              </h2>
+              <div className="bg-gradient-to-r from-red-500/10 to-orange-500/10 border border-red-500/20 p-4 rounded-xl mb-4 flex items-center gap-3">
+                <span className="bg-gradient-to-r from-red-500 to-orange-500 text-white px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-sm">Step 1</span>
+                <h2 className="text-lg font-bold flex items-center gap-2 text-foreground">
+                  <Lightbulb className="w-5 h-5 text-red-500" />
+                  What is this Youtube Video topic about?
+                </h2>
+              </div>
               <p className="text-muted-foreground text-sm mb-4">
-                Enter your niche or a broad topic. Our AI will scan thousands of channels to find outlier videos (videos performing 3x-10x better than the channel average) and generate adapted ideas for you.
+                Enter your video topic. Our AI will generate highly clickable, SEO-optimized title variations and relevant tags to help your video rank.
               </p>
               <div className="flex gap-3">
                 <input 
                   type="text" 
                   placeholder="e.g., Personal Finance, Tech Reviews, Productivity..." 
                   className="flex-1 bg-background/50 border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-red-500/50"
-                  value={ideaTopic}
-                  onChange={(e) => setIdeaTopic(e.target.value)}
+                  value={titleTopic}
+                  onChange={(e) => setTitleTopic(e.target.value)}
                 />
                 <button 
-                  onClick={handleGenerateIdeas}
-                  disabled={isGeneratingIdeas || !ideaTopic}
+                  onClick={handleGenerateTitles}
+                  disabled={isGeneratingTitles || !titleTopic}
                   className="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-xl font-medium text-sm transition-colors flex items-center gap-2 disabled:opacity-50"
                 >
-                  {isGeneratingIdeas ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-                  Find Outliers
+                  {isGeneratingTitles ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                  Generate
                 </button>
               </div>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-4">
-              {isGeneratingIdeas ? (
-                <div className="col-span-2 flex flex-col items-center justify-center py-12 text-muted-foreground">
-                  <Loader2 className="w-8 h-8 animate-spin mb-4 text-red-500" />
-                  <p>Analyzing thousands of channels for outliers...</p>
-                </div>
-              ) : (
-                ideas.map((idea, i) => (
-                  <div key={i} className="glass p-5 rounded-xl border border-border/50 hover:border-red-500/30 transition-colors cursor-pointer group">
-                    <div className="flex justify-between items-start mb-3">
-                      <h3 className="font-bold text-base group-hover:text-red-500 transition-colors">{idea.title}</h3>
-                      <span className="bg-green-500/10 text-green-500 text-xs font-bold px-2 py-1 rounded-md">
-                        {Math.round(parseInt(idea.views.replace('M', '000').replace('K', '')) / parseInt(idea.avg.replace('M', '000').replace('K', '')))}x Outlier
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-4 text-xs text-muted-foreground mb-4">
-                      <span className="flex items-center gap-1"><TrendingUp className="w-3 h-3" /> {idea.views} Views</span>
-                      <span className="flex items-center gap-1"><Activity className="w-3 h-3" /> Avg: {idea.avg}</span>
-                      <span className="flex items-center gap-1"><MessageSquare className="w-3 h-3" /> {idea.hook}</span>
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="glass p-6 rounded-2xl border border-border/50">
+                <h3 className="font-bold mb-4 flex items-center gap-2">
+                  <FileText className="w-4 h-4 text-red-500" />
+                  Title Variations
+                </h3>
+                {isGeneratingTitles ? (
+                  <div className="flex justify-center py-8"><Loader2 className="w-6 h-6 animate-spin text-red-500" /></div>
+                ) : (
+                  <div className="space-y-3">
+                    {generatedTitles.map((title, i) => (
+                      <div key={i} className="p-3 rounded-lg bg-background/50 border border-border flex items-center justify-between group hover:border-red-500/30 transition-colors">
+                        <span className="text-sm font-medium">{title}</span>
+                        <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-all">
+                          <button 
+                            onClick={() => handleGenerateScript({ title, hook: "Curiosity" })}
+                            className="p-1.5 text-muted-foreground hover:text-red-500 transition-colors"
+                            title="Write Script"
+                          >
+                            <PenTool className="w-3.5 h-3.5" />
+                          </button>
+                          <button 
+                            onClick={() => {
+                              navigator.clipboard.writeText(title);
+                              toast({ title: "Copied!", description: "Title copied to clipboard." });
+                            }}
+                            className="p-1.5 text-muted-foreground hover:text-foreground transition-colors"
+                            title="Copy Title"
+                          >
+                            <Copy className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="glass p-6 rounded-2xl border border-border/50">
+                <h3 className="font-bold mb-4 flex items-center gap-2">
+                  <Hash className="w-4 h-4 text-red-500" />
+                  SEO Tags
+                </h3>
+                {isGeneratingTitles ? (
+                  <div className="flex justify-center py-8"><Loader2 className="w-6 h-6 animate-spin text-red-500" /></div>
+                ) : (
+                  <div>
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {generatedTags.map((tag, i) => (
+                        <span key={i} className="px-3 py-1 bg-secondary text-secondary-foreground text-xs font-medium rounded-full">
+                          #{tag}
+                        </span>
+                      ))}
                     </div>
                     <button 
-                      onClick={() => handleGenerateScript(idea)} 
-                      className="w-full py-2 rounded-lg bg-secondary text-secondary-foreground text-xs font-medium hover:bg-secondary/80 transition-colors"
+                      onClick={() => {
+                        navigator.clipboard.writeText(generatedTags.join(", "));
+                        toast({ title: "Copied!", description: "Tags copied to clipboard." });
+                      }}
+                      className="w-full py-2 rounded-lg bg-secondary text-secondary-foreground text-xs font-medium hover:bg-secondary/80 transition-colors flex items-center justify-center gap-2"
                     >
-                      Generate Script for this Idea
+                      <Copy className="w-3.5 h-3.5" />
+                      Copy All Tags
                     </button>
                   </div>
-                ))
-              )}
+                )}
+              </div>
             </div>
           </div>
         );
@@ -225,11 +384,18 @@ const YouTubeAssistTool = () => {
               </div>
 
               <div className="flex items-center gap-1 mb-3 p-2 rounded-lg bg-muted/30 overflow-x-auto">
-                {[Bold, Italic, List, Layout].map((Icon, i) => (
-                  <button key={i} className="p-2 rounded-md hover:bg-muted/50 text-muted-foreground hover:text-foreground transition-colors">
-                    <Icon className="h-4 w-4" />
-                  </button>
-                ))}
+                <button onMouseDown={(e) => e.preventDefault()} onClick={() => document.execCommand('bold', false)} className="p-2 rounded-md hover:bg-muted/50 text-muted-foreground hover:text-foreground transition-colors">
+                  <Bold className="h-4 w-4" />
+                </button>
+                <button onMouseDown={(e) => e.preventDefault()} onClick={() => document.execCommand('italic', false)} className="p-2 rounded-md hover:bg-muted/50 text-muted-foreground hover:text-foreground transition-colors">
+                  <Italic className="h-4 w-4" />
+                </button>
+                <button onMouseDown={(e) => e.preventDefault()} onClick={() => document.execCommand('insertUnorderedList', false)} className="p-2 rounded-md hover:bg-muted/50 text-muted-foreground hover:text-foreground transition-colors">
+                  <List className="h-4 w-4" />
+                </button>
+                <button onMouseDown={(e) => e.preventDefault()} className="p-2 rounded-md hover:bg-muted/50 text-muted-foreground hover:text-foreground transition-colors">
+                  <Layout className="h-4 w-4" />
+                </button>
                 <div className="w-px h-5 bg-border mx-1" />
                 <button 
                   onClick={() => handleModifyScript("Rewrite the hook to be more engaging")}
@@ -267,20 +433,35 @@ const YouTubeAssistTool = () => {
                   <p>{isGeneratingScript ? "Drafting your script..." : "Applying AI edits..."}</p>
                 </div>
               ) : (
-                <textarea
-                  value={scriptText}
-                  onChange={(e) => setScriptText(e.target.value)}
-                  className="flex-1 w-full bg-transparent border border-border/50 rounded-xl p-4 text-sm leading-relaxed resize-none focus:outline-none focus:ring-2 focus:ring-red-500/40 mb-3"
-                  placeholder="Start writing your script or ask AI to generate one..."
+                <div
+                  contentEditable
+                  suppressContentEditableWarning
+                  onBlur={(e) => setScriptText(e.currentTarget.innerHTML)}
+                  data-placeholder="Start writing your script or ask AI to generate one..."
+                  className="flex-1 w-full bg-transparent border border-border/50 rounded-xl p-4 text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-red-500/40 mb-3 overflow-y-auto whitespace-pre-wrap outline-none"
+                  dangerouslySetInnerHTML={{ __html: scriptText }}
                 />
               )}
 
               <div className="flex items-center justify-between pt-2 border-t border-border/50">
                 <div className="flex gap-4">
-                  <span className="text-xs text-muted-foreground font-medium">Est. time: ~4 mins</span>
-                  <span className="text-xs text-muted-foreground font-medium">Words: {scriptText.split(' ').length}</span>
+                  <span className="text-xs text-muted-foreground font-medium">Est. time: ~{Math.max(1, Math.round(scriptText.replace(/<br\s*[/]?>/gi, '\n').replace(/<\/div>/gi, '\n').replace(/<\/p>/gi, '\n').replace(/<[^>]*>?/gm, '').split(/\s+/).filter(w => w.length > 0).length / 150))} mins</span>
+                  <span className="text-xs text-muted-foreground font-medium">Words: {scriptText.replace(/<br\s*[/]?>/gi, '\n').replace(/<\/div>/gi, '\n').replace(/<\/p>/gi, '\n').replace(/<[^>]*>?/gm, '').split(/\s+/).filter(w => w.length > 0).length}</span>
                 </div>
-                <button className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md hover:bg-muted/50 text-muted-foreground text-xs font-medium transition-colors">
+                <button 
+                  onClick={() => {
+                    const plainText = scriptText
+                      .replace(/<br\s*[/]?>/gi, '\n')
+                      .replace(/<\/div>/gi, '\n')
+                      .replace(/<\/p>/gi, '\n')
+                      .replace(/<[^>]*>?/gm, '')
+                      .replace(/\n\n+/g, '\n\n')
+                      .trim();
+                    navigator.clipboard.writeText(plainText);
+                    toast({ title: "Copied!", description: "Script copied to clipboard." });
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md hover:bg-muted/50 text-muted-foreground text-xs font-medium transition-colors"
+                >
                   <Copy className="h-3.5 w-3.5" />
                   Copy Script
                 </button>
@@ -289,13 +470,13 @@ const YouTubeAssistTool = () => {
           </div>
         );
 
-      case "competitors":
+      case "analytics":
         return (
           <div className="space-y-6">
             <div className="glass p-6 rounded-2xl border border-border/50">
               <h2 className="text-xl font-bold mb-2 flex items-center gap-2">
                 <BarChart3 className="w-5 h-5 text-red-500" />
-                Competitor Analysis
+                Analytics Dashboard
               </h2>
               <p className="text-muted-foreground text-sm mb-4">
                 Track competitor channels to see what's working for them right now. We'll alert you when they post an outlier video.
@@ -311,7 +492,7 @@ const YouTubeAssistTool = () => {
                 <button 
                   onClick={handleAddCompetitor}
                   disabled={isAddingCompetitor || !competitorUrl}
-                  className="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-xl font-medium text-sm transition-colors flex items-center gap-2 disabled:opacity-50"
+                  className="bg-[#f89b9b] hover:bg-[#f08a8a] text-white px-6 py-3 rounded-xl font-medium text-sm transition-colors flex items-center gap-2 disabled:opacity-50"
                 >
                   {isAddingCompetitor ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
                   Track Channel
@@ -319,32 +500,136 @@ const YouTubeAssistTool = () => {
               </div>
             </div>
 
+            <div className="bg-blue-50/50 border border-blue-100 dark:bg-blue-950/20 dark:border-blue-900/50 rounded-xl p-4 flex items-start gap-3">
+              <div className="mt-0.5">
+                <Lightbulb className="w-5 h-5 text-blue-500" />
+              </div>
+              <div>
+                <h4 className="text-sm font-semibold text-blue-700 dark:text-blue-400 mb-1">What is an Outlier Video?</h4>
+                <p className="text-xs text-blue-600/80 dark:text-blue-300/80 leading-relaxed">
+                  An outlier video is a video that performs significantly better than a channel's average. 
+                  For example, if a channel usually gets 100K views but posts a video that gets 1M views, that's an outlier. 
+                  Tracking these helps you identify trending topics, highly clickable thumbnail concepts, and proven hooks before your competition does.
+                </p>
+              </div>
+            </div>
+
             <div className="grid gap-4">
               {competitors.map((comp, i) => (
-                <div key={i} className="glass p-5 rounded-xl border border-border/50 flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center overflow-hidden">
-                      <Youtube className="w-6 h-6 text-muted-foreground" />
+                <div key={i} className="glass p-5 rounded-2xl border border-border/50 flex flex-col gap-5 transition-all hover:shadow-md">
+                  {/* Header: Channel Info */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                        <Youtube className="w-5 h-5 text-red-500" />
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-base leading-tight">{comp.name}</h3>
+                        <p className="text-xs text-muted-foreground">{comp.subs} Subscribers</p>
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="font-bold text-base">{comp.name}</h3>
-                      <p className="text-xs text-muted-foreground">{comp.subs} Subscribers</p>
+                    <div className="flex items-center gap-2">
+                      <span className="px-2.5 py-1 bg-green-500/10 text-green-600 dark:text-green-400 text-[10px] font-bold uppercase tracking-wider rounded-full flex items-center gap-1">
+                        <Activity className="w-3 h-3" /> {comp.status}
+                      </span>
+                      <button 
+                        onClick={() => setCompetitors(competitors.filter((_, index) => index !== i))}
+                        className="p-1.5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-md transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
                     </div>
                   </div>
-                  <div className="flex-1 px-8 hidden md:block">
-                    <div className="text-xs text-muted-foreground mb-1">Recent Outlier Video</div>
-                    <div className="text-sm font-medium truncate">{comp.recentOutlier}</div>
-                    <div className="text-xs text-green-500 font-medium">{comp.outlierViews} Views</div>
+
+                  {/* Body: Outlier Video Info */}
+                  <div className="bg-background/50 rounded-xl p-4 border border-border/50">
+                    <div className="flex items-start justify-between gap-4 mb-3">
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-red-500 bg-red-500/10 px-2 py-0.5 rounded-sm">Outlier Detected</span>
+                          <span className="text-xs text-muted-foreground flex items-center gap-1"><Clock className="w-3 h-3"/> {comp.publishedAt}</span>
+                        </div>
+                        <h4 className="font-semibold text-sm line-clamp-2 leading-snug">{comp.recentOutlier}</h4>
+                      </div>
+                      <div className="w-24 h-16 rounded-lg bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center shrink-0 relative overflow-hidden group cursor-pointer">
+                        <Play className="w-6 h-6 text-white/70 group-hover:text-white transition-colors z-10" />
+                        <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors" />
+                        <div className="absolute bottom-1 right-1 bg-black/80 text-white text-[9px] px-1 rounded font-mono">{comp.duration}</div>
+                      </div>
+                    </div>
+
+                    {/* Metrics Grid */}
+                    <div className="grid grid-cols-3 gap-2 mb-4">
+                      <div className="bg-background rounded-lg p-2 border border-border/50">
+                        <div className="text-[10px] text-muted-foreground mb-0.5">Outlier Views</div>
+                        <div className="font-bold text-sm text-green-500">{comp.outlierViews}</div>
+                      </div>
+                      <div className="bg-background rounded-lg p-2 border border-border/50">
+                        <div className="text-[10px] text-muted-foreground mb-0.5">Channel Avg</div>
+                        <div className="font-bold text-sm">{comp.avgViews}</div>
+                      </div>
+                      <div className="bg-background rounded-lg p-2 border border-border/50 flex flex-col justify-center items-center bg-green-500/5 border-green-500/20">
+                        <div className="text-[10px] text-green-600 dark:text-green-400 font-medium mb-0.5">Performance</div>
+                        <div className="font-bold text-sm text-green-600 dark:text-green-400 flex items-center gap-1">
+                          <TrendingUp className="w-3 h-3" /> {comp.multiplier}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Tags */}
+                    <div className="flex flex-wrap gap-1.5">
+                      {comp.tags.map(tag => (
+                        <span key={tag} className="text-[10px] px-2 py-1 bg-secondary text-secondary-foreground rounded-md">#{tag}</span>
+                      ))}
+                    </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <span className="px-3 py-1 bg-green-500/10 text-green-500 text-xs font-medium rounded-full">{comp.status}</span>
+
+                  {/* Footer: Actions */}
+                  <div className="flex gap-2">
                     <button 
-                      onClick={() => setCompetitors(competitors.filter((_, index) => index !== i))}
-                      className="p-2 text-muted-foreground hover:text-destructive transition-colors"
+                      onClick={() => handleGenerateSimilarIdeas(i, comp.recentOutlier)}
+                      disabled={isGeneratingIdeas[i]}
+                      className="flex-1 bg-secondary hover:bg-secondary/80 text-secondary-foreground text-xs font-medium py-2 rounded-lg transition-colors flex items-center justify-center gap-1.5"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      {isGeneratingIdeas[i] ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Lightbulb className="w-3.5 h-3.5" />} Generate Similar Ideas
+                    </button>
+                    <button 
+                      onClick={() => handleAnalyzeBooks(i, comp.tags[0] || comp.name)}
+                      disabled={isAnalyzingBooks[i]}
+                      className="flex-1 bg-secondary hover:bg-secondary/80 text-secondary-foreground text-xs font-medium py-2 rounded-lg transition-colors flex items-center justify-center gap-1.5"
+                    >
+                      {isAnalyzingBooks[i] ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <PenTool className="w-3.5 h-3.5" />} Analyze Books
                     </button>
                   </div>
+
+                  {/* Results Display */}
+                  {(similarIdeas[i] || bookRecommendations[i]) && (
+                    <div className="bg-secondary/50 rounded-xl p-4 space-y-4">
+                      {similarIdeas[i] && (
+                        <div>
+                          <h5 className="text-xs font-bold mb-2">Similar Ideas</h5>
+                          <ul className="space-y-1">
+                            {similarIdeas[i].map((idea, idx) => (
+                              <li key={idx} className="text-xs text-muted-foreground list-disc list-inside">{idea}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      {bookRecommendations[i] && (
+                        <div>
+                          <h5 className="text-xs font-bold mb-2">Book Recommendations</h5>
+                          <ul className="space-y-2">
+                            {bookRecommendations[i].map((book, idx) => (
+                              <li key={idx} className="text-xs text-muted-foreground">
+                                <span className="font-semibold text-foreground">{book.title}</span> by {book.author}
+                                <p className="text-[10px] mt-0.5">{book.insight}</p>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -384,33 +669,6 @@ const YouTubeAssistTool = () => {
             <div className="grid md:grid-cols-2 gap-6">
               <div className="glass p-6 rounded-2xl border border-border/50">
                 <h3 className="font-bold mb-4 flex items-center gap-2">
-                  <FileText className="w-4 h-4 text-red-500" />
-                  Title Variations
-                </h3>
-                {isGeneratingThumbnails ? (
-                  <div className="flex justify-center py-8"><Loader2 className="w-6 h-6 animate-spin text-red-500" /></div>
-                ) : (
-                  <div className="space-y-3">
-                    {titles.map((title, i) => (
-                      <div key={i} className="p-3 rounded-lg bg-background/50 border border-border flex items-center justify-between group hover:border-red-500/30 transition-colors">
-                        <span className="text-sm font-medium">{title}</span>
-                        <button 
-                          onClick={() => {
-                            navigator.clipboard.writeText(title);
-                            toast({ title: "Copied!", description: "Title copied to clipboard." });
-                          }}
-                          className="opacity-0 group-hover:opacity-100 p-1.5 text-muted-foreground hover:text-foreground transition-all"
-                        >
-                          <Copy className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              <div className="glass p-6 rounded-2xl border border-border/50">
-                <h3 className="font-bold mb-4 flex items-center gap-2">
                   <ImageIcon className="w-4 h-4 text-red-500" />
                   Thumbnail Concepts
                 </h3>
@@ -419,13 +677,39 @@ const YouTubeAssistTool = () => {
                 ) : (
                   <div className="space-y-4">
                     {thumbnails.map((thumb, i) => (
-                      <div key={i} className="p-4 rounded-lg bg-background/50 border border-border">
+                      <button 
+                        key={i} 
+                        onClick={() => handleGenerateImage(thumb.concept, thumb.desc, i)}
+                        className={`w-full text-left p-4 rounded-lg bg-background/50 border transition-all ${activeThumbnailIndex === i ? 'border-red-500 ring-1 ring-red-500/50' : 'border-border hover:border-red-500/30'}`}
+                      >
                         <div className="font-bold text-sm mb-1 text-red-500">{thumb.concept}</div>
                         <p className="text-xs text-muted-foreground leading-relaxed">{thumb.desc}</p>
-                      </div>
+                      </button>
                     ))}
                   </div>
                 )}
+              </div>
+
+              <div className="glass p-6 rounded-2xl border border-border/50 flex flex-col">
+                <h3 className="font-bold mb-4 flex items-center gap-2">
+                  <ImageIcon className="w-4 h-4 text-red-500" />
+                  Preview Panel
+                </h3>
+                <div className="flex-1 bg-background/50 border border-border rounded-xl flex items-center justify-center overflow-hidden relative min-h-[250px]">
+                  {isGeneratingImage ? (
+                    <div className="flex flex-col items-center gap-3">
+                      <Loader2 className="w-8 h-8 animate-spin text-red-500" />
+                      <p className="text-sm text-muted-foreground font-medium animate-pulse">Generating image with NanoBanana 2...</p>
+                    </div>
+                  ) : previewImage ? (
+                    <img src={previewImage} alt="Thumbnail Preview" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                  ) : (
+                    <div className="text-center text-muted-foreground p-6">
+                      <ImageIcon className="w-12 h-12 mx-auto mb-3 opacity-20" />
+                      <p className="text-sm">Click a concept on the left to generate a thumbnail preview.</p>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -451,10 +735,10 @@ const YouTubeAssistTool = () => {
             
             <nav className="space-y-2">
               {[
-                { id: "ideas", icon: Lightbulb, label: "Idea Generator" },
-                { id: "editor", icon: PenTool, label: "Script Editor" },
-                { id: "competitors", icon: BarChart3, label: "Competitor Analysis" },
-                { id: "thumbnails", icon: ImageIcon, label: "Thumbnail Lab" },
+                { id: "titles", icon: Lightbulb, label: "Title & Tag Generator" },
+                { id: "editor", icon: PenTool, label: "Script Writer" },
+                { id: "thumbnails", icon: ImageIcon, label: "Thumbnail Ideas" },
+                { id: "analytics", icon: BarChart3, label: "Analytics Dashboard" },
               ].map((item) => (
                 <button
                   key={item.id}

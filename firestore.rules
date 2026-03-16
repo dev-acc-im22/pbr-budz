@@ -1,0 +1,65 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: posts
+    // Document ID: {postId}
+    // Fields:
+    //   - title: string (required, max 200)
+    //   - content: string (required, max 5000)
+    //   - platform: string (required, enum: ['linkedin', 'youtube', 'instagram'])
+    //   - status: string (required, enum: ['draft', 'approved', 'scheduled'])
+    //   - scheduledDate: timestamp (optional)
+    //   - authorUID: string (required, immutable)
+    //   - createdAt: timestamp (required, immutable)
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isAuthenticated() && request.auth.uid == uid;
+    }
+
+    function hasRequiredFields(fields) {
+      return request.resource.data.keys().hasAll(fields);
+    }
+
+    function hasOnlyAllowedFields(fields) {
+      return request.resource.data.keys().hasOnly(fields);
+    }
+
+    function areImmutableFieldsUnchanged(fields) {
+      return !request.resource.data.diff(resource.data).affectedKeys().hasAny(fields);
+    }
+
+    function isValidPost(data) {
+      return hasOnlyAllowedFields(['title', 'content', 'platform', 'status', 'scheduledDate', 'authorUID', 'createdAt']) &&
+             data.title is string && data.title.size() > 0 && data.title.size() <= 200 &&
+             data.content is string && data.content.size() > 0 && data.content.size() <= 5000 &&
+             data.platform in ['linkedin', 'youtube', 'instagram'] &&
+             data.status in ['draft', 'approved', 'scheduled'] &&
+             (data.scheduledDate is timestamp || data.scheduledDate == null) &&
+             data.authorUID is string &&
+             data.createdAt is timestamp;
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+    match /posts/{postId} {
+      allow read: if isAuthenticated() && isOwner(resource.data.authorUID);
+      allow create: if isAuthenticated() && isValidPost(request.resource.data) && request.resource.data.authorUID == request.auth.uid;
+      allow update: if isAuthenticated() && isOwner(resource.data.authorUID) && isValidPost(request.resource.data) && areImmutableFieldsUnchanged(['authorUID', 'createdAt']);
+      allow delete: if isAuthenticated() && isOwner(resource.data.authorUID);
+    }
+  }
+}

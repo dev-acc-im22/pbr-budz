@@ -19,7 +19,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 216 50% 5%;
 
-    --primary: 212 100% 48%;
+    --primary: 260 40% 40%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 210 40% 96.1%;
@@ -28,7 +28,7 @@
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 200 100% 55%;
+    --accent: 270 50% 50%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84.2% 60.2%;
@@ -36,16 +36,22 @@
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 212 100% 48%;
+    --ring: 260 40% 40%;
 
     --radius: 0.75rem;
 
     /* Custom tokens */
-    --glow-primary: 0 0 30px hsl(212 100% 48% / 0.4);
-    --glow-accent: 0 0 30px hsl(200 100% 55% / 0.3);
-    --gradient-primary: linear-gradient(135deg, hsl(212 100% 48%), hsl(200 100% 55%));
+    --glow-primary: 0 0 30px hsl(260 40% 40% / 0.4);
+    --glow-accent: 0 0 30px hsl(270 50% 50% / 0.3);
+    --gradient-primary: linear-gradient(to right, #6a4c93, #2e1a47);
+    --gradient-brand: linear-gradient(to right, #6a4c93, #2e1a47);
     --gradient-surface: linear-gradient(180deg, hsl(0 0% 100%), hsl(210 40% 98%));
     --gradient-card: linear-gradient(135deg, hsl(0 0% 100%), hsl(210 40% 98%));
+
+    --logo-stop-1: #6a4c93;
+    --logo-stop-2: #2e1a47;
+    --logo-stop-light-1: #8c73b3;
+    --logo-stop-light-2: #b5a3e0;
 
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 216 50% 5%;
@@ -67,7 +73,7 @@
     --popover: 216 45% 8%;
     --popover-foreground: 210 100% 95%;
 
-    --primary: 212 100% 48%;
+    --primary: 260 40% 60%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 216 40% 14%;
@@ -76,7 +82,7 @@
     --muted: 216 35% 12%;
     --muted-foreground: 214 30% 55%;
 
-    --accent: 200 100% 55%;
+    --accent: 270 50% 70%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84.2% 60.2%;
@@ -84,10 +90,17 @@
 
     --border: 216 30% 18%;
     --input: 216 30% 18%;
-    --ring: 212 100% 48%;
+    --ring: 260 40% 60%;
 
     --gradient-surface: linear-gradient(180deg, hsl(216 50% 5%), hsl(216 45% 8%));
     --gradient-card: linear-gradient(135deg, hsl(216 45% 10%), hsl(216 40% 6%));
+    --gradient-primary: linear-gradient(to right, #c8b6ff, #6a4c93);
+    --gradient-brand: linear-gradient(to right, #c8b6ff, #6a4c93);
+
+    --logo-stop-1: #c8b6ff;
+    --logo-stop-2: #6a4c93;
+    --logo-stop-light-1: #8c73b3;
+    --logo-stop-light-2: #b5a3e0;
 
     --sidebar-background: 216 45% 8%;
     --sidebar-foreground: 210 80% 85%;
@@ -97,6 +110,46 @@
     --sidebar-accent-foreground: 210 80% 85%;
     --sidebar-border: 216 30% 18%;
     --sidebar-ring: 212 100% 48%;
+  }
+
+  .theme-twitter {
+    --primary: 203 89% 53%; /* #1DA1F2 */
+    --primary-foreground: 0 0% 100%;
+    --accent: 204 100% 40%; /* #005FD1 */
+    --ring: 203 89% 53%;
+    --glow-primary: 0 0 30px hsl(203 89% 53% / 0.4);
+    --glow-accent: 0 0 30px hsl(204 100% 40% / 0.3);
+    --gradient-primary: linear-gradient(to right, #1DA1F2, #005FD1);
+  }
+
+  .theme-linkedin {
+    --primary: 210 90% 40%; /* #0A66C2 */
+    --primary-foreground: 0 0% 100%;
+    --accent: 210 100% 30%; /* #004182 */
+    --ring: 210 90% 40%;
+    --glow-primary: 0 0 30px hsl(210 90% 40% / 0.4);
+    --glow-accent: 0 0 30px hsl(210 100% 30% / 0.3);
+    --gradient-primary: linear-gradient(to right, #0A66C2, #004182);
+  }
+}
+
+.dark {
+  .theme-linkedin {
+    --primary: 210 90% 60%; /* Brighter #0A66C2 */
+    --accent: 210 100% 50%; /* Brighter #004182 */
+    --ring: 210 90% 60%;
+    --glow-primary: 0 0 30px hsl(210 90% 60% / 0.5);
+    --glow-accent: 0 0 30px hsl(210 100% 50% / 0.4);
+    --gradient-primary: linear-gradient(to right, #3b82f6, #60a5fa);
+  }
+
+  .theme-twitter {
+    --primary: 203 89% 70%; /* Brighter #1DA1F2 */
+    --accent: 204 100% 60%; /* Brighter #005FD1 */
+    --ring: 203 89% 70%;
+    --glow-primary: 0 0 30px hsl(203 89% 70% / 0.5);
+    --glow-accent: 0 0 30px hsl(204 100% 60% / 0.4);
+    --gradient-primary: linear-gradient(to right, #60a5fa, #3b82f6);
   }
 }
 
@@ -118,6 +171,11 @@
   .text-gradient {
     @apply bg-clip-text text-transparent;
     background-image: var(--gradient-primary);
+  }
+
+  .text-gradient-brand {
+    @apply bg-clip-text text-transparent;
+    background-image: var(--gradient-brand);
   }
 
   .bg-gradient-primary {
@@ -142,5 +200,12 @@
 
   .glass {
     @apply bg-card/60 backdrop-blur-xl border border-border/50;
+  }
+
+  [contenteditable]:empty:before {
+    content: attr(data-placeholder);
+    color: hsl(var(--muted-foreground));
+    pointer-events: none;
+    display: block;
   }
 }

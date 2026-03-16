@@ -27,7 +27,7 @@ const HowItWorks = () => {
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <h2 className="font-heading font-bold text-3xl md:text-5xl mb-4">
-            How <span className="bg-gradient-to-r from-violet-600 via-purple-500 to-fuchsia-500 dark:from-violet-400 dark:via-purple-400 dark:to-fuchsia-400 bg-clip-text text-transparent">It Works</span>
+            How <span className="bg-gradient-to-r from-indigo-600 to-indigo-950 bg-clip-text text-transparent">It Works</span>
           </h2>
           <p className="text-muted-foreground max-w-xl mx-auto">
             Go from zero to brand authority in four simple steps.
@@ -41,7 +41,7 @@ const HowItWorks = () => {
               className="relative text-center animate-fade-in-up"
               style={{ animationDelay: `${i * 0.1}s` }}
             >
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-primary text-primary-foreground font-heading font-black text-xl mb-4 glow-primary">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-indigo-600 text-white font-heading font-black text-xl mb-4 shadow-lg shadow-indigo-500/20">
                 {s.step}
               </div>
               {i < steps.length - 1 && (

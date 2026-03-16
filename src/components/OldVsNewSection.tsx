@@ -24,7 +24,7 @@ const OldVsNewSection = () => {
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <h2 className="font-heading font-bold text-3xl md:text-5xl mb-4">
-            The <span className="bg-gradient-to-r from-violet-600 via-purple-500 to-fuchsia-500 dark:from-violet-400 dark:via-purple-400 dark:to-fuchsia-400 bg-clip-text text-transparent">Better Way</span> to Build Your Brand
+            The <span className="bg-gradient-to-r from-indigo-600 to-indigo-950 bg-clip-text text-transparent">Better Way</span> to Build Your Brand
           </h2>
         </div>
 
@@ -49,21 +49,21 @@ const OldVsNewSection = () => {
           </div>
 
           {/* New Way */}
-          <div className="glass rounded-2xl p-8 border-primary/30 glow-primary">
+          <div className="glass rounded-2xl p-8 border-indigo-600/30 shadow-lg shadow-indigo-500/20">
             <div className="flex items-center gap-2 mb-6">
-              <CheckCircle2 className="h-6 w-6 text-accent" />
+              <CheckCircle2 className="h-6 w-6 text-indigo-600" />
               <h3 className="font-heading font-bold text-lg">With BrandPilot AI</h3>
             </div>
             <ul className="space-y-4">
               {newWay.map((item) => (
                 <li key={item} className="flex items-start gap-3 text-sm text-foreground">
-                  <CheckCircle2 className="h-4 w-4 text-accent shrink-0 mt-0.5" />
+                  <CheckCircle2 className="h-4 w-4 text-indigo-600 shrink-0 mt-0.5" />
                   {item}
                 </li>
               ))}
             </ul>
             <div className="mt-6 pt-4 border-t border-border/50 text-center">
-              <span className="font-heading font-bold text-accent text-sm">Under 5 minutes per piece of content</span>
+              <span className="font-heading font-bold text-indigo-600 text-sm">Under 5 minutes per piece of content</span>
             </div>
           </div>
         </div>

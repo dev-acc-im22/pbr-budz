@@ -19,7 +19,7 @@ const HeroSection = () => {
 
         <h1 className="font-heading font-extrabold text-4xl sm:text-5xl md:text-7xl leading-tight mb-6 animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
           Build Your Brand<br />
-          <span className="bg-gradient-to-r from-violet-600 via-purple-500 to-fuchsia-500 dark:from-violet-400 dark:via-purple-400 dark:to-fuchsia-400 bg-clip-text text-transparent">Across Every Platform</span>
+          <span className="text-gradient-brand">Across Every Platform</span>
         </h1>
 
         <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
@@ -29,7 +29,7 @@ const HeroSection = () => {
         <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up" style={{ animationDelay: "0.3s" }}>
           <Link
             to="/youtube-assist"
-            className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-gradient-primary text-primary-foreground font-bold text-base glow-primary hover:scale-105 transition-transform"
+            className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-indigo-600 text-white font-bold text-base hover:scale-105 transition-transform"
           >
             Start with YouTube
             <ArrowRight className="h-5 w-5" />
@@ -50,7 +50,7 @@ const HeroSection = () => {
             { value: "50M+", label: "Posts Optimized" },
           ].map((s) => (
             <div key={s.label} className="text-center">
-              <div className="font-heading font-extrabold text-2xl md:text-3xl bg-gradient-to-r from-violet-600 via-purple-500 to-fuchsia-500 dark:from-violet-400 dark:via-purple-400 dark:to-fuchsia-400 bg-clip-text text-transparent">{s.value}</div>
+              <div className="font-heading font-extrabold text-2xl md:text-3xl text-gradient-brand">{s.value}</div>
               <div className="text-xs text-muted-foreground mt-1">{s.label}</div>
             </div>
           ))}
