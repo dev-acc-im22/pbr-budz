@@ -1,11 +1,15 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { Layout, ArrowRight, Download, Share2, Plus, Type, Image as ImageIcon, Palette, LayoutTemplate, Settings, ChevronLeft, ChevronRight } from "lucide-react";
+import { Layout, ArrowRight, Download, Share2, Plus, Type, Image as ImageIcon, Palette, LayoutTemplate, Settings, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { useState } from "react";
+import { generateCarouselContent } from "@/services/geminiService";
 
 const CarouselMaker = () => {
   const [activeTab, setActiveTab] = useState("templates");
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [topic, setTopic] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [carouselContent, setCarouselContent] = useState<Record<string, unknown>[]>([]);
 
   const templates = [
     { title: "HOW TO WRITE HOOK THAT DON'T SUCK", color: "bg-[#1e1b4b]", accent: "bg-blue-500", author: "Jan Sinczer", tags: ["Copywriting", "Hooks"] },
@@ -15,6 +19,21 @@ const CarouselMaker = () => {
     { title: "THE ANATOMY OF A VIRAL POST", color: "bg-slate-900", accent: "bg-rose-500", author: "Sarah Jenkins", tags: ["Analysis", "Viral"] },
     { title: "MY $10K/MONTH TECH STACK", color: "bg-teal-900", accent: "bg-teal-400", author: "David Chen", tags: ["Tools", "Business"] },
   ];
+
+  const handleGenerate = async () => {
+    if (!topic) return;
+    setIsGenerating(true);
+    try {
+      const content = await generateCarouselContent(topic, 5);
+      setCarouselContent(content);
+      setActiveTab("editor");
+      setCurrentSlide(0);
+    } catch (error) {
+      console.error("Failed to generate carousel:", error);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -48,11 +67,18 @@ const CarouselMaker = () => {
             <h3 className="font-bold text-sm mb-4 text-muted-foreground uppercase tracking-wider">Generate</h3>
             <div className="space-y-4">
               <textarea 
+                value={topic}
+                onChange={(e) => setTopic(e.target.value)}
                 placeholder="Paste text, URL, or topic here to auto-generate a carousel..."
                 className="w-full bg-background border border-border/50 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/50 resize-none min-h-[120px]"
               ></textarea>
-              <button className="w-full bg-purple-600 text-white py-2 rounded-lg font-bold text-sm hover:bg-purple-700 transition-colors shadow-md shadow-purple-500/20">
-                Auto-Generate
+              <button 
+                onClick={handleGenerate}
+                disabled={!topic || isGenerating}
+                className="w-full bg-purple-600 text-white py-2 rounded-lg font-bold text-sm hover:bg-purple-700 transition-colors shadow-md shadow-purple-500/20 disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+                {isGenerating ? "Generating..." : "Auto-Generate"}
               </button>
             </div>
           </div>
@@ -180,7 +206,7 @@ const CarouselMaker = () => {
                     </div>
 
                     <div className="text-4xl font-black text-white leading-[1.1] mt-auto mb-12 uppercase tracking-tight relative group-hover:ring-2 ring-white/20 rounded p-2 -mx-2 cursor-text">
-                      HOW TO WRITE HOOK THAT DON'T SUCK
+                      {carouselContent.length > 0 ? carouselContent[currentSlide]?.content : "HOW TO WRITE HOOK THAT DON'T SUCK"}
                     </div>
                     
                     <div className="flex justify-between items-center mt-auto pt-6 border-t border-white/10">
@@ -197,8 +223,8 @@ const CarouselMaker = () => {
                   </div>
 
                   <button 
-                    onClick={() => setCurrentSlide(Math.min(5, currentSlide + 1))}
-                    disabled={currentSlide === 5}
+                    onClick={() => setCurrentSlide(Math.min((carouselContent.length || 6) - 1, currentSlide + 1))}
+                    disabled={currentSlide === (carouselContent.length || 6) - 1}
                     className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-background border border-border shadow-md flex items-center justify-center hover:bg-muted disabled:opacity-50 transition-colors z-10"
                   >
                     <ChevronRight className="w-5 h-5" />
@@ -207,14 +233,14 @@ const CarouselMaker = () => {
 
                 {/* Slide Thumbnails */}
                 <div className="mt-6 flex gap-4 overflow-x-auto pb-2">
-                  {[0, 1, 2, 3, 4, 5].map((slide) => (
+                  {(carouselContent.length > 0 ? carouselContent : [0, 1, 2, 3, 4, 5]).map((slide, idx) => (
                     <div 
-                      key={slide}
-                      onClick={() => setCurrentSlide(slide)}
-                      className={`w-24 aspect-[4/5] rounded-lg cursor-pointer transition-all border-2 flex-shrink-0 ${currentSlide === slide ? 'border-purple-500 scale-105 shadow-md' : 'border-border/50 hover:border-purple-500/50 bg-muted/50'}`}
+                      key={idx}
+                      onClick={() => setCurrentSlide(idx)}
+                      className={`w-24 aspect-[4/5] rounded-lg cursor-pointer transition-all border-2 flex-shrink-0 ${currentSlide === idx ? 'border-purple-500 scale-105 shadow-md' : 'border-border/50 hover:border-purple-500/50 bg-muted/50'}`}
                     >
                       <div className="w-full h-full bg-[#1e1b4b] rounded-md opacity-80 flex items-center justify-center text-white/50 font-bold text-xs">
-                        {slide + 1}
+                        {idx + 1}
                       </div>
                     </div>
                   ))}

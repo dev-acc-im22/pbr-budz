@@ -414,7 +414,59 @@ export const analyzeBooks = async (topic: string) => {
   }
 };
 
-// --- XAssist Functions ---
+export const generatePostFromTranscript = async (transcript: string, persona: string, formatting: string) => {
+  const ai = getAi();
+  if (!ai) {
+    return `[MOCK POST]\n\nConsistency > Perfection.\n\nMost people think they need a groundbreaking idea to post on LinkedIn.\n\nThey don't.\n\nThey just need to show up every day with something valuable.\n\nThat's the real secret to building an audience.\n\nStop trying to go viral.\nStart documenting your journey.\n\nWhat's your biggest struggle with consistency?`;
+  }
+
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: `Turn the following voice transcript into a professional, engaging LinkedIn post.\n\nTranscript: "${transcript}"\n\nPersona/Style: ${persona}\nFormatting Preference: ${formatting}\n\nMake sure it has a strong hook, clear formatting, and an engaging question at the end.`,
+    });
+    return response.text || "";
+  } catch (error) {
+    console.error("Error generating post from transcript:", error);
+    throw error;
+  }
+};
+
+export const generateFirstComment = async (postContent: string) => {
+  const ai = getAi();
+  if (!ai) {
+    return "[MOCK COMMENT] P.S. If you found this helpful, I share tips like this every week in my newsletter. Join 10k+ others here: [link]";
+  }
+
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: `Generate an engaging first comment for the following LinkedIn post. The comment should add value, ask a follow-up question, or provide a natural plug for a newsletter/resource.\n\nPost Content:\n"${postContent}"\n\nKeep it concise, professional, and engaging.`,
+    });
+    return response.text || "";
+  } catch (error) {
+    console.error("Error generating first comment:", error);
+    throw error;
+  }
+};
+
+export const generatePostContent = async (title: string, platform: string) => {
+  const ai = getAi();
+  if (!ai) {
+    return `[MOCK POST for ${platform}]\n\n${title}\n\nHere are 3 key takeaways:\n1. Value point one\n2. Value point two\n3. Value point three\n\nWhat are your thoughts?`;
+  }
+
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: `Generate an engaging social media post for ${platform} based on the following title/topic:\n\nTitle: "${title}"\n\nMake sure the tone and formatting are optimized for ${platform}.`,
+    });
+    return response.text || "";
+  } catch (error) {
+    console.error("Error generating post content:", error);
+    throw error;
+  }
+};
 
 export const generateXTweets = async (topic: string) => {
   const ai = getAi();

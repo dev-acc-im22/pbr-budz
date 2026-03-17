@@ -2,9 +2,11 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { FileText, PenTool, ArrowRight, Search, Filter, Plus, Calendar as CalendarIcon, MessageSquare, ThumbsUp, Eye, MoreHorizontal, GripVertical } from "lucide-react";
 import { useState } from "react";
+import NewPostModal from "@/components/NewPostModal";
 
 const ContentManagement = () => {
   const [view, setView] = useState("board"); // board, list
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const columns = [
     { id: "drafts", title: "Drafts", color: "bg-slate-400", count: 8 },
@@ -63,7 +65,10 @@ const ContentManagement = () => {
                 List
               </button>
             </div>
-            <button className="bg-emerald-600 text-white px-4 py-2 rounded-lg font-bold text-sm flex items-center gap-2 hover:bg-emerald-700 transition-colors shadow-md shadow-emerald-500/20">
+            <button 
+              onClick={() => setIsModalOpen(true)}
+              className="bg-emerald-600 text-white px-4 py-2 rounded-lg font-bold text-sm flex items-center gap-2 hover:bg-emerald-700 transition-colors shadow-md shadow-emerald-500/20"
+            >
               <Plus className="w-4 h-4" />
               New Post
             </button>
@@ -151,6 +156,7 @@ const ContentManagement = () => {
             </div>
           ))}
         </div>
+        <NewPostModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
       </main>
       <Footer />
     </div>

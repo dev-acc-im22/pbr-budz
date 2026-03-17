@@ -5,7 +5,7 @@ import {
   Repeat, Play, Plus, Trash2, Copy, 
   Sparkles, TrendingUp, Activity, MessageSquare, Loader2,
   Calendar, Clock, Target, Zap, Briefcase, BookOpen, Smile, Grid3X3, List, Check,
-  Youtube, Link as LinkIcon, FileText, LayoutTemplate, ArrowLeft
+  Youtube, Link as LinkIcon, FileText, LayoutTemplate, ArrowLeft, RefreshCw
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useToast } from "@/components/ui/use-toast";
@@ -171,142 +171,261 @@ const LinkedInAssistTool = () => {
     }
   };
 
+  const renderGeneratedPosts = () => {
+    if (generatedPosts.length === 0) return null;
+    return (
+      <div className="grid md:grid-cols-2 gap-6">
+        {generatedPosts.map((post, i) => (
+          <div key={i} className="p-6 rounded-2xl bg-white border border-slate-200 hover:border-[#0a66c2]/30 hover:shadow-md transition-all group flex flex-col">
+            <div className="flex justify-between items-center mb-4">
+              <span className="text-xs font-bold text-[#0a66c2] bg-[#0a66c2]/10 px-3 py-1.5 rounded-lg uppercase tracking-wider">{post.platform}</span>
+              <div className="flex gap-1">
+                <button 
+                  onClick={async () => {
+                    if (post.id) {
+                      await updatePostStatus(post.id, 'approved');
+                      toast({ title: "Approved!", description: "Post approved and sent to calendar." });
+                    }
+                  }}
+                  className="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 transition-all rounded-lg"
+                  title="Approve"
+                >
+                  <Check className="w-4 h-4" />
+                </button>
+                <button 
+                  onClick={() => {
+                    navigator.clipboard.writeText(post.content);
+                    toast({ title: "Copied!", description: "Post copied to clipboard." });
+                  }}
+                  className="p-2 text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-all rounded-lg"
+                  title="Copy"
+                >
+                  <Copy className="w-4 h-4" />
+                </button>
+                <button 
+                  onClick={() => {
+                    setEditorText(post.content);
+                    setActiveTab("remixer");
+                    toast({ title: "Moved to Editor", description: "You can now edit or rewrite this post." });
+                  }}
+                  className="p-2 text-slate-400 hover:text-[#0a66c2] hover:bg-[#0a66c2]/10 transition-all rounded-lg"
+                  title="Edit & Remix"
+                >
+                  <PenTool className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+            <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap flex-1">{post.content}</p>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   const renderContent = () => {
     switch (activeTab) {
       case "writer":
         return (
           <div className="space-y-6">
-            <div className="glass p-6 rounded-2xl border border-white/10 shadow-lg bg-card/50">
-              <h2 className="text-2xl font-bold mb-4 flex items-center gap-3 bg-gradient-to-r from-[#0a66c2] to-[#004182] text-white p-6 rounded-xl shadow-sm">
-                <span className="bg-white/20 px-3 py-1.5 rounded-md text-sm font-semibold tracking-wide">STEP 1</span>
-                <PenTool className="w-6 h-6 text-white" />
-                AI Post Writer for LinkedIn
-              </h2>
-              <p className="text-muted-foreground text-base mb-6">
-                Generate professional, engaging LinkedIn posts. Enter a topic to get started, or paste a draft to refine it.
-              </p>
-              <div className="flex gap-3 mb-6">
-                <input 
-                  type="text" 
-                  placeholder="What professional topic do you want to post about?" 
-                  className="flex-1 bg-background/50 border border-border rounded-xl px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-primary/50"
-                  value={postTopic}
-                  onChange={(e) => setPostTopic(e.target.value)}
-                />
-                <button 
-                  onClick={handleGeneratePosts}
-                  disabled={isGeneratingPosts || !postTopic}
-                  className="bg-primary hover:bg-primary/90 text-white px-8 py-3 rounded-xl font-bold text-base transition-colors flex items-center gap-2 disabled:opacity-50"
-                >
-                  {isGeneratingPosts ? <Loader2 className="w-5 h-5 animate-spin" /> : <Sparkles className="w-5 h-5" />}
-                  Generate
-                </button>
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-6 mb-6">
-                <div className="glass rounded-2xl border border-white/10 shadow-lg bg-card/50 overflow-hidden">
-                  <div className="bg-[#0a66c2] p-4">
-                    <h4 className="font-bold text-xl text-white flex items-center gap-3"><BookOpen className="w-6 h-6 text-white"/> Turn your experience into a post</h4>
-                  </div>
-                  <div className="p-8">
-                    <textarea value={experienceText} onChange={(e) => setExperienceText(e.target.value)} placeholder="Describe a professional experience..." className="w-full h-40 bg-background/50 border border-border rounded-lg p-4 text-base mb-6 focus:outline-none focus:ring-2 focus:ring-[#0a66c2]/40"/>
-                    <button onClick={handleGenerateFromExperience} disabled={isGeneratingPosts || !experienceText} className="w-full bg-[#0a66c2] hover:bg-[#004182] text-white py-4 rounded-lg font-bold text-base transition-colors disabled:opacity-50">Generate Post</button>
+            <div className="rounded-[2rem] bg-gradient-to-br from-[#0a66c2] to-[#004182] p-2 md:p-3 shadow-xl">
+              <div className="rounded-[1.5rem] bg-white p-6 md:p-10">
+                <div className="flex items-center justify-between mb-2">
+                  <h2 className="text-2xl font-bold flex items-center gap-3 text-slate-900">
+                    <PenTool className="w-6 h-6 text-[#0a66c2]" />
+                    AI Post Writer
+                  </h2>
+                </div>
+                <p className="text-slate-500 text-sm mb-8">
+                  Generate professional, engaging LinkedIn posts from scratch. Enter a topic to get started.
+                </p>
+                
+                <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 mb-8">
+                  <div className="flex flex-col md:flex-row gap-4">
+                    <div className="flex-1 relative">
+                      <div className="absolute left-4 top-3.5 text-slate-400">
+                        <MessageSquare className="w-5 h-5" />
+                      </div>
+                      <input 
+                        type="text" 
+                        placeholder="What professional topic do you want to post about?" 
+                        className="w-full bg-white border border-slate-200 rounded-xl pl-12 pr-4 py-3.5 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[#0a66c2]/50 shadow-sm transition-all"
+                        value={postTopic}
+                        onChange={(e) => setPostTopic(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && postTopic && !isGeneratingPosts) {
+                            handleGeneratePosts();
+                          }
+                        }}
+                      />
+                    </div>
+                    <button 
+                      onClick={handleGeneratePosts}
+                      disabled={isGeneratingPosts || !postTopic}
+                      className="bg-[#0a66c2] hover:bg-[#004182] text-white px-8 py-3.5 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 disabled:opacity-50 shadow-sm whitespace-nowrap"
+                    >
+                      {isGeneratingPosts ? <Loader2 className="w-5 h-5 animate-spin" /> : <Sparkles className="w-5 h-5" />}
+                      Generate Ideas
+                    </button>
                   </div>
                 </div>
-                <div className="glass rounded-2xl border border-white/10 shadow-lg bg-card/50 overflow-hidden">
-                  <div className="bg-[#0a66c2] p-4">
-                    <h4 className="font-bold text-xl text-white flex items-center gap-3"><Smile className="w-6 h-6 text-white"/> Turn your personal story into a professional LinkedIn post</h4>
+                
+                {generatedPosts.length > 0 && (
+                  <div className="mt-8">
+                    <h3 className="text-lg font-bold text-slate-900 mb-4">Generated Posts</h3>
+                    {renderGeneratedPosts()}
                   </div>
-                  <div className="p-8">
-                    <textarea value={storyText} onChange={(e) => setStoryText(e.target.value)} placeholder="Share a personal story..." className="w-full h-40 bg-background/50 border border-border rounded-lg p-4 text-base mb-6 focus:outline-none focus:ring-2 focus:ring-[#0a66c2]/40"/>
-                    <button onClick={handleGenerateFromStory} disabled={isGeneratingPosts || !storyText} className="w-full bg-[#0a66c2] hover:bg-[#004182] text-white py-4 rounded-lg font-bold text-base transition-colors disabled:opacity-50">Generate Post</button>
-                  </div>
-                </div>
+                )}
               </div>
+            </div>
+          </div>
+        );
 
-              {generatedPosts.length > 0 && (
-                <div className="grid md:grid-cols-2 gap-6 mb-8">
-                  {generatedPosts.map((post, i) => (
-                    <div key={i} className="p-6 rounded-xl bg-background/50 border border-border hover:border-primary/30 transition-colors group">
-                      <div className="flex justify-between items-center mb-4">
-                        <span className="text-sm font-bold text-primary bg-primary/10 px-3 py-1.5 rounded-md">{post.platform}</span>
-                        <div className="flex gap-2">
-                          <button 
-                            onClick={async () => {
-                              if (post.id) {
-                                await updatePostStatus(post.id, 'approved');
-                                toast({ title: "Approved!", description: "Post approved and sent to calendar." });
-                              }
-                            }}
-                            className="text-xs text-green-600 hover:text-green-700 transition-all flex items-center gap-1"
-                          >
-                            <Check className="w-4 h-4" /> Approve
-                          </button>
-                          <button 
-                            onClick={() => {
-                              navigator.clipboard.writeText(post.content);
-                              toast({ title: "Copied!", description: "Post copied to clipboard." });
-                            }}
-                            className="text-xs text-muted-foreground hover:text-foreground transition-all flex items-center gap-1"
-                          >
-                            <Copy className="w-4 h-4" /> Copy
-                          </button>
-                          <button 
-                            onClick={() => {
-                              setEditorText(post.content);
-                              toast({ title: "Moved to Editor", description: "You can now edit or rewrite this post." });
-                            }}
-                            className="text-xs text-muted-foreground hover:text-foreground transition-all flex items-center gap-1"
-                          >
-                            <PenTool className="w-4 h-4" /> Edit
-                          </button>
+      case "turn-into-post":
+        return (
+          <div className="space-y-6">
+            <div className="rounded-[2rem] bg-gradient-to-br from-[#0a66c2] to-[#004182] p-2 md:p-3 shadow-xl">
+              <div className="rounded-[1.5rem] bg-white p-6 md:p-10">
+                <div className="flex items-center justify-between mb-2">
+                  <h2 className="text-2xl font-bold flex items-center gap-3 text-slate-900">
+                    <Sparkles className="w-6 h-6 text-[#0a66c2]" />
+                    Turn into Post
+                  </h2>
+                </div>
+                <p className="text-slate-500 text-sm mb-8">
+                  Transform your raw experiences and personal stories into engaging, professional LinkedIn posts.
+                </p>
+                
+                <div className="grid lg:grid-cols-2 gap-6 mb-6">
+                  {/* Experience to Post Card */}
+                  <div className="bg-slate-50 rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col transition-all hover:shadow-md hover:border-[#0a66c2]/30 group">
+                    <div className="p-6 border-b border-slate-200 bg-white">
+                      <div className="flex items-center gap-4 mb-3">
+                        <div className="p-3 bg-[#0a66c2]/10 rounded-xl group-hover:bg-[#0a66c2] group-hover:text-white transition-colors text-[#0a66c2]">
+                          <Briefcase className="w-6 h-6" />
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-lg text-slate-900">Experience to Post</h4>
+                          <p className="text-xs text-slate-500 font-medium">Professional Milestones</p>
                         </div>
                       </div>
-                      <p className="text-base line-clamp-4">{post.content}</p>
+                      <p className="text-sm text-slate-600">Turn a recent project, challenge, or achievement into a compelling post that highlights your expertise.</p>
                     </div>
-                  ))}
-                </div>
-              )}
+                    <div className="p-6 flex-1 flex flex-col bg-slate-50/50">
+                      <textarea 
+                        value={experienceText} 
+                        onChange={(e) => setExperienceText(e.target.value)} 
+                        placeholder="E.g., I just led a team to migrate our legacy database to the cloud with zero downtime. It was tough because..." 
+                        className="w-full flex-1 min-h-[140px] bg-white border border-slate-200 rounded-xl p-4 text-sm mb-6 focus:outline-none focus:ring-2 focus:ring-[#0a66c2]/40 resize-none transition-all text-slate-900 placeholder:text-slate-400 shadow-inner"
+                      />
+                      <button 
+                        onClick={handleGenerateFromExperience} 
+                        disabled={isGeneratingPosts || !experienceText} 
+                        className="w-full bg-[#0a66c2] hover:bg-[#004182] text-white py-3.5 rounded-xl font-bold text-sm transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-sm"
+                      >
+                        {isGeneratingPosts ? <Loader2 className="w-5 h-5 animate-spin" /> : <Sparkles className="w-5 h-5" />}
+                        Generate Professional Post
+                      </button>
+                    </div>
+                  </div>
 
-              <div className="border-t border-border/50 pt-8">
-                <h3 className="text-xl font-bold mb-6 flex items-center gap-3 bg-gradient-to-r from-[#0a66c2] to-[#004182] text-white p-6 rounded-xl shadow-sm">
-                  <span className="bg-white/20 px-3 py-1.5 rounded-md text-sm font-semibold tracking-wide">STEP 2</span>
-                  <Repeat className="w-6 h-6 text-white" />
-                  Editor & Remixer
-                </h3>
-                <div className="flex gap-2 mb-3 flex-wrap">
-                  <button onClick={() => handleRewrite("storytelling")} disabled={isRewriting || !editorText} className="px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-medium hover:bg-primary/20 transition-colors disabled:opacity-50">Storytelling</button>
-                  <button onClick={() => handleRewrite("actionable")} disabled={isRewriting || !editorText} className="px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-medium hover:bg-primary/20 transition-colors disabled:opacity-50">Actionable</button>
-                  <button onClick={() => handleRewrite("thought-leadership")} disabled={isRewriting || !editorText} className="px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-medium hover:bg-primary/20 transition-colors disabled:opacity-50">Thought Leadership</button>
-                  <button onClick={() => handleRewrite("professional")} disabled={isRewriting || !editorText} className="px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-medium hover:bg-primary/20 transition-colors disabled:opacity-50">More Professional</button>
-                  <button onClick={() => handleRewrite("concise")} disabled={isRewriting || !editorText} className="px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-medium hover:bg-primary/20 transition-colors disabled:opacity-50">Make Concise</button>
-                  <button onClick={() => handleRewrite("emojis")} disabled={isRewriting || !editorText} className="px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-medium hover:bg-primary/20 transition-colors disabled:opacity-50">Add Emojis</button>
-                </div>
-                <div className="relative">
-                  {isRewriting && (
-                    <div className="absolute inset-0 bg-background/50 backdrop-blur-sm flex items-center justify-center rounded-xl z-10">
-                      <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                  {/* Story to Post Card */}
+                  <div className="bg-slate-50 rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col transition-all hover:shadow-md hover:border-[#0a66c2]/30 group">
+                    <div className="p-6 border-b border-slate-200 bg-white">
+                      <div className="flex items-center gap-4 mb-3">
+                        <div className="p-3 bg-[#0a66c2]/10 rounded-xl group-hover:bg-[#0a66c2] group-hover:text-white transition-colors text-[#0a66c2]">
+                          <Smile className="w-6 h-6" />
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-lg text-slate-900">Story to Post</h4>
+                          <p className="text-xs text-slate-500 font-medium">Personal Anecdotes</p>
+                        </div>
+                      </div>
+                      <p className="text-sm text-slate-600">Share a personal story or observation and let AI extract the relatable professional lesson for your network.</p>
                     </div>
-                  )}
-                  <textarea
-                    value={editorText}
-                    onChange={(e) => setEditorText(e.target.value)}
-                    className="w-full h-48 bg-transparent border border-border/50 rounded-xl p-4 text-sm leading-relaxed resize-none focus:outline-none focus:ring-2 focus:ring-primary/40"
-                    placeholder="Paste a draft here to rewrite, or edit a generated post..."
-                  />
+                    <div className="p-6 flex-1 flex flex-col bg-slate-50/50">
+                      <textarea 
+                        value={storyText} 
+                        onChange={(e) => setStoryText(e.target.value)} 
+                        placeholder="E.g., I was watching my kid try to build a block tower and it kept falling over until they changed the base..." 
+                        className="w-full flex-1 min-h-[140px] bg-white border border-slate-200 rounded-xl p-4 text-sm mb-6 focus:outline-none focus:ring-2 focus:ring-[#0a66c2]/40 resize-none transition-all text-slate-900 placeholder:text-slate-400 shadow-inner"
+                      />
+                      <button 
+                        onClick={handleGenerateFromStory} 
+                        disabled={isGeneratingPosts || !storyText} 
+                        className="w-full bg-[#0a66c2] hover:bg-[#004182] text-white py-3.5 rounded-xl font-bold text-sm transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-sm"
+                      >
+                        {isGeneratingPosts ? <Loader2 className="w-5 h-5 animate-spin" /> : <Sparkles className="w-5 h-5" />}
+                        Extract Lesson & Generate
+                      </button>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex justify-end mt-3">
-                  <button 
-                    onClick={() => {
-                      navigator.clipboard.writeText(editorText);
-                      toast({ title: "Copied!", description: "Post copied to clipboard." });
-                    }}
-                    disabled={!editorText}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
-                  >
-                    <Copy className="h-4 w-4" />
-                    Copy Post
-                  </button>
+                
+                {generatedPosts.length > 0 && (
+                  <div className="mt-8 pt-8 border-t border-slate-100">
+                    <h3 className="text-lg font-bold text-slate-900 mb-4">Generated Posts</h3>
+                    {renderGeneratedPosts()}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+
+      case "remixer":
+        return (
+          <div className="space-y-6">
+            <div className="rounded-[2rem] bg-gradient-to-br from-[#0a66c2] to-[#004182] p-2 md:p-3 shadow-xl">
+              <div className="rounded-[1.5rem] bg-white p-6 md:p-10">
+                <div className="flex items-center justify-between mb-2">
+                  <h2 className="text-2xl font-bold flex items-center gap-3 text-slate-900">
+                    <RefreshCw className="w-6 h-6 text-[#0a66c2]" />
+                    AI Post Remixer
+                  </h2>
+                </div>
+                <p className="text-slate-500 text-sm mb-8">
+                  Paste a draft here to rewrite, or edit a generated post with different styles and tones.
+                </p>
+                
+                <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200">
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    <button onClick={() => handleRewrite("storytelling")} disabled={isRewriting || !editorText} className="px-4 py-2 rounded-lg bg-white border border-slate-200 text-slate-700 text-sm font-medium hover:border-[#0a66c2] hover:text-[#0a66c2] transition-colors disabled:opacity-50 shadow-sm">Storytelling</button>
+                    <button onClick={() => handleRewrite("actionable")} disabled={isRewriting || !editorText} className="px-4 py-2 rounded-lg bg-white border border-slate-200 text-slate-700 text-sm font-medium hover:border-[#0a66c2] hover:text-[#0a66c2] transition-colors disabled:opacity-50 shadow-sm">Actionable</button>
+                    <button onClick={() => handleRewrite("thought-leadership")} disabled={isRewriting || !editorText} className="px-4 py-2 rounded-lg bg-white border border-slate-200 text-slate-700 text-sm font-medium hover:border-[#0a66c2] hover:text-[#0a66c2] transition-colors disabled:opacity-50 shadow-sm">Thought Leadership</button>
+                    <button onClick={() => handleRewrite("professional")} disabled={isRewriting || !editorText} className="px-4 py-2 rounded-lg bg-white border border-slate-200 text-slate-700 text-sm font-medium hover:border-[#0a66c2] hover:text-[#0a66c2] transition-colors disabled:opacity-50 shadow-sm">More Professional</button>
+                    <button onClick={() => handleRewrite("concise")} disabled={isRewriting || !editorText} className="px-4 py-2 rounded-lg bg-white border border-slate-200 text-slate-700 text-sm font-medium hover:border-[#0a66c2] hover:text-[#0a66c2] transition-colors disabled:opacity-50 shadow-sm">Make Concise</button>
+                    <button onClick={() => handleRewrite("emojis")} disabled={isRewriting || !editorText} className="px-4 py-2 rounded-lg bg-white border border-slate-200 text-slate-700 text-sm font-medium hover:border-[#0a66c2] hover:text-[#0a66c2] transition-colors disabled:opacity-50 shadow-sm">Add Emojis</button>
+                  </div>
+                  
+                  <div className="relative">
+                    {isRewriting && (
+                      <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px] flex items-center justify-center rounded-xl z-10">
+                        <div className="bg-white p-4 rounded-full shadow-lg border border-slate-100">
+                          <Loader2 className="w-6 h-6 animate-spin text-[#0a66c2]" />
+                        </div>
+                      </div>
+                    )}
+                    <textarea
+                      value={editorText}
+                      onChange={(e) => setEditorText(e.target.value)}
+                      className="w-full h-64 bg-white border border-slate-200 rounded-xl p-5 text-sm leading-relaxed resize-none focus:outline-none focus:ring-2 focus:ring-[#0a66c2]/50 text-slate-900 shadow-inner"
+                      placeholder="Paste your draft here, or select a generated post to edit..."
+                    />
+                  </div>
+                  
+                  <div className="flex justify-end mt-4">
+                    <button 
+                      onClick={() => {
+                        navigator.clipboard.writeText(editorText);
+                        toast({ title: "Copied!", description: "Post copied to clipboard." });
+                      }}
+                      disabled={!editorText}
+                      className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#0a66c2] text-white text-sm font-bold hover:bg-[#004182] transition-colors disabled:opacity-50 shadow-sm"
+                    >
+                      <Copy className="h-4 w-4" />
+                      Copy Post
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -316,70 +435,74 @@ const LinkedInAssistTool = () => {
       case "simulator":
         return (
           <div className="space-y-6">
-            <div className="glass p-6 rounded-2xl border border-white/10 shadow-lg bg-card/50">
-              <h2 className="text-xl font-bold mb-2 flex items-center gap-2">
-                <Target className="w-5 h-5 text-primary" />
-                Algorithm Simulator
-              </h2>
-              <p className="text-muted-foreground text-sm mb-6">
-                Test your post against the LinkedIn algorithm. See predicted reach and get suggestions for improvement.
-              </p>
-              
-              <div className="grid md:grid-cols-2 gap-6">
-                <div>
-                  <textarea
-                    value={simulatorText}
-                    onChange={(e) => setSimulatorText(e.target.value)}
-                    className="w-full h-40 bg-background/50 border border-border rounded-xl p-4 text-sm leading-relaxed resize-none focus:outline-none focus:ring-2 focus:ring-primary/40 mb-4"
-                    placeholder="Paste your post here to test it against the algorithm..."
-                  />
-                  <button 
-                    onClick={handleSimulate}
-                    disabled={isSimulating || !simulatorText}
-                    className="w-full bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-xl font-medium text-sm transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
-                  >
-                    {isSimulating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
-                    Run Simulation
-                  </button>
+            <div className="rounded-[2rem] bg-gradient-to-br from-[#0a66c2] to-[#004182] p-2 md:p-3 shadow-xl">
+              <div className="rounded-[1.5rem] bg-white p-6 md:p-10">
+                <div className="flex items-center justify-between mb-2">
+                  <h2 className="text-2xl font-bold flex items-center gap-3 text-slate-900">
+                    <Target className="w-6 h-6 text-[#0a66c2]" />
+                    Algorithm Simulator
+                  </h2>
                 </div>
+                <p className="text-slate-500 text-sm mb-8">
+                  Test your post against the LinkedIn algorithm. See predicted reach and get suggestions for improvement.
+                </p>
+                
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div>
+                    <textarea
+                      value={simulatorText}
+                      onChange={(e) => setSimulatorText(e.target.value)}
+                      className="w-full h-40 bg-white border border-slate-200 rounded-xl p-4 text-sm leading-relaxed resize-none focus:outline-none focus:ring-2 focus:ring-[#0a66c2]/50 mb-4 text-slate-900 shadow-inner"
+                      placeholder="Paste your post here to test it against the algorithm..."
+                    />
+                    <button 
+                      onClick={handleSimulate}
+                      disabled={isSimulating || !simulatorText}
+                      className="w-full bg-[#0a66c2] hover:bg-[#004182] text-white px-6 py-3.5 rounded-xl font-bold text-sm transition-colors flex items-center justify-center gap-2 disabled:opacity-50 shadow-sm"
+                    >
+                      {isSimulating ? <Loader2 className="w-5 h-5 animate-spin" /> : <Zap className="w-5 h-5" />}
+                      Run Simulation
+                    </button>
+                  </div>
 
-                <div className="bg-secondary/30 rounded-xl p-6 border border-border/50 flex flex-col justify-center">
-                  {simulationResult ? (
-                    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
-                      <div className="text-center">
-                        <div className="text-4xl font-black text-primary mb-1">{simulationResult.score}/100</div>
-                        <div className="text-xs text-muted-foreground uppercase tracking-wider font-bold">Algorithmic Score</div>
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="bg-background/50 p-3 rounded-lg text-center border border-border/50">
-                          <div className="text-lg font-bold">{simulationResult.reach}</div>
-                          <div className="text-xs text-muted-foreground">Est. Impressions</div>
+                  <div className="bg-slate-50 rounded-2xl p-6 border border-slate-200 flex flex-col justify-center">
+                    {simulationResult ? (
+                      <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
+                        <div className="text-center">
+                          <div className="text-5xl font-black text-[#0a66c2] mb-1">{simulationResult.score}<span className="text-2xl text-slate-400">/100</span></div>
+                          <div className="text-xs text-slate-500 uppercase tracking-wider font-bold">Algorithmic Score</div>
                         </div>
-                        <div className="bg-background/50 p-3 rounded-lg text-center border border-border/50">
-                          <div className="text-lg font-bold">{simulationResult.engagement}</div>
-                          <div className="text-xs text-muted-foreground">Est. Engagement</div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="bg-white p-4 rounded-xl text-center border border-slate-200 shadow-sm">
+                            <div className="text-xl font-bold text-slate-900">{simulationResult.reach}</div>
+                            <div className="text-xs text-slate-500 mt-1">Est. Impressions</div>
+                          </div>
+                          <div className="bg-white p-4 rounded-xl text-center border border-slate-200 shadow-sm">
+                            <div className="text-xl font-bold text-slate-900">{simulationResult.engagement}</div>
+                            <div className="text-xs text-slate-500 mt-1">Est. Engagement</div>
+                          </div>
                         </div>
+                        <div className="bg-amber-50 border border-amber-100 text-amber-800 p-4 rounded-xl text-sm flex items-start gap-3">
+                          <Lightbulb className="w-5 h-5 shrink-0 mt-0.5 text-amber-500" />
+                          <p className="leading-relaxed">{simulationResult.feedback}</p>
+                        </div>
+                        <button 
+                          onClick={() => {
+                            navigator.clipboard.writeText(`Score: ${simulationResult.score}/100, Reach: ${simulationResult.reach}, Engagement: ${simulationResult.engagement}, Feedback: ${simulationResult.feedback}`);
+                            toast({ title: "Copied!", description: "Simulation result copied to clipboard." });
+                          }}
+                          className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-white border border-slate-200 text-slate-700 text-sm font-bold hover:bg-slate-50 transition-colors shadow-sm"
+                        >
+                          <Copy className="h-4 w-4" /> Copy Result
+                        </button>
                       </div>
-                      <div className="bg-primary/10 text-primary p-3 rounded-lg text-sm flex items-start gap-2">
-                        <Lightbulb className="w-4 h-4 shrink-0 mt-0.5" />
-                        <p>{simulationResult.feedback}</p>
+                    ) : (
+                      <div className="text-center text-slate-400 flex flex-col items-center py-8">
+                        <Target className="w-16 h-16 mb-4 opacity-20" />
+                        <p className="text-sm font-medium">Run a simulation to see predicted performance metrics.</p>
                       </div>
-                      <button 
-                        onClick={() => {
-                          navigator.clipboard.writeText(`Score: ${simulationResult.score}/100, Reach: ${simulationResult.reach}, Engagement: ${simulationResult.engagement}, Feedback: ${simulationResult.feedback}`);
-                          toast({ title: "Copied!", description: "Simulation result copied to clipboard." });
-                        }}
-                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary/90 transition-colors"
-                      >
-                        <Copy className="h-4 w-4" /> Copy Result
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="text-center text-muted-foreground flex flex-col items-center">
-                      <Target className="w-12 h-12 mb-3 opacity-20" />
-                      <p className="text-sm">Run a simulation to see predicted performance metrics.</p>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -389,11 +512,11 @@ const LinkedInAssistTool = () => {
       case "repurpose":
         return (
           <div className="space-y-6">
-            <div className="rounded-[2rem] bg-[#0ea5e9] p-2 md:p-3 shadow-xl">
+            <div className="rounded-[2rem] bg-gradient-to-br from-[#0a66c2] to-[#004182] p-2 md:p-3 shadow-xl">
               <div className="rounded-[1.5rem] bg-white p-6 md:p-10">
                 <div className="flex items-center justify-between mb-2">
                   <h2 className="text-2xl font-bold flex items-center gap-3 text-slate-900">
-                    <Sparkles className="w-6 h-6 text-[#8b5cf6]" />
+                    <Sparkles className="w-6 h-6 text-[#0a66c2]" />
                     Repurpose Content
                   </h2>
                   <button 
@@ -441,7 +564,7 @@ const LinkedInAssistTool = () => {
                       {/* PDF Option */}
                       <button 
                         onClick={() => setRepurposeOption('pdf')}
-                        className="w-full flex items-center gap-4 p-5 rounded-2xl border-2 border-[#8b5cf6] bg-white transition-all text-left group shadow-sm"
+                        className="w-full flex items-center gap-4 p-5 rounded-2xl border border-slate-100 hover:border-slate-200 hover:shadow-sm bg-white transition-all text-left group"
                       >
                         <div className="text-[#8b5cf6] group-hover:scale-110 transition-transform">
                           <FileText className="w-6 h-6" />
@@ -498,13 +621,13 @@ const LinkedInAssistTool = () => {
                         value={repurposeInput}
                         onChange={(e) => setRepurposeInput(e.target.value)}
                         placeholder="Paste your content here..."
-                        className="w-full h-40 p-4 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#0ea5e9]/50 resize-none mb-4 bg-white text-slate-900"
+                        className="w-full h-40 p-4 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#0a66c2]/50 resize-none mb-4 bg-white text-slate-900"
                       />
                       
                       <button 
                         onClick={handleRepurpose}
                         disabled={isRepurposing || !repurposeInput}
-                        className="w-full flex items-center justify-center gap-2 bg-[#0ea5e9] hover:bg-[#0284c7] text-white px-6 py-3 rounded-xl font-bold transition-colors disabled:opacity-50"
+                        className="w-full flex items-center justify-center gap-2 bg-[#0a66c2] hover:bg-[#004182] text-white px-6 py-3 rounded-xl font-bold transition-colors disabled:opacity-50"
                       >
                         {isRepurposing ? <Loader2 className="w-5 h-5 animate-spin" /> : <Sparkles className="w-5 h-5" />}
                         Generate Post
@@ -527,68 +650,96 @@ const LinkedInAssistTool = () => {
       case "carousel":
         return (
           <div className="space-y-6">
-            <div className="glass p-6 rounded-2xl border border-white/10 shadow-lg bg-card/50">
-              <h2 className="text-xl font-bold mb-4 flex items-center gap-3">
-                <Grid3X3 className="w-5 h-5 text-primary" />
-                Carousel Generator
-              </h2>
-              <div className="flex gap-3 mb-6">
-                <input 
-                  type="text" 
-                  placeholder="What topic should the carousel be about?" 
-                  className="flex-1 bg-background/50 border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-                  value={carouselTopic}
-                  onChange={(e) => setCarouselTopic(e.target.value)}
-                />
-                <button 
-                  onClick={handleGenerateCarousel}
-                  disabled={isGeneratingCarousel || !carouselTopic}
-                  className="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-xl font-medium text-sm transition-colors flex items-center gap-2 disabled:opacity-50"
-                >
-                  {isGeneratingCarousel ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-                  Generate
-                </button>
-              </div>
-              
-              {carouselResult && (
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div className="space-y-4">
-                    <h3 className="font-bold text-lg">Slide Editor</h3>
-                    {carouselResult.slides.map((slide, i) => (
-                      <button
-                        key={i}
-                        onClick={() => setActiveSlide(i)}
-                        className={`w-full p-4 rounded-xl border text-left transition-all ${activeSlide === i ? 'bg-primary/10 border-primary' : 'bg-background/50 border-border'}`}
-                      >
-                        <h4 className="font-bold text-sm mb-1">Slide {i + 1}: {slide.title}</h4>
-                        <p className="text-xs text-muted-foreground truncate">{slide.content}</p>
-                      </button>
-                    ))}
-                  </div>
-                  <div className="bg-background/50 p-6 rounded-2xl border border-border">
-                    <h3 className="font-bold text-lg mb-4">Preview</h3>
-                    <div className="aspect-square bg-white rounded-xl shadow-lg p-6 flex flex-col justify-center items-center text-center text-black">
-                      <h2 className="text-2xl font-bold mb-4">{carouselResult.slides[activeSlide].title}</h2>
-                      <p className="text-lg mb-6">{carouselResult.slides[activeSlide].content}</p>
-                      <p className="text-xs font-medium italic text-gray-500">Visual: {carouselResult.slides[activeSlide].visualSuggestion}</p>
-                    </div>
-                    <div className="mt-4 space-y-2">
-                       <input value={carouselResult.slides[activeSlide].title} onChange={(e) => updateSlide(activeSlide, 'title', e.target.value)} className="w-full p-2 border rounded" placeholder="Title" />
-                       <textarea value={carouselResult.slides[activeSlide].content} onChange={(e) => updateSlide(activeSlide, 'content', e.target.value)} className="w-full p-2 border rounded" placeholder="Content" />
+            <div className="rounded-[2rem] bg-gradient-to-br from-[#0a66c2] to-[#004182] p-2 md:p-3 shadow-xl">
+              <div className="rounded-[1.5rem] bg-white p-6 md:p-10">
+                <div className="flex items-center justify-between mb-2">
+                  <h2 className="text-2xl font-bold flex items-center gap-3 text-slate-900">
+                    <Grid3X3 className="w-6 h-6 text-[#0a66c2]" />
+                    Carousel Generator
+                  </h2>
+                </div>
+                <p className="text-slate-500 text-sm mb-8">
+                  Generate engaging multi-slide carousels for LinkedIn.
+                </p>
+                
+                <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 mb-8">
+                  <div className="flex flex-col md:flex-row gap-4">
+                    <div className="flex-1 relative">
+                      <div className="absolute left-4 top-3.5 text-slate-400">
+                        <MessageSquare className="w-5 h-5" />
+                      </div>
+                      <input 
+                        type="text" 
+                        placeholder="What topic should the carousel be about?" 
+                        className="w-full bg-white border border-slate-200 rounded-xl pl-12 pr-4 py-3.5 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[#0a66c2]/50 shadow-sm transition-all"
+                        value={carouselTopic}
+                        onChange={(e) => setCarouselTopic(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && carouselTopic && !isGeneratingCarousel) {
+                            handleGenerateCarousel();
+                          }
+                        }}
+                      />
                     </div>
                     <button 
-                      onClick={() => {
-                        const carouselText = carouselResult.slides.map((s, i) => `Slide ${i+1}: ${s.title}\n${s.content}`).join('\n\n');
-                        navigator.clipboard.writeText(carouselText);
-                        toast({ title: "Copied!", description: "Carousel content copied to clipboard." });
-                      }}
-                      className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary/90 transition-colors"
+                      onClick={handleGenerateCarousel}
+                      disabled={isGeneratingCarousel || !carouselTopic}
+                      className="bg-[#0a66c2] hover:bg-[#004182] text-white px-8 py-3.5 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 disabled:opacity-50 shadow-sm whitespace-nowrap"
                     >
-                      <Copy className="h-4 w-4" /> Copy All Slides
+                      {isGeneratingCarousel ? <Loader2 className="w-5 h-5 animate-spin" /> : <Sparkles className="w-5 h-5" />}
+                      Generate Carousel
                     </button>
                   </div>
                 </div>
-              )}
+                
+                {carouselResult && (
+                  <div className="grid md:grid-cols-2 gap-8">
+                    <div className="space-y-4">
+                      <h3 className="font-bold text-lg text-slate-900">Slide Editor</h3>
+                      <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2">
+                        {carouselResult.slides.map((slide, i) => (
+                          <button
+                            key={i}
+                            onClick={() => setActiveSlide(i)}
+                            className={`w-full p-4 rounded-xl border text-left transition-all ${activeSlide === i ? 'bg-[#0a66c2]/5 border-[#0a66c2] shadow-sm' : 'bg-white border-slate-200 hover:border-slate-300'}`}
+                          >
+                            <h4 className={`font-bold text-sm mb-1 ${activeSlide === i ? 'text-[#0a66c2]' : 'text-slate-900'}`}>Slide {i + 1}: {slide.title}</h4>
+                            <p className="text-xs text-slate-500 truncate">{slide.content}</p>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 flex flex-col">
+                      <h3 className="font-bold text-lg mb-4 text-slate-900">Preview</h3>
+                      <div className="aspect-square bg-white rounded-2xl shadow-md border border-slate-100 p-8 flex flex-col justify-center items-center text-center text-slate-900 relative overflow-hidden">
+                        <div className="absolute top-4 left-4 text-xs font-bold text-slate-400">Slide {activeSlide + 1}</div>
+                        <h2 className="text-2xl font-bold mb-6">{carouselResult.slides[activeSlide].title}</h2>
+                        <p className="text-lg mb-8 leading-relaxed">{carouselResult.slides[activeSlide].content}</p>
+                        <div className="absolute bottom-4 left-4 right-4 bg-slate-50 p-3 rounded-lg border border-slate-100">
+                          <p className="text-xs font-medium text-slate-500 flex items-center justify-center gap-2">
+                            <Sparkles className="w-3 h-3 text-[#0a66c2]" />
+                            Visual: {carouselResult.slides[activeSlide].visualSuggestion}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="mt-6 space-y-3">
+                         <input value={carouselResult.slides[activeSlide].title} onChange={(e) => updateSlide(activeSlide, 'title', e.target.value)} className="w-full p-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#0a66c2]/50 text-slate-900" placeholder="Title" />
+                         <textarea value={carouselResult.slides[activeSlide].content} onChange={(e) => updateSlide(activeSlide, 'content', e.target.value)} className="w-full p-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#0a66c2]/50 min-h-[100px] resize-none text-slate-900" placeholder="Content" />
+                      </div>
+                      <button 
+                        onClick={() => {
+                          const carouselText = carouselResult.slides.map((s, i) => `Slide ${i+1}: ${s.title}\n${s.content}`).join('\n\n');
+                          navigator.clipboard.writeText(carouselText);
+                          toast({ title: "Copied!", description: "Carousel content copied to clipboard." });
+                        }}
+                        className="mt-6 w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-[#0a66c2] text-white text-sm font-bold hover:bg-[#004182] transition-colors shadow-sm"
+                      >
+                        <Copy className="h-4 w-4" /> Copy All Slides
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         );
@@ -596,53 +747,91 @@ const LinkedInAssistTool = () => {
       case "poll":
         return (
           <div className="space-y-6">
-            <div className="glass p-6 rounded-2xl border border-white/10 shadow-lg bg-card/50">
-              <h2 className="text-xl font-bold mb-4 flex items-center gap-3">
-                <List className="w-5 h-5 text-primary" />
-                LinkedIn Poll Generator
-              </h2>
-              <div className="flex gap-3 mb-6">
-                <input 
-                  type="text" 
-                  placeholder="What topic should the poll be about?" 
-                  className="flex-1 bg-background/50 border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-                  value={pollTopic}
-                  onChange={(e) => setPollTopic(e.target.value)}
-                />
-                <button 
-                  onClick={async () => {
-                    setIsGeneratingPoll(true);
-                    const res = await generatePollContent(pollTopic);
-                    setPollResult(res);
-                    setIsGeneratingPoll(false);
-                  }}
-                  disabled={isGeneratingPoll || !pollTopic}
-                  className="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-xl font-medium text-sm transition-colors flex items-center gap-2 disabled:opacity-50"
-                >
-                  {isGeneratingPoll ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-                  Generate
-                </button>
-              </div>
-              {pollResult && (
-                <div className="p-6 rounded-xl bg-background/50 border border-border">
-                  <h3 className="text-lg font-bold mb-4">{pollResult.question}</h3>
-                  <div className="space-y-2">
-                    {pollResult.options.map((opt, i) => (
-                      <div key={i} className="px-4 py-2 rounded-lg bg-secondary/50 border border-border text-sm">{opt}</div>
-                    ))}
-                  </div>
-                  <button 
-                    onClick={() => {
-                      const pollText = `${pollResult.question}\n\n${pollResult.options.join('\n')}`;
-                      navigator.clipboard.writeText(pollText);
-                      toast({ title: "Copied!", description: "Poll content copied to clipboard." });
-                    }}
-                    className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary/90 transition-colors"
-                  >
-                    <Copy className="h-4 w-4" /> Copy Poll
-                  </button>
+            <div className="rounded-[2rem] bg-gradient-to-br from-[#0a66c2] to-[#004182] p-2 md:p-3 shadow-xl">
+              <div className="rounded-[1.5rem] bg-white p-6 md:p-10">
+                <div className="flex items-center justify-between mb-2">
+                  <h2 className="text-2xl font-bold flex items-center gap-3 text-slate-900">
+                    <List className="w-6 h-6 text-[#0a66c2]" />
+                    LinkedIn Poll Generator
+                  </h2>
                 </div>
-              )}
+                <p className="text-slate-500 text-sm mb-8">
+                  Generate engaging polls to spark conversation with your network.
+                </p>
+                
+                <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 mb-8">
+                  <div className="flex flex-col md:flex-row gap-4">
+                    <div className="flex-1 relative">
+                      <div className="absolute left-4 top-3.5 text-slate-400">
+                        <MessageSquare className="w-5 h-5" />
+                      </div>
+                      <input 
+                        type="text" 
+                        placeholder="What topic should the poll be about?" 
+                        className="w-full bg-white border border-slate-200 rounded-xl pl-12 pr-4 py-3.5 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[#0a66c2]/50 shadow-sm transition-all"
+                        value={pollTopic}
+                        onChange={(e) => setPollTopic(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && pollTopic && !isGeneratingPoll) {
+                            setIsGeneratingPoll(true);
+                            generatePollContent(pollTopic).then(res => {
+                              setPollResult(res);
+                              setIsGeneratingPoll(false);
+                            });
+                          }
+                        }}
+                      />
+                    </div>
+                    <button 
+                      onClick={async () => {
+                        setIsGeneratingPoll(true);
+                        const res = await generatePollContent(pollTopic);
+                        setPollResult(res);
+                        setIsGeneratingPoll(false);
+                      }}
+                      disabled={isGeneratingPoll || !pollTopic}
+                      className="bg-[#0a66c2] hover:bg-[#004182] text-white px-8 py-3.5 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 disabled:opacity-50 shadow-sm whitespace-nowrap"
+                    >
+                      {isGeneratingPoll ? <Loader2 className="w-5 h-5 animate-spin" /> : <Sparkles className="w-5 h-5" />}
+                      Generate Poll
+                    </button>
+                  </div>
+                </div>
+                
+                {pollResult && (
+                  <div className="p-8 rounded-2xl bg-white border border-slate-200 shadow-sm max-w-2xl mx-auto">
+                    <div className="flex items-center gap-3 mb-6">
+                      <div className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center">
+                        <List className="w-5 h-5 text-slate-500" />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-slate-900 text-sm">You</h4>
+                        <p className="text-xs text-slate-500">Author</p>
+                      </div>
+                    </div>
+                    <h3 className="text-lg text-slate-900 mb-6 whitespace-pre-wrap">{pollResult.question}</h3>
+                    <div className="space-y-3">
+                      {pollResult.options.map((opt, i) => (
+                        <div key={i} className="px-4 py-3 rounded-full border border-[#0a66c2] text-[#0a66c2] font-medium text-sm hover:bg-[#0a66c2]/5 transition-colors cursor-pointer text-center">
+                          {opt}
+                        </div>
+                      ))}
+                    </div>
+                    <div className="mt-8 pt-6 border-t border-slate-100 flex justify-end">
+                      <button 
+                        onClick={() => {
+                          const pollText = `${pollResult.question}\n\n${pollResult.options.map(o => `- ${o}`).join('\n')}`;
+                          navigator.clipboard.writeText(pollText);
+                          toast({ title: "Copied!", description: "Poll content copied to clipboard." });
+                        }}
+                        className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#0a66c2] text-white text-sm font-bold hover:bg-[#004182] transition-colors shadow-sm"
+                      >
+                        <Copy className="h-4 w-4" /> Copy Poll Text
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         );
@@ -650,43 +839,53 @@ const LinkedInAssistTool = () => {
       case "scheduler":
         return (
           <div className="space-y-6">
-            <div className="glass p-6 rounded-2xl border border-white/10 shadow-lg bg-card/50">
-              <div className="flex items-center justify-between mb-6">
-                <div>
-                  <h2 className="text-xl font-bold mb-1 flex items-center gap-2">
-                    <Calendar className="w-5 h-5 text-primary" />
-                    Smart Scheduler
-                  </h2>
-                  <p className="text-muted-foreground text-sm">
-                    Post at the perfect time. AI determines when your network is most active.
-                  </p>
+            <div className="rounded-[2rem] bg-gradient-to-br from-[#0a66c2] to-[#004182] p-2 md:p-3 shadow-xl">
+              <div className="rounded-[1.5rem] bg-white p-6 md:p-10">
+                <div className="flex items-center justify-between mb-8">
+                  <div>
+                    <h2 className="text-2xl font-bold flex items-center gap-3 text-slate-900 mb-2">
+                      <Calendar className="w-6 h-6 text-[#0a66c2]" />
+                      Smart Scheduler
+                    </h2>
+                    <p className="text-slate-500 text-sm">
+                      Post at the perfect time. AI determines when your network is most active.
+                    </p>
+                  </div>
+                  <button className="bg-[#0a66c2] hover:bg-[#004182] text-white px-5 py-2.5 rounded-xl font-bold text-sm transition-colors flex items-center gap-2 shadow-sm">
+                    <Plus className="w-4 h-4" />
+                    New Post
+                  </button>
                 </div>
-                <button className="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg font-medium text-sm transition-colors flex items-center gap-2">
-                  <Plus className="w-4 h-4" />
-                  New Post
-                </button>
-              </div>
 
-              <div className="space-y-3">
-                {scheduledPosts.map((post, i) => (
-                  <div key={i} className="p-4 rounded-xl bg-background/50 border border-border flex items-center justify-between group">
-                    <div className="flex-1 pr-4">
-                      <p className="text-sm font-medium mb-1 truncate">{post.text}</p>
-                      <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                        <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {post.time}</span>
-                        <span className="text-primary bg-primary/10 px-2 py-0.5 rounded-full">{post.status}</span>
+                <div className="space-y-4">
+                  {scheduledPosts.map((post, i) => (
+                    <div key={i} className="p-5 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between group hover:border-[#0a66c2]/30 hover:shadow-sm transition-all">
+                      <div className="flex-1 pr-4">
+                        <p className="text-sm font-medium text-slate-900 mb-2 truncate">{post.text}</p>
+                        <div className="flex items-center gap-4 text-xs font-medium">
+                          <span className="flex items-center gap-1.5 text-slate-500"><Clock className="w-3.5 h-3.5" /> {post.time}</span>
+                          <span className="text-[#0a66c2] bg-[#0a66c2]/10 px-2.5 py-1 rounded-md uppercase tracking-wider text-[10px]">{post.status}</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button className="p-2.5 text-slate-400 hover:text-[#0a66c2] transition-colors rounded-xl hover:bg-[#0a66c2]/10">
+                          <PenTool className="w-4 h-4" />
+                        </button>
+                        <button className="p-2.5 text-slate-400 hover:text-red-600 transition-colors rounded-xl hover:bg-red-50">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button className="p-2 text-muted-foreground hover:text-foreground transition-colors rounded-md hover:bg-secondary">
-                        <PenTool className="w-4 h-4" />
-                      </button>
-                      <button className="p-2 text-muted-foreground hover:text-destructive transition-colors rounded-md hover:bg-secondary">
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                  ))}
+                  
+                  {scheduledPosts.length === 0 && (
+                    <div className="text-center py-12 border-2 border-dashed border-slate-200 rounded-2xl">
+                      <Calendar className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                      <h3 className="text-slate-900 font-medium mb-1">No scheduled posts</h3>
+                      <p className="text-slate-500 text-sm">Create a new post to schedule it for later.</p>
                     </div>
-                  </div>
-                ))}
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -698,21 +897,23 @@ const LinkedInAssistTool = () => {
   };
 
   return (
-    <div className="theme-linkedin min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-white flex flex-col font-sans">
       <Navbar />
       
       <div className="flex-1 flex pt-16">
         {/* Sidebar */}
-        <aside className="w-64 border-r border-border/50 bg-card/30 hidden md:flex flex-col">
+        <aside className="w-64 border-r border-slate-200 bg-slate-50 hidden md:flex flex-col">
           <div className="p-6">
-            <div className="flex items-center gap-2 font-heading font-bold text-lg mb-8">
+            <div className="flex items-center gap-2 font-heading font-bold text-lg mb-8 text-slate-900">
               <LinkedInFullLogo className="text-2xl" />
               Assist
             </div>
             
             <nav className="space-y-2">
               {[
-                { id: "writer", icon: PenTool, label: "AI Writer & Remixer" },
+                { id: "writer", icon: PenTool, label: "AI Writer" },
+                { id: "remixer", icon: RefreshCw, label: "AI Remixer" },
+                { id: "turn-into-post", icon: Sparkles, label: "Turn into Post" },
                 { id: "repurpose", icon: Repeat, label: "Content Repurposing" },
                 { id: "carousel", icon: Grid3X3, label: "Carousel Generator" },
                 { id: "poll", icon: List, label: "LinkedIn Poll Generator" },
@@ -724,8 +925,8 @@ const LinkedInAssistTool = () => {
                   onClick={() => setActiveTab(item.id)}
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
                     activeTab === item.id 
-                      ? "bg-primary/10 text-primary" 
-                      : "bg-secondary/30 text-muted-foreground hover:bg-secondary hover:text-foreground"
+                      ? "bg-[#0a66c2]/10 text-[#0a66c2]" 
+                      : "text-slate-600 hover:bg-slate-200/50 hover:text-slate-900"
                   }`}
                 >
                   <item.icon className="w-4 h-4" />
@@ -736,18 +937,18 @@ const LinkedInAssistTool = () => {
           </div>
           
           <div className="mt-auto p-6">
-            <div className="glass p-4 rounded-xl border border-primary/20 bg-primary/5">
-              <h4 className="font-bold text-sm mb-1">Pro Plan Active</h4>
-              <p className="text-xs text-muted-foreground mb-3">Unlimited AI Generations</p>
-              <div className="w-full bg-background rounded-full h-1.5 mb-1">
-                <div className="bg-primary h-1.5 rounded-full w-full"></div>
+            <div className="p-4 rounded-xl border border-[#0a66c2]/20 bg-[#0a66c2]/5">
+              <h4 className="font-bold text-sm mb-1 text-slate-900">Pro Plan Active</h4>
+              <p className="text-xs text-slate-500 mb-3">Unlimited AI Generations</p>
+              <div className="w-full bg-white rounded-full h-1.5 mb-1 overflow-hidden">
+                <div className="bg-[#0a66c2] h-1.5 rounded-full w-full"></div>
               </div>
             </div>
           </div>
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 p-6 md:p-8 overflow-y-auto">
+        <main className="flex-1 p-6 md:p-8 overflow-y-auto bg-slate-50/50">
           <div className="max-w-4xl mx-auto">
             {renderContent()}
           </div>

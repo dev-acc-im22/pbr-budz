@@ -1,7 +1,8 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { Sparkles, PenTool, Youtube, Link as LinkIcon, FileText, Settings, History, ChevronRight, Copy, Calendar, Check, SlidersHorizontal } from "lucide-react";
+import { Sparkles, PenTool, Youtube, Link as LinkIcon, FileText, Settings, History, ChevronRight, Copy, Calendar, Check, SlidersHorizontal, Loader2 } from "lucide-react";
 import { useState } from "react";
+import { repurposeContent } from "@/services/geminiService";
 
 const ContentRepurposing = () => {
   const [sourceUrl, setSourceUrl] = useState("");
@@ -10,13 +11,18 @@ const ContentRepurposing = () => {
   const [activeTab, setActiveTab] = useState("youtube");
   const [tone, setTone] = useState("Professional");
 
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
     if (!sourceUrl) return;
     setIsGenerating(true);
-    setTimeout(() => {
-      setResult("🚀 Here is your repurposed LinkedIn post based on the provided content!\n\nIt's amazing how much value you can extract from a single piece of content when you know how to frame it for a new audience.\n\nKey takeaways:\n1️⃣ Content is king, but distribution is queen.\n2️⃣ Repurposing saves you 10x the time.\n3️⃣ Your audience needs to hear your message 7 times before it clicks.\n\nWhat's your favorite way to repurpose content?\n\n#ContentCreation #LinkedInTips #Repurposing #Marketing");
+    try {
+      const repurposedText = await repurposeContent(activeTab as 'youtube' | 'article' | 'pdf' | 'format', sourceUrl);
+      setResult(repurposedText);
+    } catch (error) {
+      console.error("Error repurposing content:", error);
+      setResult("Failed to repurpose content. Please try again.");
+    } finally {
       setIsGenerating(false);
-    }, 2000);
+    }
   };
 
   return (

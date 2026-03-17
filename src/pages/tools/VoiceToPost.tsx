@@ -1,7 +1,9 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { Mic, Brain, Sparkles, X as XIcon, Play, Pause, Square, Settings, History, FileAudio, RefreshCw, CheckCircle2 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { Mic, Brain, Sparkles, X as XIcon, Play, Pause, Square, Settings, History, FileAudio, RefreshCw, CheckCircle2, Loader2 } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { generatePostFromTranscript } from "@/services/geminiService";
+import { useToast } from "@/components/ui/use-toast";
 
 const VoiceToPost = () => {
   const [isRecording, setIsRecording] = useState(false);
@@ -9,6 +11,44 @@ const VoiceToPost = () => {
   const [post, setPost] = useState("");
   const [recordingTime, setRecordingTime] = useState(0);
   const [activeTab, setActiveTab] = useState("record"); // record, library
+  const [persona, setPersona] = useState("My Default Style");
+  const [formatting, setFormatting] = useState("Short Sentences");
+  const [isGenerating, setIsGenerating] = useState(false);
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    // Initialize Speech Recognition
+    if (typeof window !== 'undefined') {
+      const SpeechRecognitionConstructor = (window as unknown as { SpeechRecognition: unknown }).SpeechRecognition || (window as unknown as { webkitSpeechRecognition: unknown }).webkitSpeechRecognition;
+      if (typeof SpeechRecognitionConstructor === 'function') {
+        const RecognitionClass = SpeechRecognitionConstructor as { new(): { continuous: boolean, interimResults: boolean, onresult: (event: { results: { transcript: string }[][] }) => void, onerror: (event: { error: string }) => void, onend: () => void, start: () => void, stop: () => void } };
+        const recognition = new RecognitionClass();
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        
+        recognition.onresult = (event: { results: { transcript: string }[][] }) => {
+          let currentTranscript = '';
+          for (let i = 0; i < event.results.length; i++) {
+            currentTranscript += event.results[i][0].transcript;
+          }
+          setTranscript(currentTranscript);
+        };
+
+        recognition.onerror = (event: { error: string }) => {
+          console.error("Speech recognition error:", event.error);
+          setIsRecording(false);
+          toast({ title: "Recording Error", description: "There was an error with speech recognition.", variant: "destructive" });
+        };
+
+        recognition.onend = () => {
+          setIsRecording(false);
+        };
+
+        recognitionRef.current = recognition;
+      }
+    }
+  }, [toast]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -29,18 +69,33 @@ const VoiceToPost = () => {
   };
 
   const handleRecord = () => {
-    setIsRecording(!isRecording);
-    if (!isRecording) {
-      setTimeout(() => {
-        setTranscript("I was thinking about how many people struggle with consistency on LinkedIn. It's not about having perfect ideas, it's about showing up every day with something valuable. That's the real secret. You don't need a viral hit every time. Just document your journey and share what you learn.");
-        setIsRecording(false);
-      }, 5000);
+    if (!recognitionRef.current) {
+      toast({ title: "Not Supported", description: "Speech recognition is not supported in this browser.", variant: "destructive" });
+      return;
+    }
+
+    if (isRecording) {
+      recognitionRef.current.stop();
+      setIsRecording(false);
+    } else {
+      setTranscript("");
+      recognitionRef.current.start();
+      setIsRecording(true);
     }
   };
 
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
     if (!transcript) return;
-    setPost("Consistency > Perfection.\n\nMost people think they need a groundbreaking idea to post on LinkedIn.\n\nThey don't.\n\nThey just need to show up every day with something valuable.\n\nThat's the real secret to building an audience.\n\nStop trying to go viral.\nStart documenting your journey.\n\nWhat's your biggest struggle with consistency?");
+    setIsGenerating(true);
+    try {
+      const generatedPost = await generatePostFromTranscript(transcript, persona, formatting);
+      setPost(generatedPost);
+    } catch (error) {
+      console.error("Failed to generate post:", error);
+      setPost("Failed to generate post. Please try again.");
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   return (
@@ -73,7 +128,11 @@ const VoiceToPost = () => {
             <div className="space-y-4">
               <div>
                 <label className="text-xs font-medium text-muted-foreground mb-1 block">Voice Persona</label>
-                <select className="w-full bg-background border border-border/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50">
+                <select 
+                  value={persona}
+                  onChange={(e) => setPersona(e.target.value)}
+                  className="w-full bg-background border border-border/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                >
                   <option>My Default Style</option>
                   <option>Thought Leader</option>
                   <option>Storyteller</option>
@@ -81,7 +140,11 @@ const VoiceToPost = () => {
               </div>
               <div>
                 <label className="text-xs font-medium text-muted-foreground mb-1 block">Formatting</label>
-                <select className="w-full bg-background border border-border/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50">
+                <select 
+                  value={formatting}
+                  onChange={(e) => setFormatting(e.target.value)}
+                  className="w-full bg-background border border-border/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                >
                   <option>Short Sentences</option>
                   <option>Bullet Points</option>
                   <option>Paragraphs</option>
@@ -175,11 +238,14 @@ const VoiceToPost = () => {
 
                 <button 
                   onClick={handleGenerate}
-                  disabled={!transcript}
+                  disabled={!transcript || isGenerating}
                   className="w-full mt-6 bg-primary text-primary-foreground py-3 rounded-lg font-bold hover:bg-primary/90 disabled:opacity-50 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-primary/20"
                 >
-                  <Brain className="w-5 h-5" />
-                  Apply Content DNA & Generate Post
+                  {isGenerating ? (
+                    <><Loader2 className="w-5 h-5 animate-spin" /> Generating Post...</>
+                  ) : (
+                    <><Brain className="w-5 h-5" /> Apply Content DNA & Generate Post</>
+                  )}
                 </button>
               </div>
 

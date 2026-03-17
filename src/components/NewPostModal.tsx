@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { X, Calendar, Clock, Link, Type } from "lucide-react";
+import { X, Calendar, Clock, Link, Type, Sparkles, Loader2 } from "lucide-react";
 import { savePost } from "@/services/firebaseService";
+import { generatePostContent } from "@/services/geminiService";
 
 interface NewPostModalProps {
   isOpen: boolean;
@@ -11,8 +12,22 @@ const NewPostModal = ({ isOpen, onClose }: NewPostModalProps) => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [platform, setPlatform] = useState<'linkedin' | 'youtube' | 'instagram' | 'x'>('linkedin');
+  const [isGenerating, setIsGenerating] = useState(false);
 
   if (!isOpen) return null;
+
+  const handleGenerate = async () => {
+    if (!title) return;
+    setIsGenerating(true);
+    try {
+      const generated = await generatePostContent(title, platform);
+      setContent(generated);
+    } catch (error) {
+      console.error("Failed to generate post:", error);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,25 +59,6 @@ const NewPostModal = ({ isOpen, onClose }: NewPostModalProps) => {
         
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="text-sm font-bold mb-2 block">Title</label>
-            <input 
-              type="text" 
-              value={title} 
-              onChange={(e) => setTitle(e.target.value)}
-              className="w-full border border-border/50 rounded-lg p-3 text-sm bg-background"
-              required
-            />
-          </div>
-          <div>
-            <label className="text-sm font-bold mb-2 block">Content</label>
-            <textarea 
-              value={content} 
-              onChange={(e) => setContent(e.target.value)}
-              className="w-full border border-border/50 rounded-lg p-3 text-sm bg-background h-32"
-              required
-            />
-          </div>
-          <div>
             <label className="text-sm font-bold mb-2 block">Platform</label>
             <select 
               value={platform} 
@@ -74,6 +70,37 @@ const NewPostModal = ({ isOpen, onClose }: NewPostModalProps) => {
               <option value="x">X (Twitter)</option>
               <option value="instagram">Instagram</option>
             </select>
+          </div>
+          <div>
+            <label className="text-sm font-bold mb-2 block">Title / Topic</label>
+            <input 
+              type="text" 
+              value={title} 
+              onChange={(e) => setTitle(e.target.value)}
+              className="w-full border border-border/50 rounded-lg p-3 text-sm bg-background"
+              placeholder="What do you want to post about?"
+              required
+            />
+          </div>
+          <div>
+            <div className="flex justify-between items-center mb-2">
+              <label className="text-sm font-bold block">Content</label>
+              <button 
+                type="button"
+                onClick={handleGenerate}
+                disabled={!title || isGenerating}
+                className="text-xs font-bold text-orange-600 hover:text-orange-700 transition-colors bg-orange-500/10 px-3 py-1.5 rounded-md flex items-center gap-1 disabled:opacity-50"
+              >
+                {isGenerating ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
+                {isGenerating ? "Generating..." : "Auto-Generate"}
+              </button>
+            </div>
+            <textarea 
+              value={content} 
+              onChange={(e) => setContent(e.target.value)}
+              className="w-full border border-border/50 rounded-lg p-3 text-sm bg-background h-32"
+              required
+            />
           </div>
           
           <div className="flex justify-end gap-3 pt-4 border-t border-border/50">

@@ -1,12 +1,28 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { MessageCircle, ThumbsUp, MessageSquare, Share2, Send, CheckCircle2, X as XIcon, Clock, Zap, Settings, History, Plus, FileText } from "lucide-react";
+import { MessageCircle, ThumbsUp, MessageSquare, Share2, Send, CheckCircle2, X as XIcon, Clock, Zap, Settings, History, Plus, FileText, Sparkles, Loader2 } from "lucide-react";
 import { useState } from "react";
+import { generateFirstComment } from "@/services/geminiService";
 
 const ScheduleFirstComment = () => {
   const [autoPlug, setAutoPlug] = useState(true);
   const [comment, setComment] = useState("");
   const [delay, setDelay] = useState("Immediately");
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  const postContent = `The biggest mistake I see founders make on LinkedIn? They treat it like a resume.\n\nStop broadcasting.\nStart connecting.\n\nShare your failures, your lessons, your process. That's what people actually want to read.`;
+
+  const handleGenerate = async () => {
+    setIsGenerating(true);
+    try {
+      const generated = await generateFirstComment(postContent);
+      setComment(generated);
+    } catch (error) {
+      console.error("Failed to generate comment:", error);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -161,9 +177,19 @@ const ScheduleFirstComment = () => {
                       <div className="w-6 h-6 rounded-full bg-green-500/20 text-green-600 flex items-center justify-center text-xs">1</div>
                       Comment Content
                     </span>
-                    <button className="text-xs font-bold text-green-600 hover:text-green-700 transition-colors bg-green-500/10 px-3 py-1.5 rounded-md flex items-center gap-1">
-                      <Plus className="w-3 h-3" /> Load Template
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button 
+                        onClick={handleGenerate}
+                        disabled={isGenerating}
+                        className="text-xs font-bold text-green-600 hover:text-green-700 transition-colors bg-green-500/10 px-3 py-1.5 rounded-md flex items-center gap-1 disabled:opacity-50"
+                      >
+                        {isGenerating ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
+                        {isGenerating ? "Generating..." : "Auto-Generate"}
+                      </button>
+                      <button className="text-xs font-bold text-green-600 hover:text-green-700 transition-colors bg-green-500/10 px-3 py-1.5 rounded-md flex items-center gap-1">
+                        <Plus className="w-3 h-3" /> Load Template
+                      </button>
+                    </div>
                   </div>
                   
                   <textarea 
