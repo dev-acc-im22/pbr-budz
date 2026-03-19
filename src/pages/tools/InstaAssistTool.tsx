@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useToast } from "@/components/ui/use-toast";
-import { generateInstaCaptions, rewriteInstaCaption, simulateInstaAlgorithm, generateThreads, optimizeThreadHook, simulateThreadsAlgorithm } from "@/services/geminiService";
+import { generateInstaCaptions, rewriteInstaCaption, simulateInstaAlgorithm, generateThreads, optimizeThreadHook, simulateThreadsAlgorithm, generateReelsScript, generateInstaCarousel, generateInstaSEO, generateStorySequence, generateContentPillars, generateDMAutomation, suggestAudioVibe, analyzeCompetitorPost } from "@/services/geminiService";
 
 const InstaAssistTool = () => {
   const { toast } = useToast();
@@ -36,6 +36,46 @@ const InstaAssistTool = () => {
   const [isOptimizingHook, setIsOptimizingHook] = useState(false);
   const [threadSimResult, setThreadSimResult] = useState<{score: number, reach: string, engagement: string, feedback: string} | null>(null);
   const [isSimulatingThread, setIsSimulatingThread] = useState(false);
+
+  // Reels State
+  const [reelsTopic, setReelsTopic] = useState("");
+  const [reelsScript, setReelsScript] = useState<{visual: string, audio: string}[]>([]);
+  const [isGeneratingReels, setIsGeneratingReels] = useState(false);
+
+  // Carousel State
+  const [carouselTopic, setCarouselTopic] = useState("");
+  const [carouselSlides, setCarouselSlides] = useState<{slideNumber: number, text: string, visualIdea: string}[]>([]);
+  const [isGeneratingCarousel, setIsGeneratingCarousel] = useState(false);
+
+  // SEO State
+  const [seoTopic, setSeoTopic] = useState("");
+  const [seoResult, setSeoResult] = useState<{keywords: string[], hashtags: string[], altTextIdea: string} | null>(null);
+  const [isGeneratingSeo, setIsGeneratingSeo] = useState(false);
+
+  // Story Sequence State
+  const [storyTopic, setStoryTopic] = useState("");
+  const [storySequence, setStorySequence] = useState<{slide: number, type: string, content: string, visual: string}[]>([]);
+  const [isGeneratingStory, setIsGeneratingStory] = useState(false);
+
+  // Content Pillars State
+  const [pillarNiche, setPillarNiche] = useState("");
+  const [contentPillars, setContentPillars] = useState<{pillar: string, description: string, ideas: string[]}[]>([]);
+  const [isGeneratingPillars, setIsGeneratingPillars] = useState(false);
+
+  // DM Automation State
+  const [dmOffer, setDmOffer] = useState("");
+  const [dmAutomation, setDmAutomation] = useState<{postCTA: string, dmScript: string} | null>(null);
+  const [isGeneratingDM, setIsGeneratingDM] = useState(false);
+
+  // Audio Vibe State
+  const [audioTopic, setAudioTopic] = useState("");
+  const [audioVibe, setAudioVibe] = useState<{vibe: string, suggestion: string} | null>(null);
+  const [isSuggestingAudio, setIsSuggestingAudio] = useState(false);
+
+  // Competitor Analysis State
+  const [competitorPost, setCompetitorPost] = useState("");
+  const [competitorAnalysis, setCompetitorAnalysis] = useState<{analysis: string, recreationIdeas: string[]} | null>(null);
+  const [isAnalyzingCompetitor, setIsAnalyzingCompetitor] = useState(false);
 
   // Scheduler State (Mock)
   const [scheduledPosts, setScheduledPosts] = useState([
@@ -124,6 +164,118 @@ const InstaAssistTool = () => {
       toast({ title: "Error", description: "Failed to run simulation.", variant: "destructive" });
     } finally {
       setIsSimulatingThread(false);
+    }
+  };
+
+  const handleGenerateReels = async () => {
+    if (!reelsTopic) return;
+    setIsGeneratingReels(true);
+    try {
+      const script = await generateReelsScript(reelsTopic);
+      setReelsScript(script);
+      toast({ title: "Reels Script Generated!" });
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to generate script.", variant: "destructive" });
+    } finally {
+      setIsGeneratingReels(false);
+    }
+  };
+
+  const handleGenerateCarousel = async () => {
+    if (!carouselTopic) return;
+    setIsGeneratingCarousel(true);
+    try {
+      const slides = await generateInstaCarousel(carouselTopic);
+      setCarouselSlides(slides);
+      toast({ title: "Carousel Outline Generated!" });
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to generate carousel.", variant: "destructive" });
+    } finally {
+      setIsGeneratingCarousel(false);
+    }
+  };
+
+  const handleGenerateSeo = async () => {
+    if (!seoTopic) return;
+    setIsGeneratingSeo(true);
+    try {
+      const seo = await generateInstaSEO(seoTopic);
+      setSeoResult(seo);
+      toast({ title: "SEO Strategy Generated!" });
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to generate SEO.", variant: "destructive" });
+    } finally {
+      setIsGeneratingSeo(false);
+    }
+  };
+
+  const handleGenerateStory = async () => {
+    if (!storyTopic) return;
+    setIsGeneratingStory(true);
+    try {
+      const sequence = await generateStorySequence(storyTopic);
+      setStorySequence(sequence);
+      toast({ title: "Story Sequence Generated!" });
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to generate story sequence.", variant: "destructive" });
+    } finally {
+      setIsGeneratingStory(false);
+    }
+  };
+
+  const handleGeneratePillars = async () => {
+    if (!pillarNiche) return;
+    setIsGeneratingPillars(true);
+    try {
+      const pillars = await generateContentPillars(pillarNiche);
+      setContentPillars(pillars);
+      toast({ title: "Content Pillars Generated!" });
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to generate content pillars.", variant: "destructive" });
+    } finally {
+      setIsGeneratingPillars(false);
+    }
+  };
+
+  const handleGenerateDM = async () => {
+    if (!dmOffer) return;
+    setIsGeneratingDM(true);
+    try {
+      const automation = await generateDMAutomation(dmOffer);
+      setDmAutomation(automation);
+      toast({ title: "DM Automation Generated!" });
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to generate DM automation.", variant: "destructive" });
+    } finally {
+      setIsGeneratingDM(false);
+    }
+  };
+
+  const handleSuggestAudio = async () => {
+    if (!audioTopic) return;
+    setIsSuggestingAudio(true);
+    try {
+      const vibe = await suggestAudioVibe(audioTopic);
+      setAudioVibe(vibe);
+      toast({ title: "Audio Vibe Suggested!" });
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to suggest audio vibe.", variant: "destructive" });
+    } finally {
+      setIsSuggestingAudio(false);
+    }
+  };
+
+  const handleAnalyzeCompetitor = async () => {
+    if (!competitorPost) return;
+    setIsAnalyzingCompetitor(true);
+    try {
+      const analysis = await analyzeCompetitorPost(competitorPost);
+      setCompetitorAnalysis(analysis);
+      toast({ title: "Competitor Analysis Complete!" });
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to analyze competitor post.", variant: "destructive" });
+    } finally {
+      setIsAnalyzingCompetitor(false);
     }
   };
 
@@ -434,6 +586,448 @@ const InstaAssistTool = () => {
           </div>
         );
 
+      case "reels":
+        return (
+          <div className="space-y-6">
+            <div className="glass p-6 rounded-2xl border border-border/50">
+              <h2 className="text-xl font-bold mb-2 flex items-center gap-2">
+                <Video className="w-5 h-5 text-pink-500" />
+                Reels Script Generator
+              </h2>
+              <p className="text-muted-foreground text-sm mb-6">
+                Generate highly engaging short-form video scripts with hooks, visual cues, and audio suggestions.
+              </p>
+              
+              <div className="flex gap-3 mb-6">
+                <input 
+                  type="text" 
+                  placeholder="What is your Reel about?" 
+                  className="flex-1 bg-background/50 border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/50"
+                  value={reelsTopic}
+                  onChange={(e) => setReelsTopic(e.target.value)}
+                />
+                <button 
+                  onClick={handleGenerateReels}
+                  disabled={isGeneratingReels || !reelsTopic}
+                  className="bg-gradient-to-r from-purple-500 to-pink-500 hover:opacity-90 text-white px-6 py-3 rounded-xl font-medium text-sm transition-opacity flex items-center gap-2 disabled:opacity-50"
+                >
+                  {isGeneratingReels ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                  Generate Script
+                </button>
+              </div>
+
+              {reelsScript.length > 0 && (
+                <div className="space-y-4">
+                  {reelsScript.map((part, i) => (
+                    <div key={i} className="p-4 rounded-xl bg-background/50 border border-border flex flex-col md:flex-row gap-4">
+                      <div className="flex-1">
+                        <span className="text-xs font-bold text-pink-500 uppercase tracking-wider mb-1 block">Visual Action</span>
+                        <p className="text-sm">{part.visual}</p>
+                      </div>
+                      <div className="flex-1">
+                        <span className="text-xs font-bold text-purple-500 uppercase tracking-wider mb-1 block">Audio / Script</span>
+                        <p className="text-sm font-medium">"{part.audio}"</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        );
+
+      case "carousel":
+        return (
+          <div className="space-y-6">
+            <div className="glass p-6 rounded-2xl border border-border/50">
+              <h2 className="text-xl font-bold mb-2 flex items-center gap-2">
+                <ImageIcon className="w-5 h-5 text-pink-500" />
+                Carousel Builder
+              </h2>
+              <p className="text-muted-foreground text-sm mb-6">
+                Plan out a 5-8 slide educational or storytelling carousel to maximize saves and shares.
+              </p>
+              
+              <div className="flex gap-3 mb-6">
+                <input 
+                  type="text" 
+                  placeholder="What is your carousel topic?" 
+                  className="flex-1 bg-background/50 border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/50"
+                  value={carouselTopic}
+                  onChange={(e) => setCarouselTopic(e.target.value)}
+                />
+                <button 
+                  onClick={handleGenerateCarousel}
+                  disabled={isGeneratingCarousel || !carouselTopic}
+                  className="bg-gradient-to-r from-purple-500 to-pink-500 hover:opacity-90 text-white px-6 py-3 rounded-xl font-medium text-sm transition-opacity flex items-center gap-2 disabled:opacity-50"
+                >
+                  {isGeneratingCarousel ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                  Build Outline
+                </button>
+              </div>
+
+              {carouselSlides.length > 0 && (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {carouselSlides.map((slide, i) => (
+                    <div key={i} className="p-4 rounded-xl bg-background/50 border border-border relative">
+                      <div className="absolute -top-3 -left-3 w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-full flex items-center justify-center font-bold text-sm shadow-lg">
+                        {slide.slideNumber}
+                      </div>
+                      <div className="mt-2 space-y-3">
+                        <div>
+                          <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1 block">Slide Text</span>
+                          <p className="text-sm font-medium">{slide.text}</p>
+                        </div>
+                        <div className="pt-3 border-t border-border/50">
+                          <span className="text-xs font-bold text-pink-500 uppercase tracking-wider mb-1 block">Visual Idea</span>
+                          <p className="text-xs text-muted-foreground">{slide.visualIdea}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        );
+
+      case "seo":
+        return (
+          <div className="space-y-6">
+            <div className="glass p-6 rounded-2xl border border-border/50">
+              <h2 className="text-xl font-bold mb-2 flex items-center gap-2">
+                <TrendingUp className="w-5 h-5 text-pink-500" />
+                IG SEO & Hashtags
+              </h2>
+              <p className="text-muted-foreground text-sm mb-6">
+                Optimize your posts for the Instagram Explore page with targeted keywords, alt text, and hashtags.
+              </p>
+              
+              <div className="flex gap-3 mb-6">
+                <input 
+                  type="text" 
+                  placeholder="Describe your post content..." 
+                  className="flex-1 bg-background/50 border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/50"
+                  value={seoTopic}
+                  onChange={(e) => setSeoTopic(e.target.value)}
+                />
+                <button 
+                  onClick={handleGenerateSeo}
+                  disabled={isGeneratingSeo || !seoTopic}
+                  className="bg-gradient-to-r from-purple-500 to-pink-500 hover:opacity-90 text-white px-6 py-3 rounded-xl font-medium text-sm transition-opacity flex items-center gap-2 disabled:opacity-50"
+                >
+                  {isGeneratingSeo ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                  Optimize
+                </button>
+              </div>
+
+              {seoResult && (
+                <div className="space-y-6">
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="p-4 rounded-xl bg-background/50 border border-border">
+                      <h3 className="text-sm font-bold mb-3 flex items-center gap-2">
+                        <Target className="w-4 h-4 text-purple-500" />
+                        Target Keywords
+                      </h3>
+                      <div className="flex flex-wrap gap-2">
+                        {seoResult.keywords.map((kw, i) => (
+                          <span key={i} className="px-2.5 py-1 rounded-md bg-purple-500/10 text-purple-500 text-xs font-medium border border-purple-500/20">
+                            {kw}
+                          </span>
+                        ))}
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-3">Include these naturally in your caption and on-screen text.</p>
+                    </div>
+                    
+                    <div className="p-4 rounded-xl bg-background/50 border border-border">
+                      <h3 className="text-sm font-bold mb-3 flex items-center gap-2">
+                        <ImageIcon className="w-4 h-4 text-pink-500" />
+                        Alt Text Suggestion
+                      </h3>
+                      <p className="text-sm bg-secondary/50 p-3 rounded-lg border border-border/50">
+                        {seoResult.altTextIdea}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-3">Add this in Advanced Settings &gt; Write Alt Text.</p>
+                    </div>
+                  </div>
+
+                  <div className="p-4 rounded-xl bg-background/50 border border-border">
+                    <div className="flex justify-between items-center mb-3">
+                      <h3 className="text-sm font-bold flex items-center gap-2">
+                        <Activity className="w-4 h-4 text-pink-500" />
+                        Hashtag Strategy
+                      </h3>
+                      <button 
+                        onClick={() => {
+                          navigator.clipboard.writeText(seoResult.hashtags.join(" "));
+                          toast({ title: "Copied!", description: "Hashtags copied to clipboard." });
+                        }}
+                        className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
+                      >
+                        <Copy className="w-3 h-3" /> Copy All
+                      </button>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {seoResult.hashtags.map((tag, i) => (
+                        <span key={i} className="text-sm text-muted-foreground hover:text-pink-500 cursor-pointer transition-colors">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        );
+
+      case "story":
+        return (
+          <div className="space-y-6">
+            <div className="glass p-6 rounded-2xl border border-border/50">
+              <h2 className="text-xl font-bold mb-2 flex items-center gap-2">
+                <Play className="w-5 h-5 text-pink-500" />
+                Story Sequence Architect
+              </h2>
+              <p className="text-muted-foreground text-sm mb-6">
+                Build a 4-part story arc to maximize retention and conversions.
+              </p>
+              
+              <div className="flex gap-3 mb-6">
+                <input 
+                  type="text" 
+                  placeholder="What is your story about?" 
+                  className="flex-1 bg-background/50 border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/50"
+                  value={storyTopic}
+                  onChange={(e) => setStoryTopic(e.target.value)}
+                />
+                <button 
+                  onClick={handleGenerateStory}
+                  disabled={isGeneratingStory || !storyTopic}
+                  className="bg-gradient-to-r from-purple-500 to-pink-500 hover:opacity-90 text-white px-6 py-3 rounded-xl font-medium text-sm transition-opacity flex items-center gap-2 disabled:opacity-50"
+                >
+                  {isGeneratingStory ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                  Generate Sequence
+                </button>
+              </div>
+
+              {storySequence.length > 0 && (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {storySequence.map((slide, i) => (
+                    <div key={i} className="p-4 rounded-xl bg-background/50 border border-border relative">
+                      <div className="absolute -top-3 -left-3 w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-full flex items-center justify-center font-bold text-sm shadow-lg">
+                        {slide.slide}
+                      </div>
+                      <div className="mt-2 space-y-3">
+                        <div>
+                          <span className="text-xs font-bold text-pink-500 uppercase tracking-wider mb-1 block">{slide.type}</span>
+                          <p className="text-sm font-medium">{slide.content}</p>
+                        </div>
+                        <div className="pt-3 border-t border-border/50">
+                          <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1 block">Visual Idea</span>
+                          <p className="text-xs text-muted-foreground">{slide.visual}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        );
+
+      case "pillars":
+        return (
+          <div className="space-y-6">
+            <div className="glass p-6 rounded-2xl border border-border/50">
+              <h2 className="text-xl font-bold mb-2 flex items-center gap-2">
+                <BarChart3 className="w-5 h-5 text-pink-500" />
+                Content Pillar Matrix
+              </h2>
+              <p className="text-muted-foreground text-sm mb-6">
+                Define your core content pillars and get specific post ideas for your niche.
+              </p>
+              
+              <div className="flex gap-3 mb-6">
+                <input 
+                  type="text" 
+                  placeholder="What is your niche? (e.g., Fitness Coach)" 
+                  className="flex-1 bg-background/50 border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/50"
+                  value={pillarNiche}
+                  onChange={(e) => setPillarNiche(e.target.value)}
+                />
+                <button 
+                  onClick={handleGeneratePillars}
+                  disabled={isGeneratingPillars || !pillarNiche}
+                  className="bg-gradient-to-r from-purple-500 to-pink-500 hover:opacity-90 text-white px-6 py-3 rounded-xl font-medium text-sm transition-opacity flex items-center gap-2 disabled:opacity-50"
+                >
+                  {isGeneratingPillars ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                  Generate Pillars
+                </button>
+              </div>
+
+              {contentPillars.length > 0 && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {contentPillars.map((pillar, i) => (
+                    <div key={i} className="p-4 rounded-xl bg-background/50 border border-border">
+                      <h3 className="text-lg font-bold text-pink-500 mb-1">{pillar.pillar}</h3>
+                      <p className="text-sm text-muted-foreground mb-4">{pillar.description}</p>
+                      <div className="space-y-2">
+                        <span className="text-xs font-bold uppercase tracking-wider text-foreground">Post Ideas:</span>
+                        <ul className="list-disc list-inside text-sm space-y-1">
+                          {pillar.ideas.map((idea, j) => (
+                            <li key={j} className="text-muted-foreground">{idea}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        );
+
+      case "dm":
+        return (
+          <div className="space-y-6">
+            <div className="glass p-6 rounded-2xl border border-border/50">
+              <h2 className="text-xl font-bold mb-2 flex items-center gap-2">
+                <MessageSquare className="w-5 h-5 text-pink-500" />
+                DM Automation Scripter
+              </h2>
+              <p className="text-muted-foreground text-sm mb-6">
+                Write the perfect post CTA and automated DM script to drive leads.
+              </p>
+              
+              <div className="flex gap-3 mb-6">
+                <input 
+                  type="text" 
+                  placeholder="What are you offering? (e.g., Free SEO Guide)" 
+                  className="flex-1 bg-background/50 border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/50"
+                  value={dmOffer}
+                  onChange={(e) => setDmOffer(e.target.value)}
+                />
+                <button 
+                  onClick={handleGenerateDM}
+                  disabled={isGeneratingDM || !dmOffer}
+                  className="bg-gradient-to-r from-purple-500 to-pink-500 hover:opacity-90 text-white px-6 py-3 rounded-xl font-medium text-sm transition-opacity flex items-center gap-2 disabled:opacity-50"
+                >
+                  {isGeneratingDM ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                  Generate Script
+                </button>
+              </div>
+
+              {dmAutomation && (
+                <div className="space-y-4">
+                  <div className="p-4 rounded-xl bg-background/50 border border-border">
+                    <h3 className="text-sm font-bold mb-2 text-pink-500">Post CTA (Call to Action)</h3>
+                    <p className="text-sm font-medium">{dmAutomation.postCTA}</p>
+                  </div>
+                  <div className="p-4 rounded-xl bg-background/50 border border-border">
+                    <h3 className="text-sm font-bold mb-2 text-purple-500">Automated DM Script</h3>
+                    <p className="text-sm font-medium whitespace-pre-wrap">{dmAutomation.dmScript}</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        );
+
+      case "audio":
+        return (
+          <div className="space-y-6">
+            <div className="glass p-6 rounded-2xl border border-border/50">
+              <h2 className="text-xl font-bold mb-2 flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-pink-500" />
+                Audio Vibe Matcher
+              </h2>
+              <p className="text-muted-foreground text-sm mb-6">
+                Find the perfect audio vibe for your Reel based on your topic.
+              </p>
+              
+              <div className="flex gap-3 mb-6">
+                <input 
+                  type="text" 
+                  placeholder="What is your Reel about?" 
+                  className="flex-1 bg-background/50 border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/50"
+                  value={audioTopic}
+                  onChange={(e) => setAudioTopic(e.target.value)}
+                />
+                <button 
+                  onClick={handleSuggestAudio}
+                  disabled={isSuggestingAudio || !audioTopic}
+                  className="bg-gradient-to-r from-purple-500 to-pink-500 hover:opacity-90 text-white px-6 py-3 rounded-xl font-medium text-sm transition-opacity flex items-center gap-2 disabled:opacity-50"
+                >
+                  {isSuggestingAudio ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                  Suggest Vibe
+                </button>
+              </div>
+
+              {audioVibe && (
+                <div className="p-6 rounded-xl bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-pink-500/20 text-center">
+                  <h3 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-pink-500 mb-2">
+                    {audioVibe.vibe}
+                  </h3>
+                  <p className="text-sm text-foreground font-medium">{audioVibe.suggestion}</p>
+                </div>
+              )}
+            </div>
+          </div>
+        );
+
+      case "competitor":
+        return (
+          <div className="space-y-6">
+            <div className="glass p-6 rounded-2xl border border-border/50">
+              <h2 className="text-xl font-bold mb-2 flex items-center gap-2">
+                <Activity className="w-5 h-5 text-pink-500" />
+                Competitor Analysis
+              </h2>
+              <p className="text-muted-foreground text-sm mb-6">
+                Break down a viral post and learn how to recreate its success.
+              </p>
+              
+              <div className="space-y-4 mb-6">
+                <textarea
+                  value={competitorPost}
+                  onChange={(e) => setCompetitorPost(e.target.value)}
+                  className="w-full h-32 bg-background/50 border border-border rounded-xl p-4 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/50"
+                  placeholder="Paste the text or description of a competitor's viral post here..."
+                />
+                <button 
+                  onClick={handleAnalyzeCompetitor}
+                  disabled={isAnalyzingCompetitor || !competitorPost}
+                  className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:opacity-90 text-white px-6 py-3 rounded-xl font-medium text-sm transition-opacity flex items-center justify-center gap-2 disabled:opacity-50"
+                >
+                  {isAnalyzingCompetitor ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                  Analyze Post
+                </button>
+              </div>
+
+              {competitorAnalysis && (
+                <div className="space-y-6">
+                  <div className="p-4 rounded-xl bg-background/50 border border-border">
+                    <h3 className="text-sm font-bold mb-2 text-pink-500">Why it works</h3>
+                    <p className="text-sm whitespace-pre-wrap">{competitorAnalysis.analysis}</p>
+                  </div>
+                  <div className="p-4 rounded-xl bg-background/50 border border-border">
+                    <h3 className="text-sm font-bold mb-3 text-purple-500">How to recreate it</h3>
+                    <ul className="space-y-2">
+                      {competitorAnalysis.recreationIdeas.map((idea, i) => (
+                        <li key={i} className="text-sm flex gap-2">
+                          <span className="text-pink-500 font-bold">{i + 1}.</span>
+                          <span>{idea}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        );
+
       default:
         return null;
     }
@@ -455,6 +1049,14 @@ const InstaAssistTool = () => {
             <nav className="space-y-2">
               {[
                 { id: "writer", icon: PenTool, label: "AI Caption Writer" },
+                { id: "reels", icon: Video, label: "Reels Script Gen" },
+                { id: "carousel", icon: ImageIcon, label: "Carousel Builder" },
+                { id: "story", icon: Play, label: "Story Architect" },
+                { id: "pillars", icon: BarChart3, label: "Content Pillars" },
+                { id: "dm", icon: MessageSquare, label: "DM Automation" },
+                { id: "audio", icon: Sparkles, label: "Audio Vibe Matcher" },
+                { id: "competitor", icon: Activity, label: "Competitor Analysis" },
+                { id: "seo", icon: TrendingUp, label: "IG SEO & Hashtags" },
                 { id: "threads", icon: MessageCircle, label: "Threads Assist" },
                 { id: "simulator", icon: Target, label: "Algorithm Simulator" },
                 { id: "scheduler", icon: Calendar, label: "Smart Scheduler" },

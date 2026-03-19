@@ -1,21 +1,50 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import { 
   Linkedin, PenTool, BarChart3, Lightbulb, 
   Repeat, Play, Plus, Trash2, Copy, 
   Sparkles, TrendingUp, Activity, MessageSquare, Loader2,
   Calendar, Clock, Target, Zap, Briefcase, BookOpen, Smile, Grid3X3, List, Check,
-  Youtube, Link as LinkIcon, FileText, LayoutTemplate, ArrowLeft, RefreshCw
+  Youtube, Link as LinkIcon, FileText, LayoutTemplate, ArrowLeft, RefreshCw, User, Info
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useToast } from "@/components/ui/use-toast";
-import { generateLinkedInPosts, rewriteLinkedInPost, simulateLinkedInAlgorithm, generatePostFromExperience, generatePostFromStory, generateCarouselContent, generatePollContent, repurposeContent } from "@/services/geminiService";
+import { generateLinkedInPosts, rewriteLinkedInPost, simulateLinkedInAlgorithm, generatePostFromExperience, generatePostFromStory, generateCarouselContent, generatePollContent, repurposeContent, generateSlideImage, generatePersonaFromLinkedIn } from "@/services/geminiService";
 import { LinkedInFullLogo } from "@/components/LinkedInFullLogo";
-import { savePost, updatePostStatus, Post } from "@/services/firebaseService";
+import { savePost, updatePostStatus, Post, auth } from "@/services/firebaseService";
+import jsPDF from "jspdf";
 
 const LinkedInAssistTool = () => {
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState("writer");
+  const [activeTab, setActiveTab] = useState("profile");
+  
+  // Profile State
+  const [linkedInHandle, setLinkedInHandle] = useState("");
+  const [linkedInPersona, setLinkedInPersona] = useState("");
+  const [isGeneratingPersona, setIsGeneratingPersona] = useState(false);
+
+  useEffect(() => {
+    const savedHandle = localStorage.getItem("linkedInHandle");
+    const savedPersona = localStorage.getItem("linkedInPersona");
+    if (savedHandle) setLinkedInHandle(savedHandle);
+    if (savedPersona) setLinkedInPersona(savedPersona);
+  }, []);
+
+  const handleGeneratePersona = async () => {
+    if (!linkedInHandle) return;
+    setIsGeneratingPersona(true);
+    try {
+      const persona = await generatePersonaFromLinkedIn(linkedInHandle);
+      setLinkedInPersona(persona);
+      localStorage.setItem("linkedInHandle", linkedInHandle);
+      localStorage.setItem("linkedInPersona", persona);
+      toast({ title: "Persona Built!", description: "Your profile has been analyzed." });
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to build persona.", variant: "destructive" });
+    } finally {
+      setIsGeneratingPersona(false);
+    }
+  };
   
   // Writer State
   const [postTopic, setPostTopic] = useState("");
@@ -39,9 +68,14 @@ const LinkedInAssistTool = () => {
 
   // Carousel State
   const [carouselTopic, setCarouselTopic] = useState("");
-  const [carouselResult, setCarouselResult] = useState<{slides: {title: string, content: string, visualSuggestion: string}[]} | null>(null);
+  const [carouselResult, setCarouselResult] = useState<{globalTheme?: string, slides: {title: string, content: string, visualSuggestion: string}[]} | null>(null);
   const [isGeneratingCarousel, setIsGeneratingCarousel] = useState(false);
   const [activeSlide, setActiveSlide] = useState(0);
+  const [carouselPhase, setCarouselPhase] = useState<'text' | 'images'>('text');
+  const [slideImages, setSlideImages] = useState<Record<number, string>>({});
+  const [isGeneratingImages, setIsGeneratingImages] = useState(false);
+  const [regeneratingSlide, setRegeneratingSlide] = useState<number | null>(null);
+  const [slideAnnotations, setSlideAnnotations] = useState<Record<number, string>>({});
 
   // Poll State
   const [pollTopic, setPollTopic] = useState("");
@@ -59,7 +93,7 @@ const LinkedInAssistTool = () => {
     try {
       const post = await repurposeContent(repurposeOption, repurposeInput);
       setEditorText(post);
-      setActiveTab("writer"); // Switch to writer tab to edit the generated post
+      setActiveTab("remixer"); // Switch to remixer tab to edit the generated post
       toast({ title: "Content Repurposed!", description: "Your post is ready for editing." });
     } catch (error) {
       toast({ title: "Error", description: "Failed to repurpose content.", variant: "destructive" });
@@ -76,6 +110,7 @@ const LinkedInAssistTool = () => {
     try {
       const post = await generatePostFromExperience(experienceText);
       setEditorText(post);
+      setActiveTab("remixer");
       toast({ title: "Post Generated!", description: "Experience transformed into a post." });
     } catch (error) {
       toast({ title: "Error", description: "Failed to generate post.", variant: "destructive" });
@@ -90,6 +125,7 @@ const LinkedInAssistTool = () => {
     try {
       const post = await generatePostFromStory(storyText);
       setEditorText(post);
+      setActiveTab("remixer");
       toast({ title: "Post Generated!", description: "Story transformed into a post." });
     } catch (error) {
       toast({ title: "Error", description: "Failed to generate post.", variant: "destructive" });
@@ -101,14 +137,127 @@ const LinkedInAssistTool = () => {
   const handleGenerateCarousel = async () => {
     setIsGeneratingCarousel(true);
     try {
-      const res = await generateCarouselContent(carouselTopic);
+      const res = await generateCarouselContent(carouselTopic, linkedInPersona);
       setCarouselResult(res);
       setActiveSlide(0);
+      setCarouselPhase('text');
+      setSlideImages({});
+      setSlideAnnotations({});
       toast({ title: "Carousel Generated!", description: "AI has created your slides." });
     } catch (error) {
       toast({ title: "Error", description: "Failed to generate carousel.", variant: "destructive" });
     } finally {
       setIsGeneratingCarousel(false);
+    }
+  };
+
+  const handleGenerateAllImages = async () => {
+    if (!carouselResult) return;
+    setIsGeneratingImages(true);
+    setCarouselPhase('images');
+    
+    try {
+      const newImages: Record<number, string> = {};
+      const totalSlides = carouselResult.slides.length;
+      
+      // Generate in parallel
+      await Promise.all(
+        carouselResult.slides.map(async (slide, index) => {
+          try {
+            const imageUrl = await generateSlideImage(slide.content, slide.visualSuggestion, carouselResult.globalTheme || "Modern, minimalist, corporate blue and white.", index + 1, totalSlides, undefined, linkedInHandle, linkedInPersona);
+            newImages[index] = imageUrl;
+          } catch (e) {
+            console.error(`Failed to generate image for slide ${index}:`, e);
+          }
+        })
+      );
+      
+      setSlideImages(prev => ({ ...prev, ...newImages }));
+      toast({ title: "Images Generated!", description: "Your carousel slides are ready." });
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to generate some images.", variant: "destructive" });
+    } finally {
+      setIsGeneratingImages(false);
+    }
+  };
+
+  const handleRegenerateImage = async (index: number) => {
+    if (!carouselResult) return;
+    setRegeneratingSlide(index);
+    try {
+      const slide = carouselResult.slides[index];
+      const annotation = slideAnnotations[index];
+      const totalSlides = carouselResult.slides.length;
+      const imageUrl = await generateSlideImage(slide.content, slide.visualSuggestion, carouselResult.globalTheme || "Modern, minimalist, corporate blue and white.", index + 1, totalSlides, annotation, linkedInHandle, linkedInPersona);
+      setSlideImages(prev => ({ ...prev, [index]: imageUrl }));
+      toast({ title: "Image Regenerated!", description: `Slide ${index + 1} updated.` });
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to regenerate image.", variant: "destructive" });
+    } finally {
+      setRegeneratingSlide(null);
+    }
+  };
+
+  const handleDownloadImage = (index: number) => {
+    const imageUrl = slideImages[index];
+    if (!imageUrl) return;
+    
+    const a = document.createElement("a");
+    a.href = imageUrl;
+    a.download = `slide-${index + 1}.png`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
+
+  const handleDownloadAllImages = () => {
+    if (!carouselResult) return;
+    
+    carouselResult.slides.forEach((_, index) => {
+      // Small delay to ensure browser handles multiple downloads
+      setTimeout(() => {
+        handleDownloadImage(index);
+      }, index * 300);
+    });
+    toast({ title: "Downloading...", description: "Saving slides to your device." });
+  };
+
+  const handleDownloadAllPDF = async () => {
+    if (!carouselResult) return;
+    
+    toast({ title: "Generating PDF...", description: "Please wait while we create your PDF." });
+    
+    try {
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'px',
+        format: [800, 800] // 1:1 aspect ratio
+      });
+
+      let addedFirstPage = false;
+
+      for (let i = 0; i < carouselResult.slides.length; i++) {
+        const imageUrl = slideImages[i];
+        if (imageUrl) {
+          if (addedFirstPage) {
+            pdf.addPage([800, 800], 'portrait');
+          }
+          
+          // Add image to PDF (x, y, width, height)
+          pdf.addImage(imageUrl, 'PNG', 0, 0, 800, 800);
+          addedFirstPage = true;
+        }
+      }
+
+      if (addedFirstPage) {
+        pdf.save('linkedin-carousel.pdf');
+        toast({ title: "Success!", description: "PDF downloaded successfully." });
+      } else {
+        toast({ title: "Error", description: "No images available to generate PDF.", variant: "destructive" });
+      }
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      toast({ title: "Error", description: "Failed to generate PDF.", variant: "destructive" });
     }
   };
 
@@ -123,20 +272,29 @@ const LinkedInAssistTool = () => {
     if (!postTopic) return;
     setIsGeneratingPosts(true);
     try {
-      const posts = await generateLinkedInPosts(postTopic);
+      const posts = await generateLinkedInPosts(postTopic, linkedInPersona);
       const savedPosts = await Promise.all(posts.map(async (p) => {
-        const docRef = await savePost({
-          title: postTopic,
-          content: p.text,
-          platform: 'linkedin',
-          status: 'draft',
-          scheduledDate: null,
-        });
-        return { ...p, id: docRef.id, title: postTopic, platform: 'linkedin', status: 'draft', authorUID: '', createdAt: new Date() } as Post;
+        try {
+          if (!auth.currentUser) {
+            return { ...p, content: p.text, id: Math.random().toString(36).substring(7), title: postTopic, platform: 'linkedin', status: 'draft', authorUID: '', createdAt: new Date() } as Post;
+          }
+          const docRef = await savePost({
+            title: postTopic,
+            content: p.text,
+            platform: 'linkedin',
+            status: 'draft',
+            scheduledDate: null,
+          });
+          return { ...p, content: p.text, id: docRef.id, title: postTopic, platform: 'linkedin', status: 'draft', authorUID: auth.currentUser.uid, createdAt: new Date() } as Post;
+        } catch (e) {
+          console.error("Failed to save post to Firebase:", e);
+          return { ...p, content: p.text, id: Math.random().toString(36).substring(7), title: postTopic, platform: 'linkedin', status: 'draft', authorUID: '', createdAt: new Date() } as Post;
+        }
       }));
       setGeneratedPosts(savedPosts);
       toast({ title: "Posts Generated!", description: "Here are some ideas to get you started." });
     } catch (error) {
+      console.error(error);
       toast({ title: "Error", description: "Failed to generate posts.", variant: "destructive" });
     } finally {
       setIsGeneratingPosts(false);
@@ -147,7 +305,7 @@ const LinkedInAssistTool = () => {
     if (!editorText) return;
     setIsRewriting(true);
     try {
-      const rewritten = await rewriteLinkedInPost(editorText, style);
+      const rewritten = await rewriteLinkedInPost(editorText, style, linkedInPersona);
       setEditorText(rewritten);
       toast({ title: "Post Rewritten!", description: `Applied style: ${style}` });
     } catch (error) {
@@ -183,8 +341,13 @@ const LinkedInAssistTool = () => {
                 <button 
                   onClick={async () => {
                     if (post.id) {
-                      await updatePostStatus(post.id, 'approved');
-                      toast({ title: "Approved!", description: "Post approved and sent to calendar." });
+                      try {
+                        await updatePostStatus(post.id, 'approved');
+                        toast({ title: "Approved!", description: "Post approved and sent to calendar." });
+                      } catch (e) {
+                        console.error("Failed to approve post:", e);
+                        toast({ title: "Notice", description: "Post approved locally. Log in to save to calendar." });
+                      }
                     }
                   }}
                   className="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 transition-all rounded-lg"
@@ -224,6 +387,83 @@ const LinkedInAssistTool = () => {
 
   const renderContent = () => {
     switch (activeTab) {
+      case "profile":
+        return (
+          <div className="space-y-6">
+            <div className="rounded-[2rem] bg-gradient-to-br from-[#0a66c2] to-[#004182] p-2 md:p-3 shadow-xl">
+              <div className="rounded-[1.5rem] bg-white p-6 md:p-10">
+                <div className="flex items-center justify-between mb-2">
+                  <h2 className="text-2xl font-bold flex items-center gap-3 text-slate-900">
+                    <User className="w-6 h-6 text-[#0a66c2]" />
+                    Your LinkedIn Profile
+                  </h2>
+                </div>
+                <p className="text-slate-500 text-sm mb-8">
+                  Enter your LinkedIn handle or URL. We'll build a persona to customize your generated content.
+                </p>
+                
+                <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 mb-8">
+                  <div className="flex flex-col md:flex-row gap-4">
+                    <div className="flex-1 relative">
+                      <div className="absolute left-4 top-3.5 text-slate-400">
+                        <LinkIcon className="w-5 h-5" />
+                      </div>
+                      <input 
+                        type="text" 
+                        placeholder="e.g., https://linkedin.com/in/johndoe or @johndoe" 
+                        className="w-full bg-white border border-slate-200 rounded-xl pl-12 pr-4 py-3.5 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[#0a66c2]/50 shadow-sm transition-all"
+                        value={linkedInHandle}
+                        onChange={(e) => setLinkedInHandle(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && linkedInHandle && !isGeneratingPersona) {
+                            handleGeneratePersona();
+                          }
+                        }}
+                      />
+                    </div>
+                    <button 
+                      onClick={handleGeneratePersona}
+                      disabled={isGeneratingPersona || !linkedInHandle}
+                      className="bg-[#0a66c2] hover:bg-[#004182] text-white px-8 py-3.5 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 disabled:opacity-50 shadow-sm whitespace-nowrap"
+                    >
+                      {isGeneratingPersona ? <Loader2 className="w-5 h-5 animate-spin" /> : <Sparkles className="w-5 h-5" />}
+                      Analyze Profile
+                    </button>
+                  </div>
+                </div>
+
+                {linkedInPersona && (
+                  <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-6">
+                    <h3 className="text-emerald-800 font-bold text-lg mb-3 flex items-center gap-2">
+                      <Check className="w-5 h-5" />
+                      Persona Active
+                    </h3>
+                    <textarea
+                      className="w-full bg-white border border-emerald-200 rounded-xl p-4 text-emerald-900 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 shadow-sm transition-all min-h-[120px]"
+                      value={linkedInPersona}
+                      onChange={(e) => setLinkedInPersona(e.target.value)}
+                    />
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mt-4 gap-4">
+                      <p className="text-emerald-600 text-xs font-medium">
+                        This persona will now be used to customize your generated posts and carousels. Feel free to edit it!
+                      </p>
+                      <button 
+                        onClick={() => {
+                          localStorage.setItem("linkedInPersona", linkedInPersona);
+                          toast({ title: "Persona Saved!", description: "Your updated persona has been permanently saved." });
+                        }}
+                        className="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2 rounded-lg font-bold text-sm transition-all whitespace-nowrap shadow-sm"
+                      >
+                        Save Changes
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+
       case "writer":
         return (
           <div className="space-y-6">
@@ -395,6 +635,8 @@ const LinkedInAssistTool = () => {
                     <button onClick={() => handleRewrite("professional")} disabled={isRewriting || !editorText} className="px-4 py-2 rounded-lg bg-white border border-slate-200 text-slate-700 text-sm font-medium hover:border-[#0a66c2] hover:text-[#0a66c2] transition-colors disabled:opacity-50 shadow-sm">More Professional</button>
                     <button onClick={() => handleRewrite("concise")} disabled={isRewriting || !editorText} className="px-4 py-2 rounded-lg bg-white border border-slate-200 text-slate-700 text-sm font-medium hover:border-[#0a66c2] hover:text-[#0a66c2] transition-colors disabled:opacity-50 shadow-sm">Make Concise</button>
                     <button onClick={() => handleRewrite("emojis")} disabled={isRewriting || !editorText} className="px-4 py-2 rounded-lg bg-white border border-slate-200 text-slate-700 text-sm font-medium hover:border-[#0a66c2] hover:text-[#0a66c2] transition-colors disabled:opacity-50 shadow-sm">Add Emojis</button>
+                    <button onClick={() => handleRewrite("humor")} disabled={isRewriting || !editorText} className="px-4 py-2 rounded-lg bg-white border border-slate-200 text-slate-700 text-sm font-medium hover:border-[#0a66c2] hover:text-[#0a66c2] transition-colors disabled:opacity-50 shadow-sm">Add a bit of Humor</button>
+                    <button onClick={() => handleRewrite("ultra crisp bullet-in points")} disabled={isRewriting || !editorText} className="px-4 py-2 rounded-lg bg-white border border-slate-200 text-slate-700 text-sm font-medium hover:border-[#0a66c2] hover:text-[#0a66c2] transition-colors disabled:opacity-50 shadow-sm">Ultra Crisp Butllet-in Points </button>
                   </div>
                   
                   <div className="relative">
@@ -649,20 +891,20 @@ const LinkedInAssistTool = () => {
 
       case "carousel":
         return (
-          <div className="space-y-6">
+          <div className="space-y-4">
             <div className="rounded-[2rem] bg-gradient-to-br from-[#0a66c2] to-[#004182] p-2 md:p-3 shadow-xl">
-              <div className="rounded-[1.5rem] bg-white p-6 md:p-10">
+              <div className="rounded-[1.5rem] bg-white p-5 md:p-6">
                 <div className="flex items-center justify-between mb-2">
                   <h2 className="text-2xl font-bold flex items-center gap-3 text-slate-900">
                     <Grid3X3 className="w-6 h-6 text-[#0a66c2]" />
                     Carousel Generator
                   </h2>
                 </div>
-                <p className="text-slate-500 text-sm mb-8">
+                <p className="text-slate-500 text-sm mb-4">
                   Generate engaging multi-slide carousels for LinkedIn.
                 </p>
                 
-                <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 mb-8">
+                <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 mb-6">
                   <div className="flex flex-col md:flex-row gap-4">
                     <div className="flex-1 relative">
                       <div className="absolute left-4 top-3.5 text-slate-400">
@@ -692,50 +934,136 @@ const LinkedInAssistTool = () => {
                   </div>
                 </div>
                 
-                {carouselResult && (
+                {carouselResult && carouselPhase === 'text' && (
                   <div className="grid md:grid-cols-2 gap-8">
                     <div className="space-y-4">
                       <h3 className="font-bold text-lg text-slate-900">Slide Editor</h3>
-                      <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2">
-                        {carouselResult.slides.map((slide, i) => (
+                      <div className="bg-blue-50 border border-blue-100 text-blue-800 p-3 rounded-xl text-sm flex items-start gap-3">
+                        <Info className="w-5 h-5 shrink-0 mt-0.5 text-blue-500" />
+                        <p className="leading-relaxed">Please check if you are happy with the overall wording of these slides. If not, you can click on the slide number and edit the wording.</p>
+                      </div>
+                      <div className="flex items-center gap-2 overflow-x-auto pb-2">
+                        {carouselResult.slides.map((_, i) => (
                           <button
                             key={i}
                             onClick={() => setActiveSlide(i)}
-                            className={`w-full p-4 rounded-xl border text-left transition-all ${activeSlide === i ? 'bg-[#0a66c2]/5 border-[#0a66c2] shadow-sm' : 'bg-white border-slate-200 hover:border-slate-300'}`}
+                            className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all shrink-0 ${activeSlide === i ? 'bg-[#0a66c2] text-white shadow-md' : 'bg-white text-slate-600 border border-slate-200 hover:border-slate-300 hover:bg-slate-50'}`}
                           >
-                            <h4 className={`font-bold text-sm mb-1 ${activeSlide === i ? 'text-[#0a66c2]' : 'text-slate-900'}`}>Slide {i + 1}: {slide.title}</h4>
-                            <p className="text-xs text-slate-500 truncate">{slide.content}</p>
+                            {i + 1}
                           </button>
                         ))}
                       </div>
+                      <div className="space-y-3 mt-4">
+                         <label className="block text-sm font-bold text-slate-700">Slide Title</label>
+                         <input value={carouselResult.slides[activeSlide].title} onChange={(e) => updateSlide(activeSlide, 'title', e.target.value)} className="w-full p-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#0a66c2]/50 text-slate-900" placeholder="Title" />
+                         <label className="block text-sm font-bold text-slate-700 mt-2">Slide Content</label>
+                         <textarea value={carouselResult.slides[activeSlide].content} onChange={(e) => updateSlide(activeSlide, 'content', e.target.value)} className="w-full p-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#0a66c2]/50 min-h-[120px] resize-none text-slate-900" placeholder="Content" />
+                      </div>
                     </div>
-                    <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 flex flex-col">
+                    <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 flex flex-col h-full">
                       <h3 className="font-bold text-lg mb-4 text-slate-900">Preview</h3>
-                      <div className="aspect-square bg-white rounded-2xl shadow-md border border-slate-100 p-8 flex flex-col justify-center items-center text-center text-slate-900 relative overflow-hidden">
-                        <div className="absolute top-4 left-4 text-xs font-bold text-slate-400">Slide {activeSlide + 1}</div>
-                        <h2 className="text-2xl font-bold mb-6">{carouselResult.slides[activeSlide].title}</h2>
-                        <p className="text-lg mb-8 leading-relaxed">{carouselResult.slides[activeSlide].content}</p>
-                        <div className="absolute bottom-4 left-4 right-4 bg-slate-50 p-3 rounded-lg border border-slate-100">
-                          <p className="text-xs font-medium text-slate-500 flex items-center justify-center gap-2">
-                            <Sparkles className="w-3 h-3 text-[#0a66c2]" />
-                            Visual: {carouselResult.slides[activeSlide].visualSuggestion}
-                          </p>
+                      <div className="flex-1 flex flex-col items-center justify-center">
+                        <div className="aspect-square w-full max-w-[360px] bg-white rounded-2xl shadow-md border border-slate-100 p-8 flex flex-col justify-center items-center text-center text-slate-900 relative overflow-y-auto">
+                          <div className="absolute top-5 left-5 text-xs font-bold text-slate-400 uppercase tracking-wider">Slide {activeSlide + 1}</div>
+                          <div className="my-auto w-full flex flex-col items-center justify-center space-y-5">
+                            <h2 className="text-2xl font-black leading-tight text-slate-800">{carouselResult.slides[activeSlide].title}</h2>
+                            <p className="text-base leading-relaxed text-slate-600">{carouselResult.slides[activeSlide].content}</p>
+                          </div>
                         </div>
                       </div>
-                      <div className="mt-6 space-y-3">
-                         <input value={carouselResult.slides[activeSlide].title} onChange={(e) => updateSlide(activeSlide, 'title', e.target.value)} className="w-full p-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#0a66c2]/50 text-slate-900" placeholder="Title" />
-                         <textarea value={carouselResult.slides[activeSlide].content} onChange={(e) => updateSlide(activeSlide, 'content', e.target.value)} className="w-full p-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#0a66c2]/50 min-h-[100px] resize-none text-slate-900" placeholder="Content" />
+                      <div className="mt-8 grid grid-cols-2 gap-3">
+                        <button 
+                          onClick={() => {
+                            const carouselText = carouselResult.slides.map((s, i) => `Slide ${i+1}: ${s.title}\n${s.content}`).join('\n\n');
+                            navigator.clipboard.writeText(carouselText);
+                            toast({ title: "Copied!", description: "Carousel content copied to clipboard." });
+                          }}
+                          className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-white border border-slate-200 text-slate-700 text-sm font-bold hover:bg-slate-50 transition-colors shadow-sm"
+                        >
+                          <Copy className="h-4 w-4" /> Copy Text
+                        </button>
+                        <button 
+                          onClick={handleGenerateAllImages}
+                          disabled={isGeneratingImages}
+                          className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-[#0a66c2] text-white text-sm font-bold hover:bg-[#004182] transition-colors shadow-sm disabled:opacity-50"
+                        >
+                          {isGeneratingImages ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />} 
+                          Generate Images
+                        </button>
                       </div>
+                    </div>
+                  </div>
+                )}
+
+                {carouselResult && carouselPhase === 'images' && (
+                  <div className="space-y-8">
+                    <div className="flex items-center justify-between">
                       <button 
-                        onClick={() => {
-                          const carouselText = carouselResult.slides.map((s, i) => `Slide ${i+1}: ${s.title}\n${s.content}`).join('\n\n');
-                          navigator.clipboard.writeText(carouselText);
-                          toast({ title: "Copied!", description: "Carousel content copied to clipboard." });
-                        }}
-                        className="mt-6 w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-[#0a66c2] text-white text-sm font-bold hover:bg-[#004182] transition-colors shadow-sm"
+                        onClick={() => setCarouselPhase('text')}
+                        className="text-sm font-medium text-slate-500 hover:text-slate-900 flex items-center gap-2 transition-colors"
                       >
-                        <Copy className="h-4 w-4" /> Copy All Slides
+                        <ArrowLeft className="w-4 h-4" /> Back to Editor
                       </button>
+                      <div className="flex items-center gap-3">
+                        <button 
+                          onClick={handleDownloadAllImages}
+                          className="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2.5 rounded-xl font-bold text-sm transition-all shadow-sm"
+                        >
+                          Download as Images
+                        </button>
+                        <button 
+                          onClick={handleDownloadAllPDF}
+                          className="bg-[#0a66c2] hover:bg-[#004182] text-white px-4 py-2.5 rounded-xl font-bold text-sm transition-all shadow-sm"
+                        >
+                          Download as PDF
+                        </button>
+                      </div>
+                    </div>
+                    
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {carouselResult.slides.map((slide, i) => (
+                        <div key={i} className="bg-slate-50 rounded-2xl border border-slate-200 overflow-hidden flex flex-col">
+                          <div className="aspect-square bg-slate-200 relative">
+                            {slideImages[i] ? (
+                              <img src={slideImages[i]} alt={`Slide ${i + 1}`} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                            ) : (
+                              <div className="w-full h-full flex flex-col items-center justify-center text-slate-400">
+                                <Loader2 className="w-8 h-8 animate-spin mb-2" />
+                                <span className="text-sm font-medium">Generating...</span>
+                              </div>
+                            )}
+                            <div className="absolute top-3 left-3 bg-black/50 backdrop-blur-sm text-white text-xs font-bold px-2.5 py-1 rounded-lg">
+                              Slide {i + 1}
+                            </div>
+                          </div>
+                          <div className="p-4 flex flex-col gap-3 flex-1">
+                            <input 
+                              type="text" 
+                              placeholder="Add annotation (e.g., 'make it blue')" 
+                              value={slideAnnotations[i] || ''}
+                              onChange={(e) => setSlideAnnotations(prev => ({ ...prev, [i]: e.target.value }))}
+                              className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#0a66c2]/50"
+                            />
+                            <div className="grid grid-cols-2 gap-2 mt-auto">
+                              <button 
+                                onClick={() => handleRegenerateImage(i)}
+                                disabled={regeneratingSlide === i}
+                                className="flex items-center justify-center gap-1.5 py-2 rounded-lg border border-slate-200 bg-white text-slate-700 text-xs font-bold hover:bg-slate-50 transition-colors disabled:opacity-50"
+                              >
+                                {regeneratingSlide === i ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
+                                Regenerate
+                              </button>
+                              <button 
+                                onClick={() => handleDownloadImage(i)}
+                                disabled={!slideImages[i]}
+                                className="flex items-center justify-center gap-1.5 py-2 rounded-lg bg-[#0a66c2] text-white text-xs font-bold hover:bg-[#004182] transition-colors disabled:opacity-50"
+                              >
+                                Download
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 )}
@@ -774,7 +1102,7 @@ const LinkedInAssistTool = () => {
                         onKeyDown={(e) => {
                           if (e.key === 'Enter' && pollTopic && !isGeneratingPoll) {
                             setIsGeneratingPoll(true);
-                            generatePollContent(pollTopic).then(res => {
+                            generatePollContent(pollTopic, linkedInPersona).then(res => {
                               setPollResult(res);
                               setIsGeneratingPoll(false);
                             });
@@ -785,7 +1113,7 @@ const LinkedInAssistTool = () => {
                     <button 
                       onClick={async () => {
                         setIsGeneratingPoll(true);
-                        const res = await generatePollContent(pollTopic);
+                        const res = await generatePollContent(pollTopic, linkedInPersona);
                         setPollResult(res);
                         setIsGeneratingPoll(false);
                       }}
@@ -902,15 +1230,16 @@ const LinkedInAssistTool = () => {
       
       <div className="flex-1 flex pt-16">
         {/* Sidebar */}
-        <aside className="w-64 border-r border-slate-200 bg-slate-50 hidden md:flex flex-col">
-          <div className="p-6">
-            <div className="flex items-center gap-2 font-heading font-bold text-lg mb-8 text-slate-900">
+        <aside className="w-[280px] border-r border-slate-200 bg-slate-50 hidden md:flex flex-col shrink-0">
+          <div className="p-5">
+            <div className="flex items-center gap-2 font-heading font-bold text-lg mb-5 text-slate-900">
               <LinkedInFullLogo className="text-2xl" />
               Assist
             </div>
             
-            <nav className="space-y-2">
+            <nav className="space-y-1.5">
               {[
+                { id: "profile", icon: User, label: "Your LinkedIn Profile" },
                 { id: "writer", icon: PenTool, label: "AI Writer" },
                 { id: "remixer", icon: RefreshCw, label: "AI Remixer" },
                 { id: "turn-into-post", icon: Sparkles, label: "Turn into Post" },
@@ -923,20 +1252,34 @@ const LinkedInAssistTool = () => {
                 <button
                   key={item.id}
                   onClick={() => setActiveTab(item.id)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
+                  className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all whitespace-nowrap ${
                     activeTab === item.id 
-                      ? "bg-[#0a66c2]/10 text-[#0a66c2]" 
-                      : "text-slate-600 hover:bg-slate-200/50 hover:text-slate-900"
+                      ? "bg-[#0a66c2]/15 text-[#0a66c2] font-bold shadow-sm border border-[#0a66c2]/20" 
+                      : "bg-[#f0f7ff] text-slate-600 hover:bg-[#e0f0ff] hover:text-slate-900 border border-transparent"
                   }`}
                 >
-                  <item.icon className="w-4 h-4" />
-                  {item.label}
+                  <item.icon className="w-4 h-4 shrink-0" />
+                  <span className="truncate">{item.label}</span>
                 </button>
               ))}
             </nav>
           </div>
           
-          <div className="mt-auto p-6">
+          <div className="mt-auto p-6 space-y-4">
+            {linkedInHandle && (
+              <div className="p-4 rounded-xl border border-slate-200 bg-white flex items-center gap-3 cursor-pointer hover:border-[#0a66c2]/30 transition-colors" onClick={() => setActiveTab("profile")}>
+                <div className="w-10 h-10 rounded-full bg-[#0a66c2]/10 flex items-center justify-center text-[#0a66c2] font-bold">
+                  {linkedInHandle.replace(/https?:\/\/(www\.)?linkedin\.com\/in\//, '').replace('@', '').charAt(0).toUpperCase() || <User className="w-5 h-5" />}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-slate-500 font-medium">Your Profile</p>
+                  <p className="text-sm font-bold text-slate-900 truncate">
+                    {linkedInHandle.replace(/https?:\/\/(www\.)?linkedin\.com\/in\//, '').startsWith('@') ? linkedInHandle.replace(/https?:\/\/(www\.)?linkedin\.com\/in\//, '') : '@' + linkedInHandle.replace(/https?:\/\/(www\.)?linkedin\.com\/in\//, '')}
+                  </p>
+                </div>
+              </div>
+            )}
+            
             <div className="p-4 rounded-xl border border-[#0a66c2]/20 bg-[#0a66c2]/5">
               <h4 className="font-bold text-sm mb-1 text-slate-900">Pro Plan Active</h4>
               <p className="text-xs text-slate-500 mb-3">Unlimited AI Generations</p>
@@ -948,8 +1291,8 @@ const LinkedInAssistTool = () => {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 p-6 md:p-8 overflow-y-auto bg-slate-50/50">
-          <div className="max-w-4xl mx-auto">
+        <main className="flex-1 p-4 md:p-6 overflow-y-auto bg-slate-50/50">
+          <div className={`mx-auto transition-all duration-300 ${activeTab === 'carousel' ? 'max-w-6xl' : 'max-w-4xl'}`}>
             {renderContent()}
           </div>
         </main>

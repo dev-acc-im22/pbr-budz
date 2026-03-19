@@ -2,6 +2,8 @@ import { useState } from "react";
 import { X, Calendar, Clock, Link, Type, Sparkles, Loader2 } from "lucide-react";
 import { savePost } from "@/services/firebaseService";
 import { generatePostContent } from "@/services/geminiService";
+import { auth } from "@/services/firebaseService";
+import { useToast } from "@/components/ui/use-toast";
 
 interface NewPostModalProps {
   isOpen: boolean;
@@ -13,6 +15,7 @@ const NewPostModal = ({ isOpen, onClose }: NewPostModalProps) => {
   const [content, setContent] = useState("");
   const [platform, setPlatform] = useState<'linkedin' | 'youtube' | 'instagram' | 'x'>('linkedin');
   const [isGenerating, setIsGenerating] = useState(false);
+  const { toast } = useToast();
 
   if (!isOpen) return null;
 
@@ -31,6 +34,10 @@ const NewPostModal = ({ isOpen, onClose }: NewPostModalProps) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!auth.currentUser) {
+      toast({ title: "Authentication Required", description: "Please log in to save posts.", variant: "destructive" });
+      return;
+    }
     try {
       await savePost({
         title,
@@ -42,8 +49,10 @@ const NewPostModal = ({ isOpen, onClose }: NewPostModalProps) => {
       onClose();
       setTitle("");
       setContent("");
+      toast({ title: "Success", description: "Post saved successfully." });
     } catch (error) {
       console.error("Failed to save post:", error);
+      toast({ title: "Error", description: "Failed to save post.", variant: "destructive" });
     }
   };
 

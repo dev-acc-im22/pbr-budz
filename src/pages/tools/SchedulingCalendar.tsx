@@ -61,6 +61,10 @@ const SchedulingCalendar = () => {
   }, []);
 
   const handleSaveSettings = async () => {
+    if (!auth.currentUser) {
+      toast("Please log in to save settings");
+      return;
+    }
     try {
       await saveUserSettings(tempSettings);
       setUserSettings(tempSettings);
@@ -154,6 +158,10 @@ const SchedulingCalendar = () => {
 
   const handleDrop = async (e: React.DragEvent, date: Date, hours: number) => {
     e.preventDefault();
+    if (!auth.currentUser) {
+      toast("Please log in to schedule posts");
+      return;
+    }
     const postId = e.dataTransfer.getData('postId');
     if (!postId) return;
 
@@ -168,6 +176,10 @@ const SchedulingCalendar = () => {
   };
 
   const handleUnschedule = async (postId: string) => {
+    if (!auth.currentUser) {
+      toast("Please log in to unschedule posts");
+      return;
+    }
     try {
       await updatePostStatus(postId, 'draft');
     } catch (error) {

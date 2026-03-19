@@ -570,9 +570,72 @@ export const simulateAlgorithm = async (tweet: string) => {
   }
 };
 
-// --- LinkedIn Assist Functions ---
+export const generateSlideImage = async (slideText: string, visualSuggestion: string, globalTheme: string, slideIndex: number, totalSlides: number, annotation?: string, handle?: string, persona?: string) => {
+  const ai = getAi();
+  if (!ai) {
+    // Mock image
+    return new Promise<string>(resolve => setTimeout(() => resolve(`https://picsum.photos/seed/${Math.random()}/800/800`), 1500));
+  }
 
-export const generateLinkedInPosts = async (topic: string) => {
+  let prompt = `Create a professional LinkedIn carousel slide (Slide ${slideIndex} of ${totalSlides}).
+  
+  CRITICAL INSTRUCTION: You are generating one slide of a continuous carousel. The design MUST strictly follow this global theme to ensure seamless continuity across all slides:
+  Global Theme: "${globalTheme}"
+  
+  Ensure font styling, typography preferences, and color selection are uniformly applied based on the Global Theme. The overall image should look like a seamless blend with the rest of the carousel, not an isolated image.
+  
+  Text on slide: "${slideText}"
+  Visual concept for this specific slide: "${visualSuggestion}"
+  
+  Style Requirements: 
+  - MUST be exactly a 1:1 square dimension.
+  - Maintain a highly refined, premium, and simplified aesthetic.
+  - Stick exclusively with the Montserrat font family for all text.
+  - Ensure colors, fonts, and graphics utilize elegant gradients.
+  - Ensure all graphics and vectors used are uniform and in the exact same theme for all slides (1 to ${totalSlides}).
+  - Ensure proper styling, spacing, padding, and margins are given so the slide looks professional, clean, and premium.
+  
+  PAGINATION: Add "${slideIndex}/${totalSlides}" in the bottom right corner.`;
+
+  if (handle) {
+    const cleanHandle = handle.replace(/^https?:\/\/(www\.)?linkedin\.com\/in\//i, '').replace(/^@/, '').replace(/\/$/, '');
+    prompt += `\nWATERMARK: Add "LinkedIn.com/${cleanHandle}" as a watermark in the bottom left corner using Montserrat font in simple words styling. Do NOT use the full URL.`;
+  }
+  
+  if (persona) {
+    prompt += `\nPERSONA CONTEXT: The author's persona is: "${persona}". Ensure the visual tone aligns with this professional identity.`;
+  }
+
+  if (annotation) {
+    prompt += `\nAdditional user instruction: "${annotation}"`;
+  }
+
+  try {
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash-image',
+      contents: {
+        parts: [{ text: prompt }],
+      },
+      config: {
+        imageConfig: {
+          aspectRatio: "1:1"
+        }
+      }
+    });
+
+    for (const part of response.candidates?.[0]?.content?.parts || []) {
+      if (part.inlineData) {
+        return `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
+      }
+    }
+    throw new Error("No image generated");
+  } catch (error) {
+    console.error("Error generating slide image:", error);
+    throw error;
+  }
+};
+
+export const generateLinkedInPosts = async (topic: string, persona?: string) => {
   const ai = getAi();
   if (!ai) {
     return [
@@ -581,10 +644,21 @@ export const generateLinkedInPosts = async (topic: string) => {
     ];
   }
 
+  let prompt = `Generate 3 highly engaging, professional LinkedIn posts about "${topic}". Provide the text of the post and the type of format used (e.g., "Storytelling", "Actionable Advice", "Thought Leadership"). Keep them structured with good spacing.`;
+  if (persona) {
+    prompt += `\n\nCRITICAL INSTRUCTION: Write these posts strictly from the perspective of the following persona:\n"${persona}"\n
+    You MUST ensure the content reflects:
+    1. Strong leadership and a clear thought process.
+    2. Actionable tips, tricks, and overall helpful takeaways for the reader.
+    3. The user as an absolute industry expert in their domain.
+    4. A tone that is creative, fun, yet builds significant authority in the subject matter space.
+    Ensure the vocabulary and perspective perfectly match this persona.`;
+  }
+
   try {
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
-      contents: `Generate 3 highly engaging, professional LinkedIn posts about "${topic}". Provide the text of the post and the type of format used (e.g., "Storytelling", "Actionable Advice", "Thought Leadership"). Keep them structured with good spacing.`,
+      contents: prompt,
       config: {
         responseMimeType: "application/json",
         responseSchema: {
@@ -612,7 +686,7 @@ export const generateLinkedInPosts = async (topic: string) => {
   }
 };
 
-export const rewriteLinkedInPost = async (post: string, style: string) => {
+export const rewriteLinkedInPost = async (post: string, style: string, persona?: string) => {
   const ai = getAi();
   if (!ai) {
     if (style === "storytelling") return `Let me tell you a story about ${post.substring(0, 20)}...`;
@@ -620,10 +694,17 @@ export const rewriteLinkedInPost = async (post: string, style: string) => {
     return `From my experience in the industry: ${post}`;
   }
 
+  let prompt = `Rewrite the following LinkedIn post to be more focused on ${style}:\n\n"${post}"\n\nReturn ONLY the rewritten text, formatted nicely for LinkedIn with appropriate spacing.`;
+  
+  if (persona) {
+    prompt += `\n\nCRITICAL INSTRUCTION: Ensure the rewritten post strictly reflects the following persona:\n"${persona}"\n
+    Incorporate elements of strong leadership, actionable tips, industry expertise, and a tone that is creative, fun, and builds authority.`;
+  }
+
   try {
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
-      contents: `Rewrite the following LinkedIn post to be more focused on ${style}:\n\n"${post}"\n\nReturn ONLY the rewritten text, formatted nicely for LinkedIn with appropriate spacing.`,
+      contents: prompt,
     });
     return response.text || post;
   } catch (error) {
@@ -710,10 +791,11 @@ export const generatePostFromStory = async (story: string) => {
   }
 };
 
-export const generateCarouselContent = async (topic: string) => {
+export const generateCarouselContent = async (topic: string, persona?: string) => {
   const ai = getAi();
   if (!ai) {
     return {
+      globalTheme: "Modern, minimalist, corporate blue and white.",
       slides: [
         { title: "Introduction", content: `Why ${topic} matters in 2026.`, visualSuggestion: "Bold text on a clean background." },
         { title: "Key Insight", content: `The biggest shift in ${topic} is...`, visualSuggestion: "A simple diagram or chart." },
@@ -722,16 +804,32 @@ export const generateCarouselContent = async (topic: string) => {
     };
   }
 
+  let prompt = `Generate a 5-slide LinkedIn carousel outline for the topic: "${topic}". 
+      Also provide a 'globalTheme' description that defines a consistent visual style, color palette, and typography for all slides to ensure they look like a seamless, continuous carousel.
+      CRITICAL THEME REQUIREMENTS: The globalTheme MUST specify a highly refined, premium, and simplified aesthetic. It MUST exclusively use the Montserrat font family. It MUST utilize elegant gradients for colors, fonts, and graphics.
+      For each slide, provide a title, the main content text, and a suggestion for the visual design.
+      CRITICAL CONTENT REQUIREMENTS: The main content text MUST be extremely crisp, concise, and punchy (maximum 2-3 short sentences or bullet points). It must fit comfortably inside a 1:1 square slide without overlapping or cropping. Ensure the wording is highly meaningful and provides a strong, actionable takeaway.`;
+      
+  if (persona) {
+    prompt += `\n\nCRITICAL INSTRUCTION: Write the content and suggest the visual theme strictly from the perspective of the following persona:\n"${persona}"\n
+    You MUST ensure the content reflects:
+    1. Strong leadership and a clear thought process.
+    2. Actionable tips, tricks, and overall helpful takeaways for the reader.
+    3. The user as an absolute industry expert in their domain.
+    4. A tone that is creative, fun, yet builds significant authority in the subject matter space.
+    Ensure the vocabulary and visual style perfectly match this persona's professional identity.`;
+  }
+
   try {
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
-      contents: `Generate a 5-slide LinkedIn carousel outline for the topic: "${topic}". 
-      For each slide, provide a title, the main content text, and a suggestion for the visual design.`,
+      contents: prompt,
       config: {
         responseMimeType: "application/json",
         responseSchema: {
           type: Type.OBJECT,
           properties: {
+            globalTheme: { type: Type.STRING },
             slides: {
               type: Type.ARRAY,
               items: {
@@ -745,7 +843,7 @@ export const generateCarouselContent = async (topic: string) => {
               },
             },
           },
-          required: ["slides"],
+          required: ["globalTheme", "slides"],
         },
       },
     });
@@ -754,14 +852,14 @@ export const generateCarouselContent = async (topic: string) => {
     if (text) {
       return JSON.parse(text);
     }
-    return { slides: [] };
+    return { globalTheme: "", slides: [] };
   } catch (error) {
     console.error("Error generating carousel:", error);
     throw error;
   }
 };
 
-export const generatePollContent = async (topic: string) => {
+export const generatePollContent = async (topic: string, persona?: string) => {
   const ai = getAi();
   if (!ai) {
     return {
@@ -770,10 +868,16 @@ export const generatePollContent = async (topic: string) => {
     };
   }
 
+  let prompt = `Generate an engaging LinkedIn poll question about "${topic}" and 4 relevant options.`;
+  if (persona) {
+    prompt += `\n\nCRITICAL INSTRUCTION: Ensure the poll question and options reflect the following persona:\n"${persona}"\n
+    The tone should position the user as an industry expert asking a thought-provoking question to their audience.`;
+  }
+
   try {
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
-      contents: `Generate an engaging LinkedIn poll question about "${topic}" and 4 relevant options.`,
+      contents: prompt,
       config: {
         responseMimeType: "application/json",
         responseSchema: {
@@ -794,6 +898,35 @@ export const generatePollContent = async (topic: string) => {
     return { question: "", options: [] };
   } catch (error) {
     console.error("Error generating poll:", error);
+    throw error;
+  }
+};
+
+export const generatePersonaFromLinkedIn = async (handleOrUrl: string) => {
+  const ai = getAi();
+  if (!ai) {
+    return `Persona for ${handleOrUrl}:\nA seasoned professional focused on growth, leadership, and innovation. Values clear communication and actionable insights.`;
+  }
+
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: `Analyze the following LinkedIn handle or URL: "${handleOrUrl}". 
+      Since you may not be able to browse the live profile directly, infer a professional persona based on the handle name, or if it's a known public figure, use your knowledge. 
+      If you can't determine specific details, create a strong, generic professional persona (e.g., "Tech Entrepreneur", "Marketing Leader", "B2B Sales Expert") that would fit this handle.
+      
+      CRITICAL INSTRUCTION: The persona MUST be structured to position this user as an absolute industry expert in their domain. It must explicitly reflect:
+      1. Leadership and visionary thinking.
+      2. A clear, analytical thought process.
+      3. A focus on actionable tips, tricks, and overall helpful takeaways.
+      4. A tone that blends creativity and fun with strong authority building in their subject matter space.
+      
+      Return a detailed 3-4 sentence description of their professional persona, tone of voice, and key topics they likely post about, incorporating all the traits above.`,
+    });
+    
+    return response.text || `Persona for ${handleOrUrl}: Professional, insightful, and industry-focused.`;
+  } catch (error) {
+    console.error("Error generating persona:", error);
     throw error;
   }
 };
@@ -1013,6 +1146,347 @@ export const simulateThreadsAlgorithm = async (thread: string) => {
     return null;
   } catch (error) {
     console.error("Error simulating Threads algorithm:", error);
+    throw error;
+  }
+};
+
+export const generateReelsScript = async (topic: string) => {
+  const ai = getAi();
+  if (!ai) {
+    return [
+      { visual: "Hook: Pointing at text on screen", audio: "Did you know this about " + topic + "?" },
+      { visual: "Body: Explaining point 1", audio: "First, you need to..." },
+      { visual: "CTA: Pointing down", audio: "Read the caption for more!" }
+    ];
+  }
+
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: `Create a highly engaging, short-form video script (Instagram Reel / TikTok) about "${topic}". 
+      Provide a hook, 3-4 body points, and a call to action. 
+      For each part, describe the visual action and the audio/spoken text.`,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.ARRAY,
+          items: {
+            type: Type.OBJECT,
+            properties: {
+              visual: { type: Type.STRING },
+              audio: { type: Type.STRING },
+            },
+            required: ["visual", "audio"],
+          },
+        },
+      },
+    });
+    
+    const text = response.text;
+    if (text) {
+      return JSON.parse(text);
+    }
+    return [];
+  } catch (error) {
+    console.error("Error generating Reels script:", error);
+    throw error;
+  }
+};
+
+export const generateInstaCarousel = async (topic: string) => {
+  const ai = getAi();
+  if (!ai) {
+    return [
+      { slideNumber: 1, text: "Hook about " + topic, visualIdea: "Bold text on solid background" },
+      { slideNumber: 2, text: "Point 1", visualIdea: "Icon with text" },
+      { slideNumber: 3, text: "Save this post!", visualIdea: "Arrow pointing to save button" }
+    ];
+  }
+
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: `Create a 5-8 slide Instagram Carousel outline about "${topic}". 
+      Slide 1 must be a strong hook. The middle slides should provide high value. The last slide must be a Call to Action.
+      For each slide, provide the main text and a visual idea.`,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.ARRAY,
+          items: {
+            type: Type.OBJECT,
+            properties: {
+              slideNumber: { type: Type.NUMBER },
+              text: { type: Type.STRING },
+              visualIdea: { type: Type.STRING },
+            },
+            required: ["slideNumber", "text", "visualIdea"],
+          },
+        },
+      },
+    });
+    
+    const text = response.text;
+    if (text) {
+      return JSON.parse(text);
+    }
+    return [];
+  } catch (error) {
+    console.error("Error generating Insta Carousel:", error);
+    throw error;
+  }
+};
+
+export const generateInstaSEO = async (topic: string) => {
+  const ai = getAi();
+  if (!ai) {
+    return {
+      keywords: ["keyword1", "keyword2"],
+      hashtags: ["#hashtag1", "#hashtag2"],
+      altTextIdea: "A visually appealing image about " + topic
+    };
+  }
+
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: `Generate an Instagram SEO strategy for a post about "${topic}". 
+      Provide 5-8 high-search-volume keywords to include in the caption, 10-15 relevant hashtags (mix of broad and niche), and a suggestion for what the image alt text should be to rank well on Instagram Explore page.`,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            keywords: { 
+              type: Type.ARRAY,
+              items: { type: Type.STRING }
+            },
+            hashtags: { 
+              type: Type.ARRAY,
+              items: { type: Type.STRING }
+            },
+            altTextIdea: { type: Type.STRING },
+          },
+          required: ["keywords", "hashtags", "altTextIdea"],
+        },
+      },
+    });
+    
+    const text = response.text;
+    if (text) {
+      return JSON.parse(text);
+    }
+    return { keywords: [], hashtags: [], altTextIdea: "" };
+  } catch (error) {
+    console.error("Error generating Insta SEO:", error);
+    throw error;
+  }
+};
+
+export const generateStorySequence = async (topic: string) => {
+  const ai = getAi();
+  if (!ai) {
+    return [
+      { slide: 1, type: "Hook/Poll", content: "Do you struggle with " + topic + "?", visual: "Text with Yes/No poll" },
+      { slide: 2, type: "Context", content: "I used to struggle with it too...", visual: "Talking head video" },
+      { slide: 3, type: "Value", content: "Here is the #1 thing that changed it.", visual: "Text over background" },
+      { slide: 4, type: "Soft Pitch", content: "Want my full guide? Link in bio.", visual: "Link sticker" }
+    ];
+  }
+
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: `Create a 4-part Instagram Story sequence about "${topic}". 
+      The sequence should follow this arc: 1. The Hook/Poll, 2. The Context, 3. The Value/Behind-the-scenes, 4. The Soft Pitch/Link.
+      For each slide, provide the content/text and a visual idea.`,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.ARRAY,
+          items: {
+            type: Type.OBJECT,
+            properties: {
+              slide: { type: Type.NUMBER },
+              type: { type: Type.STRING },
+              content: { type: Type.STRING },
+              visual: { type: Type.STRING },
+            },
+            required: ["slide", "type", "content", "visual"],
+          },
+        },
+      },
+    });
+    
+    const text = response.text;
+    if (text) {
+      return JSON.parse(text);
+    }
+    return [];
+  } catch (error) {
+    console.error("Error generating Story Sequence:", error);
+    throw error;
+  }
+};
+
+export const generateContentPillars = async (niche: string) => {
+  const ai = getAi();
+  if (!ai) {
+    return [
+      { pillar: "Education", description: "Teaching your audience", ideas: ["How to X", "3 Tips for Y"] },
+      { pillar: "Inspiration", description: "Motivating your audience", ideas: ["My journey", "Client success"] }
+    ];
+  }
+
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: `Define 4 distinct content pillars for an Instagram creator in the "${niche}" niche (e.g., Education, Inspiration, Personal, Promotional). 
+      For each pillar, provide a brief description and 3 specific post ideas.`,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.ARRAY,
+          items: {
+            type: Type.OBJECT,
+            properties: {
+              pillar: { type: Type.STRING },
+              description: { type: Type.STRING },
+              ideas: { 
+                type: Type.ARRAY,
+                items: { type: Type.STRING }
+              },
+            },
+            required: ["pillar", "description", "ideas"],
+          },
+        },
+      },
+    });
+    
+    const text = response.text;
+    if (text) {
+      return JSON.parse(text);
+    }
+    return [];
+  } catch (error) {
+    console.error("Error generating Content Pillars:", error);
+    throw error;
+  }
+};
+
+export const generateDMAutomation = async (offer: string) => {
+  const ai = getAi();
+  if (!ai) {
+    return {
+      postCTA: "Comment 'LINK' to get my " + offer,
+      dmScript: "Hey! Thanks for commenting. Here is the link to " + offer + ": [LINK]"
+    };
+  }
+
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: `Write a DM automation script (like ManyChat) for offering "${offer}". 
+      Provide the perfect Call to Action (CTA) to put in the Instagram post/Reel caption (e.g., "Comment 'WORD' to get..."), 
+      and the exact DM script that the bot should send when they comment. Make it conversational and engaging.`,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            postCTA: { type: Type.STRING },
+            dmScript: { type: Type.STRING },
+          },
+          required: ["postCTA", "dmScript"],
+        },
+      },
+    });
+    
+    const text = response.text;
+    if (text) {
+      return JSON.parse(text);
+    }
+    return { postCTA: "", dmScript: "" };
+  } catch (error) {
+    console.error("Error generating DM Automation:", error);
+    throw error;
+  }
+};
+
+export const suggestAudioVibe = async (topic: string) => {
+  const ai = getAi();
+  if (!ai) {
+    return {
+      vibe: "Upbeat & Energetic",
+      suggestion: "Use a fast-paced trending pop or hip-hop instrumental."
+    };
+  }
+
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: `Suggest the perfect Instagram Reels audio vibe for a video about "${topic}". 
+      Provide the general vibe (e.g., "Lo-fi chill", "Fast-paced trending", "Motivational speaking") and a specific suggestion on how to use it.`,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            vibe: { type: Type.STRING },
+            suggestion: { type: Type.STRING },
+          },
+          required: ["vibe", "suggestion"],
+        },
+      },
+    });
+    
+    const text = response.text;
+    if (text) {
+      return JSON.parse(text);
+    }
+    return { vibe: "", suggestion: "" };
+  } catch (error) {
+    console.error("Error suggesting Audio Vibe:", error);
+    throw error;
+  }
+};
+
+export const analyzeCompetitorPost = async (postText: string) => {
+  const ai = getAi();
+  if (!ai) {
+    return {
+      analysis: "This post uses a strong hook and relatable content.",
+      recreationIdeas: ["Idea 1", "Idea 2", "Idea 3"]
+    };
+  }
+
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: `Analyze this competitor's viral Instagram post:\n\n"${postText}"\n\nBreak down *why* it works (hook analysis, pacing, emotional trigger). Then, generate 3 ways to recreate that success in a different brand voice or niche.`,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            analysis: { type: Type.STRING },
+            recreationIdeas: { 
+              type: Type.ARRAY,
+              items: { type: Type.STRING }
+            },
+          },
+          required: ["analysis", "recreationIdeas"],
+        },
+      },
+    });
+    
+    const text = response.text;
+    if (text) {
+      return JSON.parse(text);
+    }
+    return { analysis: "", recreationIdeas: [] };
+  } catch (error) {
+    console.error("Error analyzing competitor post:", error);
     throw error;
   }
 };
