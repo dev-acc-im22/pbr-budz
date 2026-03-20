@@ -9,6 +9,7 @@ const ScheduleFirstComment = () => {
   const [comment, setComment] = useState("");
   const [delay, setDelay] = useState("Immediately");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [sidebarTab, setSidebarTab] = useState("active");
 
   const postContent = `The biggest mistake I see founders make on LinkedIn? They treat it like a resume.\n\nStop broadcasting.\nStart connecting.\n\nShare your failures, your lessons, your process. That's what people actually want to read.`;
 
@@ -30,18 +31,27 @@ const ScheduleFirstComment = () => {
       <main className="flex-1 container mx-auto px-4 py-24 max-w-7xl flex gap-8">
         
         {/* Sidebar */}
-        <aside className="w-64 hidden lg:flex flex-col gap-6">
+        <aside className="w-72 shrink-0 hidden lg:flex flex-col gap-6">
           <div className="bg-card border border-border/50 rounded-xl p-4">
             <h3 className="font-bold text-sm mb-4 text-muted-foreground uppercase tracking-wider">Automations</h3>
             <nav className="space-y-2">
-              <button className="w-full flex items-center gap-3 px-3 py-2 bg-green-500/10 text-green-500 rounded-lg font-medium text-sm transition-colors">
-                <Zap className="w-4 h-4" /> Active (3)
+              <button 
+                onClick={() => setSidebarTab("active")}
+                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-sm transition-colors whitespace-nowrap ${sidebarTab === 'active' ? 'bg-gradient-to-r from-green-500 to-green-600 text-white font-bold shadow-md border border-transparent' : 'bg-transparent text-muted-foreground hover:bg-secondary hover:text-foreground border border-transparent'}`}
+              >
+                <Zap className="w-4 h-4 shrink-0" /> <span className="truncate">Active (3)</span>
               </button>
-              <button className="w-full flex items-center gap-3 px-3 py-2 text-muted-foreground hover:bg-muted rounded-lg font-medium text-sm transition-colors">
-                <History className="w-4 h-4" /> Past Logs
+              <button 
+                onClick={() => setSidebarTab("logs")}
+                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-sm transition-colors whitespace-nowrap ${sidebarTab === 'logs' ? 'bg-gradient-to-r from-green-500 to-green-600 text-white font-bold shadow-md border border-transparent' : 'bg-transparent text-muted-foreground hover:bg-secondary hover:text-foreground border border-transparent'}`}
+              >
+                <History className="w-4 h-4 shrink-0" /> <span className="truncate">Past Logs</span>
               </button>
-              <button className="w-full flex items-center gap-3 px-3 py-2 text-muted-foreground hover:bg-muted rounded-lg font-medium text-sm transition-colors">
-                <Settings className="w-4 h-4" /> Settings
+              <button 
+                onClick={() => setSidebarTab("settings")}
+                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-sm transition-colors whitespace-nowrap ${sidebarTab === 'settings' ? 'bg-gradient-to-r from-green-500 to-green-600 text-white font-bold shadow-md border border-transparent' : 'bg-transparent text-muted-foreground hover:bg-secondary hover:text-foreground border border-transparent'}`}
+              >
+                <Settings className="w-4 h-4 shrink-0" /> <span className="truncate">Settings</span>
               </button>
             </nav>
           </div>

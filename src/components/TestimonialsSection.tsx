@@ -22,7 +22,7 @@ const TestimonialsSection = () => {
       <div className="absolute inset-0 bg-gradient-card opacity-50" />
       <div className="relative container mx-auto px-4">
         <div className="text-center mb-16">
-          <h2 className="font-heading font-bold text-3xl md:text-5xl mb-4">
+          <h2 className="font-heading font-bold text-3xl md:text-5xl mb-4 text-foreground">
             Loved by <span className="bg-gradient-to-r from-indigo-600 to-indigo-950 bg-clip-text text-transparent">Creators</span>
           </h2>
           <p className="text-muted-foreground max-w-xl mx-auto">
@@ -39,7 +39,7 @@ const TestimonialsSection = () => {
             >
               <p className="text-sm text-foreground leading-relaxed mb-6 italic">"{t.quote}"</p>
               <div>
-                <div className="font-heading font-bold text-sm">{t.name}</div>
+                <div className="font-heading font-bold text-sm text-foreground">{t.name}</div>
                 <div className="text-xs text-muted-foreground">{t.role}</div>
               </div>
             </div>

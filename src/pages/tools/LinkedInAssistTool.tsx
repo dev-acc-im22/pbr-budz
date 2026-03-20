@@ -1230,7 +1230,7 @@ const LinkedInAssistTool = () => {
       
       <div className="flex-1 flex pt-16">
         {/* Sidebar */}
-        <aside className="w-[280px] border-r border-slate-200 bg-slate-50 hidden md:flex flex-col shrink-0">
+        <aside className="w-72 border-r border-slate-200 bg-slate-50 hidden md:flex flex-col shrink-0">
           <div className="p-5">
             <div className="flex items-center gap-2 font-heading font-bold text-lg mb-5 text-slate-900">
               <LinkedInFullLogo className="text-2xl" />
@@ -1254,8 +1254,8 @@ const LinkedInAssistTool = () => {
                   onClick={() => setActiveTab(item.id)}
                   className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all whitespace-nowrap ${
                     activeTab === item.id 
-                      ? "bg-[#0a66c2]/15 text-[#0a66c2] font-bold shadow-sm border border-[#0a66c2]/20" 
-                      : "bg-[#f0f7ff] text-slate-600 hover:bg-[#e0f0ff] hover:text-slate-900 border border-transparent"
+                      ? "bg-gradient-to-r from-[#0a66c2] to-[#0077b5] text-white font-bold shadow-md border border-transparent" 
+                      : "bg-transparent text-slate-600 hover:bg-[#e0f0ff] hover:text-slate-900 border border-transparent"
                   }`}
                 >
                   <item.icon className="w-4 h-4 shrink-0" />

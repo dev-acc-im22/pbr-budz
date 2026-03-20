@@ -16,7 +16,7 @@ const Footer = () => {
             </p>
           </div>
           <div>
-            <h4 className="font-heading font-bold text-sm mb-3">Platforms</h4>
+            <h4 className="font-heading font-bold text-sm mb-3 text-foreground">Platforms</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li><Link to="/youtube-assist" className="hover:text-foreground transition-colors">YouTube Assist</Link></li>
               <li><Link to="/x-assist" className="hover:text-foreground transition-colors">xAssist</Link></li>
@@ -25,14 +25,14 @@ const Footer = () => {
             </ul>
           </div>
           <div>
-            <h4 className="font-heading font-bold text-sm mb-3">Product</h4>
+            <h4 className="font-heading font-bold text-sm mb-3 text-foreground">Product</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li><Link to="/features" className="hover:text-foreground transition-colors">Features</Link></li>
               <li><Link to="/pricing" className="hover:text-foreground transition-colors">Pricing</Link></li>
             </ul>
           </div>
           <div>
-            <h4 className="font-heading font-bold text-sm mb-3">Company</h4>
+            <h4 className="font-heading font-bold text-sm mb-3 text-foreground">Company</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li><Link to="/about" className="hover:text-foreground transition-colors">About</Link></li>
               <li><Link to="/blog" className="hover:text-foreground transition-colors">Blog</Link></li>

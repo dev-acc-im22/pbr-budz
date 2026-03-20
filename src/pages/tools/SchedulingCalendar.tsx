@@ -193,7 +193,7 @@ const SchedulingCalendar = () => {
       <main className="flex-1 container mx-auto px-4 py-24 max-w-7xl flex gap-8">
         
         {/* Sidebar */}
-        <aside className="w-64 hidden lg:flex flex-col gap-6">
+        <aside className="w-72 hidden lg:flex flex-col gap-6 shrink-0">
           <div className="bg-card border border-border/50 rounded-xl p-4">
             <h3 className="font-bold text-sm mb-4 text-muted-foreground uppercase tracking-wider">Platforms</h3>
             <div className="space-y-3">
@@ -215,8 +215,8 @@ const SchedulingCalendar = () => {
                   className={`flex items-center justify-between p-2 rounded-lg border cursor-pointer transition-colors ${selectedPlatforms.includes(platform.id) ? 'bg-muted/50 border-border/50 hover:border-orange-500/50' : 'bg-transparent border-transparent opacity-50 hover:opacity-100'}`}
                 >
                   <div className="flex items-center gap-3">
-                    <div className={`w-8 h-8 rounded-full ${platform.color} flex items-center justify-center text-white font-bold text-xs`}>{platform.initial}</div>
-                    <span className="text-sm font-medium">{platform.name}</span>
+                    <div className={`w-8 h-8 rounded-full ${platform.color} flex items-center justify-center text-white font-bold text-xs shrink-0`}>{platform.initial}</div>
+                    <span className="text-sm font-medium whitespace-nowrap">{platform.name}</span>
                   </div>
                   {selectedPlatforms.includes(platform.id) && <CheckCircle2 className="w-4 h-4 text-orange-500" />}
                 </div>

@@ -1039,7 +1039,7 @@ const InstaAssistTool = () => {
       
       <div className="flex-1 flex pt-16">
         {/* Sidebar */}
-        <aside className="w-64 border-r border-border/50 bg-card/30 hidden md:flex flex-col">
+        <aside className="w-72 border-r border-border/50 bg-card/30 hidden md:flex flex-col shrink-0">
           <div className="p-6">
             <div className="flex items-center gap-2 font-heading font-bold text-lg mb-8">
               <Instagram className="w-6 h-6 text-pink-500" />
@@ -1064,14 +1064,14 @@ const InstaAssistTool = () => {
                 <button
                   key={item.id}
                   onClick={() => setActiveTab(item.id)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all whitespace-nowrap ${
                     activeTab === item.id 
-                      ? "bg-pink-500/10 text-pink-500" 
-                      : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                      ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold shadow-md border border-transparent" 
+                      : "bg-transparent text-muted-foreground hover:bg-secondary hover:text-foreground border border-transparent"
                   }`}
                 >
-                  <item.icon className="w-4 h-4" />
-                  {item.label}
+                  <item.icon className="w-4 h-4 shrink-0" />
+                  <span className="truncate">{item.label}</span>
                 </button>
               ))}
             </nav>

@@ -4,11 +4,11 @@ import {
   Twitter, PenTool, BarChart3, Lightbulb, 
   Repeat, Play, Plus, Trash2, Copy, 
   Sparkles, TrendingUp, Activity, MessageSquare, Loader2,
-  Calendar, Clock, Target, Zap
+  Calendar, Clock, Target, Zap, UserCircle, MessageCircle, FileText, ListOrdered
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useToast } from "@/components/ui/use-toast";
-import { generateXTweets, rewriteXTweet, simulateAlgorithm } from "@/services/geminiService";
+import { generateXTweets, rewriteXTweet, simulateAlgorithm, generateXThread, optimizeXProfile, generateXReplies, repurposeToXThread } from "@/services/geminiService";
 
 const XAssistTool = () => {
   const { toast } = useToast();
@@ -25,6 +25,27 @@ const XAssistTool = () => {
   const [simulatorText, setSimulatorText] = useState("");
   const [simulationResult, setSimulationResult] = useState<{score: number, reach: string, engagement: string, feedback: string} | null>(null);
   const [isSimulating, setIsSimulating] = useState(false);
+
+  // Thread Generator State
+  const [threadTopic, setThreadTopic] = useState("");
+  const [generatedThread, setGeneratedThread] = useState<{tweet: string, type: string}[]>([]);
+  const [isGeneratingThread, setIsGeneratingThread] = useState(false);
+
+  // Profile Optimizer State
+  const [currentBio, setCurrentBio] = useState("");
+  const [profileNiche, setProfileNiche] = useState("");
+  const [profileResult, setProfileResult] = useState<{optimizedBio: string, bannerIdea: string, pinnedTweetIdea: string} | null>(null);
+  const [isOptimizingProfile, setIsOptimizingProfile] = useState(false);
+
+  // Reply Generator State
+  const [viralTweet, setViralTweet] = useState("");
+  const [generatedReplies, setGeneratedReplies] = useState<{strategy: string, reply: string}[]>([]);
+  const [isGeneratingReplies, setIsGeneratingReplies] = useState(false);
+
+  // Content Repurposer State
+  const [sourceContent, setSourceContent] = useState("");
+  const [repurposedThread, setRepurposedThread] = useState<{tweet: string, type: string}[]>([]);
+  const [isRepurposing, setIsRepurposing] = useState(false);
 
   // Scheduler State (Mock)
   const [scheduledPosts, setScheduledPosts] = useState([
@@ -71,6 +92,62 @@ const XAssistTool = () => {
       toast({ title: "Error", description: "Failed to run simulation.", variant: "destructive" });
     } finally {
       setIsSimulating(false);
+    }
+  };
+
+  const handleGenerateThread = async () => {
+    if (!threadTopic) return;
+    setIsGeneratingThread(true);
+    try {
+      const thread = await generateXThread(threadTopic);
+      setGeneratedThread(thread);
+      toast({ title: "Thread Generated!", description: "Your viral thread is ready." });
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to generate thread.", variant: "destructive" });
+    } finally {
+      setIsGeneratingThread(false);
+    }
+  };
+
+  const handleOptimizeProfile = async () => {
+    if (!currentBio || !profileNiche) return;
+    setIsOptimizingProfile(true);
+    try {
+      const result = await optimizeXProfile(currentBio, profileNiche);
+      setProfileResult(result);
+      toast({ title: "Profile Optimized!", description: "Your new bio and ideas are ready." });
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to optimize profile.", variant: "destructive" });
+    } finally {
+      setIsOptimizingProfile(false);
+    }
+  };
+
+  const handleGenerateReplies = async () => {
+    if (!viralTweet) return;
+    setIsGeneratingReplies(true);
+    try {
+      const replies = await generateXReplies(viralTweet);
+      setGeneratedReplies(replies);
+      toast({ title: "Replies Generated!", description: "Strategic replies are ready." });
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to generate replies.", variant: "destructive" });
+    } finally {
+      setIsGeneratingReplies(false);
+    }
+  };
+
+  const handleRepurposeContent = async () => {
+    if (!sourceContent) return;
+    setIsRepurposing(true);
+    try {
+      const thread = await repurposeToXThread(sourceContent);
+      setRepurposedThread(thread);
+      toast({ title: "Content Repurposed!", description: "Your thread is ready." });
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to repurpose content.", variant: "destructive" });
+    } finally {
+      setIsRepurposing(false);
     }
   };
 
@@ -238,6 +315,258 @@ const XAssistTool = () => {
           </div>
         );
 
+      case "thread":
+        return (
+          <div className="space-y-6">
+            <div className="glass p-6 rounded-2xl border border-border/50">
+              <h2 className="text-xl font-bold mb-2 flex items-center gap-2">
+                <ListOrdered className="w-5 h-5 text-primary" />
+                Viral Thread Generator
+              </h2>
+              <p className="text-muted-foreground text-sm mb-6">
+                Generate a 5-part viral-style X thread based on a given topic.
+              </p>
+              <div className="flex gap-3 mb-6">
+                <input
+                  type="text"
+                  value={threadTopic}
+                  onChange={(e) => setThreadTopic(e.target.value)}
+                  placeholder="What should the thread be about? (e.g., How I grew to 10k followers)"
+                  className="flex-1 bg-background/50 border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+                />
+                <button
+                  onClick={handleGenerateThread}
+                  disabled={isGeneratingThread || !threadTopic}
+                  className="bg-primary hover:bg-primary/80 text-white px-6 py-3 rounded-xl font-medium text-sm transition-colors flex items-center gap-2 disabled:opacity-50"
+                >
+                  {isGeneratingThread ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                  Generate Thread
+                </button>
+              </div>
+            </div>
+
+            {generatedThread.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="space-y-4"
+              >
+                {generatedThread.map((tweet, index) => (
+                  <div key={index} className="glass p-6 rounded-2xl border border-border/50">
+                    <div className="flex justify-between items-center mb-3">
+                      <span className="text-xs font-bold text-primary bg-primary/10 px-2 py-1 rounded-md">
+                        {index + 1}/5 • {tweet.type}
+                      </span>
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(tweet.tweet);
+                          toast({ title: "Copied!", description: "Tweet copied to clipboard." });
+                        }}
+                        className="p-2 hover:bg-white/10 rounded-lg transition-colors text-muted-foreground hover:text-foreground"
+                      >
+                        <Copy className="w-4 h-4" />
+                      </button>
+                    </div>
+                    <p className="text-sm whitespace-pre-wrap">{tweet.tweet}</p>
+                  </div>
+                ))}
+              </motion.div>
+            )}
+          </div>
+        );
+      case "profile":
+        return (
+          <div className="space-y-6">
+            <div className="glass p-6 rounded-2xl border border-border/50">
+              <h2 className="text-xl font-bold mb-2 flex items-center gap-2">
+                <UserCircle className="w-5 h-5 text-primary" />
+                Profile Optimizer
+              </h2>
+              <p className="text-muted-foreground text-sm mb-6">
+                Optimize your X profile by providing a high-converting bio, a banner image idea, and a pinned tweet suggestion.
+              </p>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-muted-foreground mb-1">Current Bio</label>
+                  <textarea
+                    value={currentBio}
+                    onChange={(e) => setCurrentBio(e.target.value)}
+                    placeholder="Paste your current bio here..."
+                    className="w-full h-24 bg-background/50 border border-border rounded-xl p-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-muted-foreground mb-1">Your Niche/Industry</label>
+                  <input
+                    type="text"
+                    value={profileNiche}
+                    onChange={(e) => setProfileNiche(e.target.value)}
+                    placeholder="e.g., SaaS Founder, AI Enthusiast, Fitness Coach"
+                    className="w-full bg-background/50 border border-border rounded-xl p-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+                  />
+                </div>
+                <button
+                  onClick={handleOptimizeProfile}
+                  disabled={isOptimizingProfile || !currentBio || !profileNiche}
+                  className="w-full bg-primary hover:bg-primary/80 text-white px-6 py-3 rounded-xl font-medium text-sm transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                >
+                  {isOptimizingProfile ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                  Optimize Profile
+                </button>
+              </div>
+            </div>
+
+            {profileResult && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="space-y-4"
+              >
+                <div className="glass p-6 rounded-2xl border border-border/50">
+                  <h3 className="text-lg font-bold mb-3">Optimized Bio</h3>
+                  <div className="bg-background/50 rounded-xl p-4 border border-border/50 relative group">
+                    <p className="text-sm whitespace-pre-wrap">{profileResult.optimizedBio}</p>
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(profileResult.optimizedBio);
+                        toast({ title: "Copied!", description: "Bio copied to clipboard." });
+                      }}
+                      className="absolute top-2 right-2 p-2 bg-background/80 hover:bg-background rounded-lg transition-colors text-muted-foreground hover:text-foreground opacity-0 group-hover:opacity-100"
+                    >
+                      <Copy className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="glass p-6 rounded-2xl border border-border/50">
+                    <h3 className="text-lg font-bold mb-3">Banner Idea</h3>
+                    <p className="text-muted-foreground text-sm">{profileResult.bannerIdea}</p>
+                  </div>
+                  <div className="glass p-6 rounded-2xl border border-border/50">
+                    <h3 className="text-lg font-bold mb-3">Pinned Tweet Idea</h3>
+                    <p className="text-muted-foreground text-sm">{profileResult.pinnedTweetIdea}</p>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </div>
+        );
+      case "replies":
+        return (
+          <div className="space-y-6">
+            <div className="glass p-6 rounded-2xl border border-border/50">
+              <h2 className="text-xl font-bold mb-2 flex items-center gap-2">
+                <MessageCircle className="w-5 h-5 text-primary" />
+                Strategic Reply Generator
+              </h2>
+              <p className="text-muted-foreground text-sm mb-6">
+                Generate strategic replies (Add Value, Contrarian, Humor) to a viral X post.
+              </p>
+              <div className="space-y-4">
+                <textarea
+                  value={viralTweet}
+                  onChange={(e) => setViralTweet(e.target.value)}
+                  placeholder="Paste the viral tweet you want to reply to..."
+                  className="w-full h-32 bg-background/50 border border-border rounded-xl p-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none"
+                />
+                <button
+                  onClick={handleGenerateReplies}
+                  disabled={isGeneratingReplies || !viralTweet}
+                  className="w-full bg-primary hover:bg-primary/80 text-white px-6 py-3 rounded-xl font-medium text-sm transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                >
+                  {isGeneratingReplies ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                  Generate Replies
+                </button>
+              </div>
+            </div>
+
+            {generatedReplies.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="grid grid-cols-1 gap-4"
+              >
+                {generatedReplies.map((reply, index) => (
+                  <div key={index} className="glass p-6 rounded-2xl border border-border/50">
+                    <div className="flex justify-between items-center mb-3">
+                      <span className="text-xs font-bold text-primary bg-primary/10 px-2 py-1 rounded-md">
+                        {reply.strategy}
+                      </span>
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(reply.reply);
+                          toast({ title: "Copied!", description: "Reply copied to clipboard." });
+                        }}
+                        className="p-2 hover:bg-white/10 rounded-lg transition-colors text-muted-foreground hover:text-foreground"
+                      >
+                        <Copy className="w-4 h-4" />
+                      </button>
+                    </div>
+                    <p className="text-sm">{reply.reply}</p>
+                  </div>
+                ))}
+              </motion.div>
+            )}
+          </div>
+        );
+      case "repurpose":
+        return (
+          <div className="space-y-6">
+            <div className="glass p-6 rounded-2xl border border-border/50">
+              <h2 className="text-xl font-bold mb-2 flex items-center gap-2">
+                <FileText className="w-5 h-5 text-primary" />
+                Repurpose to Thread
+              </h2>
+              <p className="text-muted-foreground text-sm mb-6">
+                Convert long-form content into an engaging 5-7 tweet X thread.
+              </p>
+              <div className="space-y-4">
+                <textarea
+                  value={sourceContent}
+                  onChange={(e) => setSourceContent(e.target.value)}
+                  placeholder="Paste your blog post, video transcript, or long-form content here..."
+                  className="w-full h-48 bg-background/50 border border-border rounded-xl p-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none"
+                />
+                <button
+                  onClick={handleRepurposeContent}
+                  disabled={isRepurposing || !sourceContent}
+                  className="w-full bg-primary hover:bg-primary/80 text-white px-6 py-3 rounded-xl font-medium text-sm transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                >
+                  {isRepurposing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                  Convert to Thread
+                </button>
+              </div>
+            </div>
+
+            {repurposedThread.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="space-y-4"
+              >
+                {repurposedThread.map((tweet, index) => (
+                  <div key={index} className="glass p-6 rounded-2xl border border-border/50">
+                    <div className="flex justify-between items-center mb-3">
+                      <span className="text-xs font-bold text-primary bg-primary/10 px-2 py-1 rounded-md">
+                        {index + 1}/{repurposedThread.length} • {tweet.type}
+                      </span>
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(tweet.tweet);
+                          toast({ title: "Copied!", description: "Tweet copied to clipboard." });
+                        }}
+                        className="p-2 hover:bg-white/10 rounded-lg transition-colors text-muted-foreground hover:text-foreground"
+                      >
+                        <Copy className="w-4 h-4" />
+                      </button>
+                    </div>
+                    <p className="text-sm whitespace-pre-wrap">{tweet.tweet}</p>
+                  </div>
+                ))}
+              </motion.div>
+            )}
+          </div>
+        );
       case "scheduler":
         return (
           <div className="space-y-6">
@@ -294,7 +623,7 @@ const XAssistTool = () => {
       
       <div className="flex-1 flex pt-16">
         {/* Sidebar */}
-        <aside className="w-64 border-r border-border/50 bg-card/30 hidden md:flex flex-col">
+        <aside className="w-72 border-r border-border/50 bg-card/30 hidden md:flex flex-col shrink-0">
           <div className="p-6">
             <div className="flex items-center gap-2 font-heading font-bold text-lg mb-8">
               <Twitter className="w-6 h-6 text-primary" />
@@ -305,19 +634,23 @@ const XAssistTool = () => {
               {[
                 { id: "writer", icon: PenTool, label: "AI Writer & Remixer" },
                 { id: "simulator", icon: Target, label: "Algorithm Simulator" },
+                { id: "thread", icon: ListOrdered, label: "Viral Thread Generator" },
+                { id: "profile", icon: UserCircle, label: "Profile Optimizer" },
+                { id: "replies", icon: MessageCircle, label: "Strategic Replies" },
+                { id: "repurpose", icon: FileText, label: "Repurpose to Thread" },
                 { id: "scheduler", icon: Calendar, label: "Smart Scheduler" },
               ].map((item) => (
                 <button
                   key={item.id}
                   onClick={() => setActiveTab(item.id)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all whitespace-nowrap ${
                     activeTab === item.id 
-                      ? "bg-primary/10 text-primary" 
-                      : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                      ? "bg-gradient-to-r from-slate-800 to-slate-900 text-white font-bold shadow-md border border-transparent" 
+                      : "bg-transparent text-muted-foreground hover:bg-secondary hover:text-foreground border border-transparent"
                   }`}
                 >
-                  <item.icon className="w-4 h-4" />
-                  {item.label}
+                  <item.icon className="w-4 h-4 shrink-0" />
+                  <span className="truncate">{item.label}</span>
                 </button>
               ))}
             </nav>

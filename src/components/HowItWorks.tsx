@@ -26,7 +26,7 @@ const HowItWorks = () => {
     <section className="py-24">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
-          <h2 className="font-heading font-bold text-3xl md:text-5xl mb-4">
+          <h2 className="font-heading font-bold text-3xl md:text-5xl mb-4 text-foreground">
             How <span className="bg-gradient-to-r from-indigo-600 to-indigo-950 bg-clip-text text-transparent">It Works</span>
           </h2>
           <p className="text-muted-foreground max-w-xl mx-auto">
@@ -47,7 +47,7 @@ const HowItWorks = () => {
               {i < steps.length - 1 && (
                 <div className="hidden md:block absolute top-8 left-[60%] w-[80%] h-px bg-border" />
               )}
-              <h3 className="font-heading font-bold text-base mb-2">{s.title}</h3>
+              <h3 className="font-heading font-bold text-base mb-2 text-foreground">{s.title}</h3>
               <p className="text-sm text-muted-foreground">{s.description}</p>
             </div>
           ))}

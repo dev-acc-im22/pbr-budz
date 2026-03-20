@@ -39,7 +39,7 @@ const FeaturesSection = () => {
       <div className="absolute inset-0 bg-gradient-card opacity-50" />
       <div className="relative container mx-auto px-4">
         <div className="text-center mb-16">
-          <h2 className="font-heading font-bold text-3xl md:text-5xl mb-4">
+          <h2 className="font-heading font-bold text-3xl md:text-5xl mb-4 text-foreground">
             Everything You Need to <span className="bg-gradient-to-r from-indigo-600 to-indigo-950 bg-clip-text text-transparent">Stand Out</span>
           </h2>
           <p className="text-muted-foreground max-w-xl mx-auto">

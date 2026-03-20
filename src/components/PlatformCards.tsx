@@ -45,7 +45,7 @@ const PlatformCards = () => {
     <section className="py-24 relative">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
-          <h2 className="font-heading font-bold text-3xl md:text-5xl mb-4">
+          <h2 className="font-heading font-bold text-3xl md:text-5xl mb-4 text-foreground">
             One Tool. <span className="bg-gradient-to-r from-indigo-600 to-indigo-950 bg-clip-text text-transparent">Every Platform.</span>
           </h2>
           <p className="text-muted-foreground max-w-xl mx-auto">
@@ -68,7 +68,7 @@ const PlatformCards = () => {
               <p className="text-sm text-muted-foreground mb-4 flex-1">{p.description}</p>
               <ul className="space-y-1.5 mb-5">
                 {p.features.map((f) => (
-                  <li key={f} className="text-xs text-secondary-foreground flex items-center gap-2">
+                  <li key={f} className="text-xs text-foreground flex items-center gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-indigo-600" />
                     {f}
                   </li>

@@ -8,7 +8,7 @@ const CTASection = () => {
         <div className="relative rounded-3xl overflow-hidden glass p-12 md:p-20 text-center max-w-4xl mx-auto">
           <div className="absolute inset-0 bg-gradient-primary opacity-10" />
           <div className="relative z-10">
-            <h2 className="font-heading font-black text-3xl md:text-5xl mb-4">
+            <h2 className="font-heading font-black text-3xl md:text-5xl mb-4 text-foreground">
               Ready to Build Your <span className="text-gradient-brand">Brand Empire?</span>
             </h2>
             <p className="text-muted-foreground max-w-lg mx-auto mb-8">

@@ -41,24 +41,39 @@ const CarouselMaker = () => {
       <main className="flex-1 container mx-auto px-4 py-24 max-w-7xl flex gap-8">
         
         {/* Sidebar */}
-        <aside className="w-64 hidden lg:flex flex-col gap-6">
+        <aside className="w-72 shrink-0 hidden lg:flex flex-col gap-6">
           <div className="bg-card border border-border/50 rounded-xl p-4">
             <h3 className="font-bold text-sm mb-4 text-muted-foreground uppercase tracking-wider">Design Tools</h3>
             <nav className="space-y-2">
-              <button className="w-full flex items-center gap-3 px-3 py-2 bg-purple-500/10 text-purple-500 rounded-lg font-medium text-sm transition-colors">
-                <LayoutTemplate className="w-4 h-4" /> Templates
+              <button 
+                onClick={() => setActiveTab("templates")}
+                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-sm transition-colors whitespace-nowrap ${activeTab === 'templates' ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white font-bold shadow-md border border-transparent' : 'bg-transparent text-muted-foreground hover:bg-secondary hover:text-foreground border border-transparent'}`}
+              >
+                <LayoutTemplate className="w-4 h-4 shrink-0" /> <span className="truncate">Templates</span>
               </button>
-              <button className="w-full flex items-center gap-3 px-3 py-2 text-muted-foreground hover:bg-muted rounded-lg font-medium text-sm transition-colors">
-                <Palette className="w-4 h-4" /> Brand Colors
+              <button 
+                onClick={() => setActiveTab("colors")}
+                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-sm transition-colors whitespace-nowrap ${activeTab === 'colors' ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white font-bold shadow-md border border-transparent' : 'bg-transparent text-muted-foreground hover:bg-secondary hover:text-foreground border border-transparent'}`}
+              >
+                <Palette className="w-4 h-4 shrink-0" /> <span className="truncate">Brand Colors</span>
               </button>
-              <button className="w-full flex items-center gap-3 px-3 py-2 text-muted-foreground hover:bg-muted rounded-lg font-medium text-sm transition-colors">
-                <Type className="w-4 h-4" /> Typography
+              <button 
+                onClick={() => setActiveTab("typography")}
+                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-sm transition-colors whitespace-nowrap ${activeTab === 'typography' ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white font-bold shadow-md border border-transparent' : 'bg-transparent text-muted-foreground hover:bg-secondary hover:text-foreground border border-transparent'}`}
+              >
+                <Type className="w-4 h-4 shrink-0" /> <span className="truncate">Typography</span>
               </button>
-              <button className="w-full flex items-center gap-3 px-3 py-2 text-muted-foreground hover:bg-muted rounded-lg font-medium text-sm transition-colors">
-                <ImageIcon className="w-4 h-4" /> Assets
+              <button 
+                onClick={() => setActiveTab("assets")}
+                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-sm transition-colors whitespace-nowrap ${activeTab === 'assets' ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white font-bold shadow-md border border-transparent' : 'bg-transparent text-muted-foreground hover:bg-secondary hover:text-foreground border border-transparent'}`}
+              >
+                <ImageIcon className="w-4 h-4 shrink-0" /> <span className="truncate">Assets</span>
               </button>
-              <button className="w-full flex items-center gap-3 px-3 py-2 text-muted-foreground hover:bg-muted rounded-lg font-medium text-sm transition-colors">
-                <Settings className="w-4 h-4" /> Settings
+              <button 
+                onClick={() => setActiveTab("settings")}
+                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-sm transition-colors whitespace-nowrap ${activeTab === 'settings' ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white font-bold shadow-md border border-transparent' : 'bg-transparent text-muted-foreground hover:bg-secondary hover:text-foreground border border-transparent'}`}
+              >
+                <Settings className="w-4 h-4 shrink-0" /> <span className="truncate">Settings</span>
               </button>
             </nav>
           </div>

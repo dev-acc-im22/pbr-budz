@@ -14,20 +14,56 @@ import Footer from "@/components/Footer";
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen flex flex-col text-foreground">
       <Navbar />
-      <HeroSection />
-      <LogoMarquee />
-      <PlatformCards />
-      <FeaturesSection />
-      <OldVsNewSection />
-      <HowItWorks />
-      <ComparisonSection />
-      <TestimonialsSection />
-      <PricingSection />
-      <FAQSection />
-      <CTASection />
-      <Footer />
+      
+      <div className="bg-[#F0F8FF] dark:bg-background">
+        <HeroSection />
+      </div>
+      
+      <div className="bg-white dark:bg-background">
+        <LogoMarquee />
+      </div>
+      
+      <div className="bg-[#F8FAFC] dark:bg-background">
+        <PlatformCards />
+      </div>
+      
+      <div className="bg-[#F0F8FF] dark:bg-background">
+        <FeaturesSection />
+      </div>
+      
+      <div className="bg-white dark:bg-background">
+        <OldVsNewSection />
+      </div>
+      
+      <div className="bg-[#F8FAFC] dark:bg-background">
+        <HowItWorks />
+      </div>
+      
+      <div className="bg-[#F0F8FF] dark:bg-background">
+        <ComparisonSection />
+      </div>
+      
+      <div className="bg-white dark:bg-background">
+        <TestimonialsSection />
+      </div>
+      
+      <div className="bg-[#F8FAFC] dark:bg-background">
+        <PricingSection />
+      </div>
+      
+      <div className="bg-[#F0F8FF] dark:bg-background">
+        <FAQSection />
+      </div>
+      
+      <div className="bg-white dark:bg-background">
+        <CTASection />
+      </div>
+      
+      <div className="bg-[#F8FAFC] dark:bg-background">
+        <Footer />
+      </div>
     </div>
   );
 };

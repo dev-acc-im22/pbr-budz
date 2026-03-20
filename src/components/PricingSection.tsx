@@ -60,7 +60,7 @@ const PricingSection = () => {
     <section className="py-24">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
-          <h2 className="font-heading font-bold text-3xl md:text-5xl mb-4">
+          <h2 className="font-heading font-bold text-3xl md:text-5xl mb-4 text-foreground">
             Simple, <span className="bg-gradient-to-r from-indigo-600 to-indigo-950 bg-clip-text text-transparent">Transparent</span> Pricing
           </h2>
           <p className="text-muted-foreground max-w-xl mx-auto">
@@ -83,10 +83,10 @@ const PricingSection = () => {
                   Most Popular
                 </div>
               )}
-              <h3 className="font-heading font-bold text-xl mb-1">{plan.name}</h3>
+              <h3 className="font-heading font-bold text-xl mb-1 text-foreground">{plan.name}</h3>
               <p className="text-sm text-muted-foreground mb-4">{plan.description}</p>
               <div className="mb-6">
-                <span className="font-heading font-black text-4xl">{plan.price}</span>
+                <span className="font-heading font-black text-4xl text-foreground">{plan.price}</span>
                 <span className="text-muted-foreground text-sm">{plan.period}</span>
               </div>
               <ul className="space-y-3 mb-8 flex-1">

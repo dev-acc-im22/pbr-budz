@@ -25,7 +25,11 @@ import {
   generateTitlesAndTags,
   generateThumbnailImage,
   generateSimilarIdeas,
-  analyzeBooks
+  analyzeBooks,
+  generateSponsorshipPitch,
+  generateCommunityPosts,
+  generateVideoChapters,
+  generateShortsScript
 } from "@/services/geminiService";
 
 const YouTubeAssistTool = () => {
@@ -113,6 +117,32 @@ const YouTubeAssistTool = () => {
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   const [activeThumbnailIndex, setActiveThumbnailIndex] = useState<number | null>(null);
+
+  // Sponsorship Pitch State
+  const [pitchChannelName, setPitchChannelName] = useState("");
+  const [pitchNiche, setPitchNiche] = useState("");
+  const [pitchSubCount, setPitchSubCount] = useState("");
+  const [pitchBrandName, setPitchBrandName] = useState("");
+  const [pitchProduct, setPitchProduct] = useState("");
+  const [generatedPitch, setGeneratedPitch] = useState<{subject: string, body: string} | null>(null);
+  const [isGeneratingPitch, setIsGeneratingPitch] = useState(false);
+
+  // Community Posts State
+  const [communityNiche, setCommunityNiche] = useState("");
+  const [communityRecentVideo, setCommunityRecentVideo] = useState("");
+  const [generatedCommunityPosts, setGeneratedCommunityPosts] = useState<{type: string, content: string, options?: string[]}[]>([]);
+  const [isGeneratingCommunity, setIsGeneratingCommunity] = useState(false);
+
+  // Video Chapters State
+  const [chaptersScript, setChaptersScript] = useState("");
+  const [generatedChapters, setGeneratedChapters] = useState("");
+  const [isGeneratingChapters, setIsGeneratingChapters] = useState(false);
+
+  // Shorts Script State
+  const [shortsTopic, setShortsTopic] = useState("");
+  const [shortsTone, setShortsTone] = useState("educational");
+  const [generatedShorts, setGeneratedShorts] = useState<{hook: string, body: string, callToAction: string} | null>(null);
+  const [isGeneratingShorts, setIsGeneratingShorts] = useState(false);
 
   const handleGenerateTitles = async () => {
     if (!titleTopic) return;
@@ -251,6 +281,62 @@ const YouTubeAssistTool = () => {
       toast({ title: "Error", description: "Failed to generate image.", variant: "destructive" });
     } finally {
       setIsGeneratingImage(false);
+    }
+  };
+
+  const handleGeneratePitch = async () => {
+    if (!pitchChannelName || !pitchNiche || !pitchBrandName || !pitchProduct) return;
+    setIsGeneratingPitch(true);
+    try {
+      const data = await generateSponsorshipPitch(pitchChannelName, pitchNiche, pitchSubCount, pitchBrandName, pitchProduct);
+      setGeneratedPitch(data);
+      toast({ title: "Pitch Generated!", description: "Your sponsorship pitch is ready." });
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to generate pitch.", variant: "destructive" });
+    } finally {
+      setIsGeneratingPitch(false);
+    }
+  };
+
+  const handleGenerateCommunity = async () => {
+    if (!communityNiche || !communityRecentVideo) return;
+    setIsGeneratingCommunity(true);
+    try {
+      const data = await generateCommunityPosts(communityNiche, communityRecentVideo);
+      setGeneratedCommunityPosts(data);
+      toast({ title: "Posts Generated!", description: "Community tab ideas are ready." });
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to generate posts.", variant: "destructive" });
+    } finally {
+      setIsGeneratingCommunity(false);
+    }
+  };
+
+  const handleGenerateChapters = async () => {
+    if (!chaptersScript) return;
+    setIsGeneratingChapters(true);
+    try {
+      const data = await generateVideoChapters(chaptersScript);
+      setGeneratedChapters(data);
+      toast({ title: "Chapters Generated!", description: "Video timestamps are ready." });
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to generate chapters.", variant: "destructive" });
+    } finally {
+      setIsGeneratingChapters(false);
+    }
+  };
+
+  const handleGenerateShorts = async () => {
+    if (!shortsTopic) return;
+    setIsGeneratingShorts(true);
+    try {
+      const data = await generateShortsScript(shortsTopic, shortsTone);
+      setGeneratedShorts(data);
+      toast({ title: "Shorts Script Generated!", description: "Your high-retention script is ready." });
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to generate shorts script.", variant: "destructive" });
+    } finally {
+      setIsGeneratingShorts(false);
     }
   };
 
@@ -715,6 +801,347 @@ const YouTubeAssistTool = () => {
           </div>
         );
 
+      case "sponsorship":
+        return (
+          <div className="space-y-6">
+            <div className="glass p-6 rounded-2xl border border-border/50">
+              <h2 className="text-xl font-bold mb-2 flex items-center gap-2">
+                <MessageSquare className="w-5 h-5 text-red-500" />
+                Sponsorship Pitch Generator
+              </h2>
+              <p className="text-muted-foreground text-sm mb-6">
+                Generate a professional, persuasive email pitch to send to brands for potential sponsorships.
+              </p>
+              
+              <div className="grid md:grid-cols-2 gap-4 mb-6">
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Channel Name</label>
+                  <input 
+                    type="text" 
+                    placeholder="e.g., Tech Talk" 
+                    className="w-full bg-background/50 border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-500/50"
+                    value={pitchChannelName}
+                    onChange={(e) => setPitchChannelName(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Niche</label>
+                  <input 
+                    type="text" 
+                    placeholder="e.g., Tech Reviews" 
+                    className="w-full bg-background/50 border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-500/50"
+                    value={pitchNiche}
+                    onChange={(e) => setPitchNiche(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Subscribers</label>
+                  <input 
+                    type="text" 
+                    placeholder="e.g., 50K" 
+                    className="w-full bg-background/50 border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-500/50"
+                    value={pitchSubCount}
+                    onChange={(e) => setPitchSubCount(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Target Brand</label>
+                  <input 
+                    type="text" 
+                    placeholder="e.g., Notion" 
+                    className="w-full bg-background/50 border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-500/50"
+                    value={pitchBrandName}
+                    onChange={(e) => setPitchBrandName(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2 md:col-span-2">
+                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Product to Promote</label>
+                  <input 
+                    type="text" 
+                    placeholder="e.g., Notion AI" 
+                    className="w-full bg-background/50 border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-500/50"
+                    value={pitchProduct}
+                    onChange={(e) => setPitchProduct(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <button 
+                onClick={handleGeneratePitch}
+                disabled={isGeneratingPitch || !pitchChannelName || !pitchNiche || !pitchBrandName || !pitchProduct}
+                className="w-full bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-xl font-medium text-sm transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+              >
+                {isGeneratingPitch ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                Generate Pitch
+              </button>
+            </div>
+
+            {generatedPitch && (
+              <div className="glass p-6 rounded-2xl border border-border/50">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-bold flex items-center gap-2">
+                    <FileText className="w-4 h-4 text-red-500" />
+                    Generated Pitch
+                  </h3>
+                  <button 
+                    onClick={() => {
+                      navigator.clipboard.writeText(`Subject: ${generatedPitch.subject}\n\n${generatedPitch.body}`);
+                      toast({ title: "Copied!", description: "Pitch copied to clipboard." });
+                    }}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md hover:bg-muted/50 text-muted-foreground text-xs font-medium transition-colors"
+                  >
+                    <Copy className="h-3.5 w-3.5" />
+                    Copy All
+                  </button>
+                </div>
+                <div className="bg-background/50 border border-border rounded-xl p-4 space-y-4">
+                  <div>
+                    <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Subject</span>
+                    <p className="text-sm font-medium mt-1">{generatedPitch.subject}</p>
+                  </div>
+                  <div className="w-full h-px bg-border/50" />
+                  <div>
+                    <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Body</span>
+                    <p className="text-sm mt-1 whitespace-pre-wrap leading-relaxed">{generatedPitch.body}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        );
+
+      case "community":
+        return (
+          <div className="space-y-6">
+            <div className="glass p-6 rounded-2xl border border-border/50">
+              <h2 className="text-xl font-bold mb-2 flex items-center gap-2">
+                <Repeat className="w-5 h-5 text-red-500" />
+                Community Posts Generator
+              </h2>
+              <p className="text-muted-foreground text-sm mb-6">
+                Keep your audience engaged between uploads with AI-generated Community Tab posts.
+              </p>
+              
+              <div className="grid md:grid-cols-2 gap-4 mb-6">
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Your Niche</label>
+                  <input 
+                    type="text" 
+                    placeholder="e.g., Fitness, Gaming, Cooking" 
+                    className="w-full bg-background/50 border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-500/50"
+                    value={communityNiche}
+                    onChange={(e) => setCommunityNiche(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Recent Video Topic</label>
+                  <input 
+                    type="text" 
+                    placeholder="e.g., 10 Min Core Workout" 
+                    className="w-full bg-background/50 border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-500/50"
+                    value={communityRecentVideo}
+                    onChange={(e) => setCommunityRecentVideo(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <button 
+                onClick={handleGenerateCommunity}
+                disabled={isGeneratingCommunity || !communityNiche || !communityRecentVideo}
+                className="w-full bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-xl font-medium text-sm transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+              >
+                {isGeneratingCommunity ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                Generate Community Posts
+              </button>
+            </div>
+
+            {generatedCommunityPosts.length > 0 && (
+              <div className="grid gap-4">
+                {generatedCommunityPosts.map((post, i) => (
+                  <div key={i} className="glass p-5 rounded-2xl border border-border/50">
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="px-2.5 py-1 bg-red-500/10 text-red-500 text-[10px] font-bold uppercase tracking-wider rounded-full">
+                        {post.type}
+                      </span>
+                      <button 
+                        onClick={() => {
+                          let text = post.content;
+                          if (post.options && post.options.length > 0) {
+                            text += '\n\nOptions:\n' + post.options.map((o: string) => `- ${o}`).join('\n');
+                          }
+                          navigator.clipboard.writeText(text);
+                          toast({ title: "Copied!", description: "Post copied to clipboard." });
+                        }}
+                        className="p-1.5 text-muted-foreground hover:text-foreground transition-colors"
+                        title="Copy Post"
+                      >
+                        <Copy className="w-4 h-4" />
+                      </button>
+                    </div>
+                    <p className="text-sm mb-4 whitespace-pre-wrap">{post.content}</p>
+                    {post.options && post.options.length > 0 && (
+                      <div className="space-y-2">
+                        {post.options.map((opt: string, idx: number) => (
+                          <div key={idx} className="bg-background/50 border border-border rounded-lg px-4 py-2 text-sm text-muted-foreground">
+                            {opt}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+
+      case "chapters":
+        return (
+          <div className="space-y-6">
+            <div className="glass p-6 rounded-2xl border border-border/50">
+              <h2 className="text-xl font-bold mb-2 flex items-center gap-2">
+                <Clock className="w-5 h-5 text-red-500" />
+                Video Chapters Generator
+              </h2>
+              <p className="text-muted-foreground text-sm mb-6">
+                Paste your video script or outline, and we'll generate SEO-friendly YouTube timestamps.
+              </p>
+              
+              <div className="mb-4">
+                <textarea 
+                  placeholder="Paste your script or outline here..." 
+                  className="w-full h-48 bg-background/50 border border-border rounded-xl p-4 text-sm focus:outline-none focus:ring-2 focus:ring-red-500/50 resize-none"
+                  value={chaptersScript}
+                  onChange={(e) => setChaptersScript(e.target.value)}
+                />
+              </div>
+
+              <button 
+                onClick={handleGenerateChapters}
+                disabled={isGeneratingChapters || !chaptersScript}
+                className="w-full bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-xl font-medium text-sm transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+              >
+                {isGeneratingChapters ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                Generate Chapters
+              </button>
+            </div>
+
+            {generatedChapters && (
+              <div className="glass p-6 rounded-2xl border border-border/50">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-bold flex items-center gap-2">
+                    <List className="w-4 h-4 text-red-500" />
+                    Generated Timestamps
+                  </h3>
+                  <button 
+                    onClick={() => {
+                      navigator.clipboard.writeText(generatedChapters);
+                      toast({ title: "Copied!", description: "Chapters copied to clipboard." });
+                    }}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md hover:bg-muted/50 text-muted-foreground text-xs font-medium transition-colors"
+                  >
+                    <Copy className="h-3.5 w-3.5" />
+                    Copy All
+                  </button>
+                </div>
+                <div className="bg-background/50 border border-border rounded-xl p-4">
+                  <pre className="text-sm whitespace-pre-wrap font-mono text-muted-foreground">
+                    {generatedChapters}
+                  </pre>
+                </div>
+              </div>
+            )}
+          </div>
+        );
+
+      case "shorts":
+        return (
+          <div className="space-y-6">
+            <div className="glass p-6 rounded-2xl border border-border/50">
+              <h2 className="text-xl font-bold mb-2 flex items-center gap-2">
+                <Video className="w-5 h-5 text-red-500" />
+                Shorts Script Generator
+              </h2>
+              <p className="text-muted-foreground text-sm mb-6">
+                Create high-retention, 60-second YouTube Shorts scripts with scroll-stopping hooks.
+              </p>
+              
+              <div className="grid md:grid-cols-2 gap-4 mb-6">
+                <div className="space-y-2 md:col-span-2">
+                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Topic</label>
+                  <input 
+                    type="text" 
+                    placeholder="e.g., 3 Hidden iPhone Features" 
+                    className="w-full bg-background/50 border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-500/50"
+                    value={shortsTopic}
+                    onChange={(e) => setShortsTopic(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2 md:col-span-2">
+                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Tone</label>
+                  <select 
+                    className="w-full bg-background/50 border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-500/50"
+                    value={shortsTone}
+                    onChange={(e) => setShortsTone(e.target.value)}
+                  >
+                    <option value="educational">Educational & Informative</option>
+                    <option value="funny">Funny & Entertaining</option>
+                    <option value="dramatic">Dramatic & Suspenseful</option>
+                    <option value="controversial">Controversial & Opinionated</option>
+                    <option value="storytelling">Storytelling</option>
+                  </select>
+                </div>
+              </div>
+
+              <button 
+                onClick={handleGenerateShorts}
+                disabled={isGeneratingShorts || !shortsTopic}
+                className="w-full bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-xl font-medium text-sm transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+              >
+                {isGeneratingShorts ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                Generate Shorts Script
+              </button>
+            </div>
+
+            {generatedShorts && (
+              <div className="glass p-6 rounded-2xl border border-border/50">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-bold flex items-center gap-2">
+                    <FileText className="w-4 h-4 text-red-500" />
+                    Generated Script
+                  </h3>
+                  <button 
+                    onClick={() => {
+                      navigator.clipboard.writeText(`HOOK (0-3s):\n${generatedShorts.hook}\n\nBODY:\n${generatedShorts.body}\n\nCTA:\n${generatedShorts.callToAction}`);
+                      toast({ title: "Copied!", description: "Script copied to clipboard." });
+                    }}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md hover:bg-muted/50 text-muted-foreground text-xs font-medium transition-colors"
+                  >
+                    <Copy className="h-3.5 w-3.5" />
+                    Copy All
+                  </button>
+                </div>
+                <div className="bg-background/50 border border-border rounded-xl p-4 space-y-4">
+                  <div>
+                    <span className="text-xs font-semibold text-red-500 uppercase tracking-wider bg-red-500/10 px-2 py-0.5 rounded-sm">Hook (0-3s)</span>
+                    <p className="text-sm font-bold mt-2">{generatedShorts.hook}</p>
+                  </div>
+                  <div className="w-full h-px bg-border/50" />
+                  <div>
+                    <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Body</span>
+                    <p className="text-sm mt-2 whitespace-pre-wrap leading-relaxed">{generatedShorts.body}</p>
+                  </div>
+                  <div className="w-full h-px bg-border/50" />
+                  <div>
+                    <span className="text-xs font-semibold text-blue-500 uppercase tracking-wider bg-blue-500/10 px-2 py-0.5 rounded-sm">Call to Action</span>
+                    <p className="text-sm font-medium mt-2">{generatedShorts.callToAction}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        );
+
       default:
         return null;
     }
@@ -726,7 +1153,7 @@ const YouTubeAssistTool = () => {
       
       <div className="flex-1 flex pt-16">
         {/* Sidebar */}
-        <aside className="w-64 border-r border-border/50 bg-card/30 hidden md:flex flex-col">
+        <aside className="w-72 border-r border-border/50 bg-card/30 hidden md:flex flex-col shrink-0">
           <div className="p-6">
             <div className="flex items-center gap-2 font-heading font-bold text-lg mb-8">
               <Youtube className="w-6 h-6 text-red-500" />
@@ -737,20 +1164,24 @@ const YouTubeAssistTool = () => {
               {[
                 { id: "titles", icon: Lightbulb, label: "Title & Tag Generator" },
                 { id: "editor", icon: PenTool, label: "Script Writer" },
+                { id: "shorts", icon: Video, label: "Shorts Script" },
                 { id: "thumbnails", icon: ImageIcon, label: "Thumbnail Ideas" },
                 { id: "analytics", icon: BarChart3, label: "Analytics Dashboard" },
+                { id: "sponsorship", icon: MessageSquare, label: "Sponsorship Pitch" },
+                { id: "community", icon: Repeat, label: "Community Posts" },
+                { id: "chapters", icon: Clock, label: "Video Chapters" },
               ].map((item) => (
                 <button
                   key={item.id}
                   onClick={() => setActiveTab(item.id)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all whitespace-nowrap ${
                     activeTab === item.id 
-                      ? "bg-red-500/10 text-red-500" 
-                      : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                      ? "bg-gradient-to-r from-red-500 to-red-600 text-white font-bold shadow-md border border-transparent" 
+                      : "bg-transparent text-muted-foreground hover:bg-secondary hover:text-foreground border border-transparent"
                   }`}
                 >
-                  <item.icon className="w-4 h-4" />
-                  {item.label}
+                  <item.icon className="w-4 h-4 shrink-0" />
+                  <span className="truncate">{item.label}</span>
                 </button>
               ))}
             </nav>

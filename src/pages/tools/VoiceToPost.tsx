@@ -104,21 +104,21 @@ const VoiceToPost = () => {
       <main className="flex-1 container mx-auto px-4 py-24 max-w-7xl flex gap-8">
         
         {/* Sidebar */}
-        <aside className="w-64 hidden lg:flex flex-col gap-6">
+        <aside className="w-72 hidden lg:flex flex-col gap-6 shrink-0">
           <div className="bg-card border border-border/50 rounded-xl p-4">
             <h3 className="font-bold text-sm mb-4 text-muted-foreground uppercase tracking-wider">Voice Notes</h3>
             <nav className="space-y-2">
               <button 
                 onClick={() => setActiveTab("record")}
-                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-sm transition-colors ${activeTab === 'record' ? 'bg-blue-500/10 text-blue-500' : 'text-muted-foreground hover:bg-muted'}`}
+                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-sm transition-colors whitespace-nowrap ${activeTab === 'record' ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white font-bold shadow-md border border-transparent' : 'bg-transparent text-muted-foreground hover:bg-secondary hover:text-foreground border border-transparent'}`}
               >
-                <Mic className="w-4 h-4" /> New Recording
+                <Mic className="w-4 h-4 shrink-0" /> New Recording
               </button>
               <button 
                 onClick={() => setActiveTab("library")}
-                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-sm transition-colors ${activeTab === 'library' ? 'bg-blue-500/10 text-blue-500' : 'text-muted-foreground hover:bg-muted'}`}
+                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-sm transition-colors whitespace-nowrap ${activeTab === 'library' ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white font-bold shadow-md border border-transparent' : 'bg-transparent text-muted-foreground hover:bg-secondary hover:text-foreground border border-transparent'}`}
               >
-                <FileAudio className="w-4 h-4" /> Library
+                <FileAudio className="w-4 h-4 shrink-0" /> Library
               </button>
             </nav>
           </div>

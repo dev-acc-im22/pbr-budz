@@ -172,6 +172,209 @@ export const generatePinterestPinFromUrl = async (url: string, aspectRatio: stri
   }
 };
 
+export const generatePinSEO = async (topic: string) => {
+  const ai = getAi();
+  if (!ai) {
+    return {
+      titles: [`10 Best ${topic} Ideas`, `Ultimate Guide to ${topic}`],
+      descriptions: [`Discover the best ${topic} ideas to try today! Perfect for beginners and experts alike. #pinterest #${topic.replace(/\s+/g, '')}`, `Looking for ${topic} inspiration? Check out this comprehensive guide with step-by-step instructions. Save for later!`]
+    };
+  }
+
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: `Generate 3 highly clickable, SEO-optimized Pinterest pin titles and 3 keyword-rich Pinterest pin descriptions for the topic: "${topic}". The descriptions should include relevant hashtags at the end.`,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            titles: { type: Type.ARRAY, items: { type: Type.STRING } },
+            descriptions: { type: Type.ARRAY, items: { type: Type.STRING } },
+          },
+          required: ["titles", "descriptions"],
+        },
+      },
+    });
+    
+    const text = response.text;
+    if (text) {
+      return JSON.parse(text);
+    }
+    return { titles: [], descriptions: [] };
+  } catch (error) {
+    console.error("Error generating Pin SEO:", error);
+    throw error;
+  }
+};
+
+export const analyzeBoardStrategy = async (niche: string) => {
+  const ai = getAi();
+  if (!ai) {
+    return {
+      boards: [
+        { name: `${niche} Basics`, description: `Everything you need to know to get started with ${niche}.` },
+        { name: `Advanced ${niche}`, description: `Take your ${niche} skills to the next level.` }
+      ],
+      contentPillars: ["Tutorials", "Inspiration", "Product Reviews"]
+    };
+  }
+
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: `Analyze the Pinterest niche: "${niche}". Provide a board strategy including 5 recommended board names with SEO-optimized descriptions, and 3-5 core content pillars to focus on.`,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            boards: {
+              type: Type.ARRAY,
+              items: {
+                type: Type.OBJECT,
+                properties: {
+                  name: { type: Type.STRING },
+                  description: { type: Type.STRING }
+                },
+                required: ["name", "description"]
+              }
+            },
+            contentPillars: { type: Type.ARRAY, items: { type: Type.STRING } }
+          },
+          required: ["boards", "contentPillars"],
+        },
+      },
+    });
+    
+    const text = response.text;
+    if (text) {
+      return JSON.parse(text);
+    }
+    return { boards: [], contentPillars: [] };
+  } catch (error) {
+    console.error("Error analyzing board strategy:", error);
+    throw error;
+  }
+};
+
+export const generateIdeaPinStoryboard = async (topic: string, pages: string) => {
+  const ai = getAi();
+  if (!ai) {
+    return {
+      title: `How to ${topic}`,
+      slides: [
+        { pageNumber: 1, visual: "Show the final result", textOverlay: "Want to learn this?", script: "Here is how you do it." },
+        { pageNumber: 2, visual: "Show step 1", textOverlay: "Step 1", script: "First, do this." }
+      ]
+    };
+  }
+
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: `Generate a Pinterest Idea Pin storyboard for the topic/goal: "${topic}". The storyboard should have approximately ${pages}. For each slide, provide the visual concept, the text overlay to display on screen, and a short script or caption. Also provide a catchy title for the Idea Pin.`,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            title: { type: Type.STRING },
+            slides: {
+              type: Type.ARRAY,
+              items: {
+                type: Type.OBJECT,
+                properties: {
+                  pageNumber: { type: Type.NUMBER },
+                  visual: { type: Type.STRING },
+                  textOverlay: { type: Type.STRING },
+                  script: { type: Type.STRING }
+                },
+                required: ["pageNumber", "visual", "textOverlay", "script"]
+              }
+            }
+          },
+          required: ["title", "slides"],
+        },
+      },
+    });
+    
+    const text = response.text;
+    if (text) {
+      return JSON.parse(text);
+    }
+    return { title: "", slides: [] };
+  } catch (error) {
+    console.error("Error generating Idea Pin storyboard:", error);
+    throw error;
+  }
+};
+
+export const generateSmartSchedule = async (niche: string) => {
+  const ai = getAi();
+  if (!ai) {
+    return {
+      bestTimes: [
+        { day: "Tuesdays", time: "8:00 PM" },
+        { day: "Thursdays", time: "9:00 PM" },
+        { day: "Saturdays", time: "11:00 AM" }
+      ],
+      queue: [
+        { title: `Top 10 ${niche} Tips`, time: "Today, 2:00 PM" },
+        { title: `${niche} Mistakes to Avoid`, time: "Tomorrow, 10:00 AM" }
+      ]
+    };
+  }
+
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: `Generate a smart Pinterest scheduling strategy for the niche: "${niche}". Provide 3 optimal times to pin (day and time), and 3 ideas for an upcoming queue (title and a scheduled time like "Today, 3:00 PM").`,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            bestTimes: {
+              type: Type.ARRAY,
+              items: {
+                type: Type.OBJECT,
+                properties: {
+                  day: { type: Type.STRING },
+                  time: { type: Type.STRING }
+                },
+                required: ["day", "time"]
+              }
+            },
+            queue: {
+              type: Type.ARRAY,
+              items: {
+                type: Type.OBJECT,
+                properties: {
+                  title: { type: Type.STRING },
+                  time: { type: Type.STRING }
+                },
+                required: ["title", "time"]
+              }
+            }
+          },
+          required: ["bestTimes", "queue"],
+        },
+      },
+    });
+    
+    const text = response.text;
+    if (text) {
+      return JSON.parse(text);
+    }
+    return { bestTimes: [], queue: [] };
+  } catch (error) {
+    console.error("Error generating smart schedule:", error);
+    throw error;
+  }
+};
+
 export const generateYouTubeScript = async (title: string, hook: string) => {
   const ai = getAi();
   if (!ai) {
@@ -414,6 +617,153 @@ export const analyzeBooks = async (topic: string) => {
   }
 };
 
+export const generateSponsorshipPitch = async (channelName: string, niche: string, subCount: string, brandName: string, product: string) => {
+  const ai = getAi();
+  if (!ai) {
+    return {
+      subject: `Partnership Opportunity: ${channelName} x ${brandName}`,
+      body: `Hi ${brandName} Team,\n\nI'm a huge fan of your ${product} and have been using it for a while. I run the YouTube channel ${channelName} (${subCount} subs) focusing on ${niche}.\n\nMy audience is highly engaged and perfectly aligns with your target demographic. I'd love to discuss a potential integration in an upcoming video where I can authentically showcase ${product} to my viewers.\n\nLet me know if you're open to exploring this!\n\nBest,\n[Your Name]`
+    };
+  }
+
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: `Write a professional, concise, and persuasive sponsorship pitch email for a YouTube creator.
+      Channel Name: ${channelName}
+      Niche: ${niche}
+      Subscribers: ${subCount}
+      Target Brand: ${brandName}
+      Product to promote: ${product}
+      
+      The email should be authentic, highlight the value proposition for the brand, and have a clear call to action. Return JSON with 'subject' and 'body'.`,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            subject: { type: Type.STRING, description: "The email subject line" },
+            body: { type: Type.STRING, description: "The full body of the email pitch" }
+          },
+          required: ["subject", "body"]
+        }
+      }
+    });
+    return JSON.parse(response.text || "{}");
+  } catch (error) {
+    console.error("Error generating pitch:", error);
+    throw error;
+  }
+};
+
+export const generateCommunityPosts = async (niche: string, recentVideoTopic: string) => {
+  const ai = getAi();
+  if (!ai) {
+    return [
+      { type: "Poll", content: "What should my next video be about?", options: ["Option A", "Option B", "Option C"] },
+      { type: "Behind the Scenes", content: "Just finished filming the next video about " + recentVideoTopic + "! Here's a sneak peek... 👀" },
+      { type: "Question", content: "What's your biggest struggle right now when it comes to " + niche + "? Let me know below!" }
+    ];
+  }
+
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: `Generate 3 engaging YouTube Community Tab post ideas for a creator in the "${niche}" niche. Their recent video was about "${recentVideoTopic}".
+      Include a mix of post types (e.g., Poll, Question, Behind the Scenes, Teaser).`,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.ARRAY,
+          items: {
+            type: Type.OBJECT,
+            properties: {
+              type: { type: Type.STRING, description: "Type of post (e.g., Poll, Question, Teaser)" },
+              content: { type: Type.STRING, description: "The text content of the post" },
+              options: { 
+                type: Type.ARRAY, 
+                items: { type: Type.STRING },
+                description: "Poll options if the type is Poll (optional)"
+              }
+            },
+            required: ["type", "content"]
+          }
+        }
+      }
+    });
+    return JSON.parse(response.text || "[]");
+  } catch (error) {
+    console.error("Error generating community posts:", error);
+    throw error;
+  }
+};
+
+export const generateVideoChapters = async (scriptOrOutline: string) => {
+  const ai = getAi();
+  if (!ai) {
+    return "0:00 - Intro\n1:30 - The Problem\n4:15 - The Solution\n8:00 - Step-by-Step Guide\n12:30 - Conclusion";
+  }
+
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: `Generate YouTube video chapters (timestamps and titles) based on the following script or outline. 
+      Format it exactly how it should be pasted into a YouTube description (e.g., "0:00 - Intro").
+      Make the chapter titles catchy and SEO-friendly.
+      
+      Script/Outline:
+      ${scriptOrOutline}`,
+      config: {
+        // Just return plain text for this one
+      }
+    });
+    return response.text || "";
+  } catch (error) {
+    console.error("Error generating chapters:", error);
+    throw error;
+  }
+};
+
+export const generateShortsScript = async (topic: string, tone: string) => {
+  const ai = getAi();
+  if (!ai) {
+    return {
+      hook: "Stop scrolling! If you want to [Benefit], you need to hear this.",
+      body: "Here is the secret: [Point 1]. But that's not all, [Point 2]. And the most important part? [Point 3].",
+      callToAction: "Subscribe for more tips like this!"
+    };
+  }
+
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: `Write a high-retention, 60-second YouTube Shorts script about "${topic}". The tone should be ${tone}.
+      The script must have:
+      1. A scroll-stopping hook (first 3 seconds).
+      2. Fast-paced, engaging body content.
+      3. A strong, quick call to action (CTA) at the end.
+      
+      Return JSON with 'hook', 'body', and 'callToAction'.`,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            hook: { type: Type.STRING },
+            body: { type: Type.STRING },
+            callToAction: { type: Type.STRING }
+          },
+          required: ["hook", "body", "callToAction"]
+        }
+      }
+    });
+    return JSON.parse(response.text || "{}");
+  } catch (error) {
+    console.error("Error generating shorts script:", error);
+    throw error;
+  }
+};
+
 export const generatePostFromTranscript = async (transcript: string, persona: string, formatting: string) => {
   const ai = getAi();
   if (!ai) {
@@ -566,6 +916,174 @@ export const simulateAlgorithm = async (tweet: string) => {
     return null;
   } catch (error) {
     console.error("Error simulating algorithm:", error);
+    throw error;
+  }
+};
+
+export const generateXThread = async (topic: string) => {
+  const ai = getAi();
+  if (!ai) {
+    return [
+      { tweet: "1/ Here is a thread about " + topic, type: "Hook" },
+      { tweet: "2/ Point 1...", type: "Body" },
+      { tweet: "3/ Point 2...", type: "Body" },
+      { tweet: "4/ Conclusion...", type: "Conclusion" },
+      { tweet: "5/ Follow me for more!", type: "CTA" }
+    ];
+  }
+
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: `Generate a highly engaging, viral-style 5-part X (Twitter) thread about "${topic}". 
+      Tweet 1 must be a strong hook. Tweets 2-4 should provide high value. Tweet 5 must be a Call to Action (CTA).
+      Keep each tweet under 280 characters.`,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.ARRAY,
+          items: {
+            type: Type.OBJECT,
+            properties: {
+              tweet: { type: Type.STRING },
+              type: { type: Type.STRING },
+            },
+            required: ["tweet", "type"],
+          },
+        },
+      },
+    });
+    
+    const text = response.text;
+    if (text) {
+      return JSON.parse(text);
+    }
+    return [];
+  } catch (error) {
+    console.error("Error generating X Thread:", error);
+    throw error;
+  }
+};
+
+export const optimizeXProfile = async (currentBio: string, niche: string) => {
+  const ai = getAi();
+  if (!ai) {
+    return {
+      optimizedBio: "Helping " + niche + " achieve [Result].",
+      bannerIdea: "Clean gradient with your main value prop.",
+      pinnedTweetIdea: "A thread about your biggest success story."
+    };
+  }
+
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: `Optimize an X (Twitter) profile for a creator in the "${niche}" niche. 
+      Their current bio is: "${currentBio}".
+      Provide an optimized, high-converting bio (under 160 characters), an idea for their banner image, and an idea for what their pinned tweet should be.`,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            optimizedBio: { type: Type.STRING },
+            bannerIdea: { type: Type.STRING },
+            pinnedTweetIdea: { type: Type.STRING },
+          },
+          required: ["optimizedBio", "bannerIdea", "pinnedTweetIdea"],
+        },
+      },
+    });
+    
+    const text = response.text;
+    if (text) {
+      return JSON.parse(text);
+    }
+    return { optimizedBio: "", bannerIdea: "", pinnedTweetIdea: "" };
+  } catch (error) {
+    console.error("Error optimizing X Profile:", error);
+    throw error;
+  }
+};
+
+export const generateXReplies = async (viralTweet: string) => {
+  const ai = getAi();
+  if (!ai) {
+    return [
+      { strategy: "Add Value", reply: "Great point! I'd also add..." },
+      { strategy: "Contrarian", reply: "I actually disagree because..." },
+      { strategy: "Humor", reply: "Me reading this: 🤯" }
+    ];
+  }
+
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: `Generate 3 strategic replies to this viral X (Twitter) post to siphon followers and engagement:\n\n"${viralTweet}"\n\nProvide one reply that "Adds Value", one that is "Contrarian/Disagreeing", and one that uses "Humor/Relatability". Keep them under 280 characters.`,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.ARRAY,
+          items: {
+            type: Type.OBJECT,
+            properties: {
+              strategy: { type: Type.STRING },
+              reply: { type: Type.STRING },
+            },
+            required: ["strategy", "reply"],
+          },
+        },
+      },
+    });
+    
+    const text = response.text;
+    if (text) {
+      return JSON.parse(text);
+    }
+    return [];
+  } catch (error) {
+    console.error("Error generating X Replies:", error);
+    throw error;
+  }
+};
+
+export const repurposeToXThread = async (sourceContent: string) => {
+  const ai = getAi();
+  if (!ai) {
+    return [
+      { tweet: "1/ I just read/watched this and here are the top takeaways 🧵", type: "Hook" },
+      { tweet: "2/ Key insight 1...", type: "Body" },
+      { tweet: "3/ Key insight 2...", type: "Body" }
+    ];
+  }
+
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: `Repurpose the following long-form content (blog post, video transcript, etc.) into a highly engaging 5-7 part X (Twitter) thread. \n\nContent:\n"${sourceContent.substring(0, 3000)}"\n\nEnsure the first tweet is a strong hook and the last is a CTA.`,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.ARRAY,
+          items: {
+            type: Type.OBJECT,
+            properties: {
+              tweet: { type: Type.STRING },
+              type: { type: Type.STRING },
+            },
+            required: ["tweet", "type"],
+          },
+        },
+      },
+    });
+    
+    const text = response.text;
+    if (text) {
+      return JSON.parse(text);
+    }
+    return [];
+  } catch (error) {
+    console.error("Error repurposing to X Thread:", error);
     throw error;
   }
 };

@@ -23,7 +23,7 @@ const OldVsNewSection = () => {
     <section className="py-24">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
-          <h2 className="font-heading font-bold text-3xl md:text-5xl mb-4">
+          <h2 className="font-heading font-bold text-3xl md:text-5xl mb-4 text-foreground">
             The <span className="bg-gradient-to-r from-indigo-600 to-indigo-950 bg-clip-text text-transparent">Better Way</span> to Build Your Brand
           </h2>
         </div>
@@ -33,7 +33,7 @@ const OldVsNewSection = () => {
           <div className="glass rounded-2xl p-8 border-destructive/20">
             <div className="flex items-center gap-2 mb-6">
               <XCircle className="h-6 w-6 text-destructive" />
-              <h3 className="font-heading font-bold text-lg">The Old Way</h3>
+              <h3 className="font-heading font-bold text-lg text-foreground">The Old Way</h3>
             </div>
             <ul className="space-y-4">
               {oldWay.map((item) => (
@@ -52,7 +52,7 @@ const OldVsNewSection = () => {
           <div className="glass rounded-2xl p-8 border-indigo-600/30 shadow-lg shadow-indigo-500/20">
             <div className="flex items-center gap-2 mb-6">
               <CheckCircle2 className="h-6 w-6 text-indigo-600" />
-              <h3 className="font-heading font-bold text-lg">With BrandPilot AI</h3>
+              <h3 className="font-heading font-bold text-lg text-foreground">With BrandPilot AI</h3>
             </div>
             <ul className="space-y-4">
               {newWay.map((item) => (

@@ -39,7 +39,7 @@ const ComparisonSection = () => {
     <section className="py-24">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
-          <h2 className="font-heading font-bold text-3xl md:text-5xl mb-4">
+          <h2 className="font-heading font-bold text-3xl md:text-5xl mb-4 text-foreground">
             Why <span className="bg-gradient-to-r from-indigo-600 to-indigo-950 bg-clip-text text-transparent">BrandPilot AI</span>?
           </h2>
           <p className="text-muted-foreground max-w-xl mx-auto">

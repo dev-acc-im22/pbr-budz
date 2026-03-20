@@ -1,6 +1,6 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { CheckCircle2, Sparkles, Zap, Target, Youtube, Twitter, Linkedin, Instagram, Calendar, FileText, Mic } from "lucide-react";
+import { CheckCircle2, Sparkles, Zap, Target, Youtube, Twitter, Linkedin, Instagram, Calendar, FileText, Mic, Image as ImageIcon, Repeat, MessageSquare, Layers } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Pricing = () => {
@@ -12,6 +12,72 @@ const Pricing = () => {
     { name: "Scheduling Calendar", icon: Calendar },
     { name: "Content Management", icon: FileText },
     { name: "Voice-to-Post", icon: Mic },
+  ];
+
+  const appHighlights = [
+    {
+      name: "LinkedIn Assist",
+      description: "Generate professional posts, articles, and engage with your network effectively.",
+      icon: Linkedin,
+      color: "text-blue-600 dark:text-blue-400",
+      bgColor: "bg-blue-100 dark:bg-blue-900/30",
+    },
+    {
+      name: "Instagram Assist",
+      description: "Create engaging captions, find trending hashtags, and plan your visual grid.",
+      icon: Instagram,
+      color: "text-pink-600 dark:text-pink-400",
+      bgColor: "bg-pink-100 dark:bg-pink-900/30",
+    },
+    {
+      name: "X (Twitter) Assist",
+      description: "Craft viral threads, schedule tweets, and analyze your audience engagement.",
+      icon: Twitter,
+      color: "text-sky-500 dark:text-sky-400",
+      bgColor: "bg-sky-100 dark:bg-sky-900/30",
+    },
+    {
+      name: "YouTube Assist",
+      description: "Generate SEO titles, scripts, chapters, and community posts for your channel.",
+      icon: Youtube,
+      color: "text-red-600 dark:text-red-400",
+      bgColor: "bg-red-100 dark:bg-red-900/30",
+    },
+    {
+      name: "Pinterest Assist",
+      description: "Design pin descriptions, find keywords, and convert blogs to pins easily.",
+      icon: ImageIcon,
+      color: "text-red-500 dark:text-red-400",
+      bgColor: "bg-red-100 dark:bg-red-900/30",
+    },
+    {
+      name: "Content Repurposing",
+      description: "Turn one piece of content into multiple formats across all your social platforms.",
+      icon: Repeat,
+      color: "text-purple-600 dark:text-purple-400",
+      bgColor: "bg-purple-100 dark:bg-purple-900/30",
+    },
+    {
+      name: "Schedule First Comment",
+      description: "Automatically post the first comment on your posts to boost engagement and add links.",
+      icon: MessageSquare,
+      color: "text-emerald-600 dark:text-emerald-400",
+      bgColor: "bg-emerald-100 dark:bg-emerald-900/30",
+    },
+    {
+      name: "Voice to Post",
+      description: "Speak your thoughts and let AI format them into perfect social media posts.",
+      icon: Mic,
+      color: "text-amber-600 dark:text-amber-400",
+      bgColor: "bg-amber-100 dark:bg-amber-900/30",
+    },
+    {
+      name: "Carousel Maker",
+      description: "Design beautiful, swipeable carousels for Instagram and LinkedIn in minutes.",
+      icon: Layers,
+      color: "text-teal-600 dark:text-teal-400",
+      bgColor: "bg-teal-100 dark:bg-teal-900/30",
+    },
   ];
 
   return (
@@ -28,7 +94,7 @@ const Pricing = () => {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+        <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto mb-24">
           {/* Starter Tier */}
           <div className="bg-white dark:bg-slate-900 rounded-3xl p-8 border border-slate-200 dark:border-slate-800 flex flex-col shadow-sm">
             <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Starter</h3>
@@ -78,6 +144,30 @@ const Pricing = () => {
               <Sparkles className="h-4 w-4" />
               Upgrade to Pro
             </button>
+          </div>
+        </div>
+
+        {/* Feature Highlights Section */}
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">Everything you get with Pro</h2>
+            <p className="text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
+              Unlock our entire suite of AI-powered tools designed to 10x your content creation workflow across every major platform.
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {appHighlights.map((app) => (
+              <div key={app.name} className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${app.bgColor}`}>
+                  <app.icon className={`h-6 w-6 ${app.color}`} />
+                </div>
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">{app.name}</h3>
+                <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
+                  {app.description}
+                </p>
+              </div>
+            ))}
           </div>
         </div>
       </section>

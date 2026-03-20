@@ -5,111 +5,111 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
+  :root, .light {
     --font-heading: 'Montserrat', sans-serif;
     --font-body: 'Montserrat', sans-serif;
 
     /* Light Mode Variables */
-    --background: 0 0% 100%;
-    --foreground: 216 50% 5%;
+    --background: 204 45% 98%; /* Very light ice blue / grey */
+    --foreground: 216 50% 10%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 216 50% 5%;
+    --card: 0 0% 100%; /* White */
+    --card-foreground: 216 50% 10%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 216 50% 5%;
+    --popover-foreground: 216 50% 10%;
 
-    --primary: 260 40% 40%;
+    --primary: 200 80% 40%; /* Ice blue */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 216 50% 5%;
+    --secondary: 204 30% 94%; /* Light grey-blue */
+    --secondary-foreground: 216 50% 10%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 204 30% 94%;
+    --muted-foreground: 215 16% 47%;
 
-    --accent: 270 50% 50%;
+    --accent: 200 80% 40%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 260 40% 40%;
+    --border: 204 30% 90%;
+    --input: 204 30% 90%;
+    --ring: 200 80% 40%;
 
     --radius: 0.75rem;
 
     /* Custom tokens */
-    --glow-primary: 0 0 30px hsl(260 40% 40% / 0.4);
-    --glow-accent: 0 0 30px hsl(270 50% 50% / 0.3);
-    --gradient-primary: linear-gradient(to right, #6a4c93, #2e1a47);
-    --gradient-brand: linear-gradient(to right, #6a4c93, #2e1a47);
-    --gradient-surface: linear-gradient(180deg, hsl(0 0% 100%), hsl(210 40% 98%));
-    --gradient-card: linear-gradient(135deg, hsl(0 0% 100%), hsl(210 40% 98%));
+    --glow-primary: 0 0 30px hsl(200 80% 40% / 0.3);
+    --glow-accent: 0 0 30px hsl(200 80% 40% / 0.3);
+    --gradient-primary: linear-gradient(to right, #38bdf8, #0284c7);
+    --gradient-brand: linear-gradient(to right, #38bdf8, #0284c7);
+    --gradient-surface: linear-gradient(180deg, hsl(204 45% 98%), hsl(204 30% 94%));
+    --gradient-card: linear-gradient(135deg, hsl(0 0% 100%), hsl(204 45% 98%));
 
-    --logo-stop-1: #6a4c93;
-    --logo-stop-2: #2e1a47;
-    --logo-stop-light-1: #8c73b3;
-    --logo-stop-light-2: #b5a3e0;
+    --logo-stop-1: #38bdf8;
+    --logo-stop-2: #0284c7;
+    --logo-stop-light-1: #7dd3fc;
+    --logo-stop-light-2: #38bdf8;
 
-    --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 216 50% 5%;
-    --sidebar-primary: 212 100% 48%;
+    --sidebar-background: 204 45% 98%;
+    --sidebar-foreground: 216 50% 10%;
+    --sidebar-primary: 200 80% 40%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 210 40% 96.1%;
-    --sidebar-accent-foreground: 216 50% 5%;
-    --sidebar-border: 214.3 31.8% 91.4%;
-    --sidebar-ring: 212 100% 48%;
+    --sidebar-accent: 204 30% 94%;
+    --sidebar-accent-foreground: 216 50% 10%;
+    --sidebar-border: 204 30% 90%;
+    --sidebar-ring: 200 80% 40%;
   }
 
   .dark {
-    --background: 216 50% 5%;
-    --foreground: 210 100% 95%;
+    --background: 210 40% 4%;
+    --foreground: 210 40% 98%;
 
-    --card: 216 45% 8%;
-    --card-foreground: 210 100% 95%;
+    --card: 210 40% 6%;
+    --card-foreground: 210 40% 98%;
 
-    --popover: 216 45% 8%;
-    --popover-foreground: 210 100% 95%;
+    --popover: 210 40% 6%;
+    --popover-foreground: 210 40% 98%;
 
-    --primary: 260 40% 60%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 200 80% 60%;
+    --primary-foreground: 210 40% 4%;
 
-    --secondary: 216 40% 14%;
-    --secondary-foreground: 210 80% 85%;
+    --secondary: 210 30% 12%;
+    --secondary-foreground: 210 40% 98%;
 
-    --muted: 216 35% 12%;
-    --muted-foreground: 214 30% 55%;
+    --muted: 210 30% 12%;
+    --muted-foreground: 210 20% 60%;
 
-    --accent: 270 50% 70%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 200 80% 60%;
+    --accent-foreground: 210 40% 4%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 216 30% 18%;
-    --input: 216 30% 18%;
-    --ring: 260 40% 60%;
+    --border: 210 30% 16%;
+    --input: 210 30% 16%;
+    --ring: 200 80% 60%;
 
-    --gradient-surface: linear-gradient(180deg, hsl(216 50% 5%), hsl(216 45% 8%));
-    --gradient-card: linear-gradient(135deg, hsl(216 45% 10%), hsl(216 40% 6%));
-    --gradient-primary: linear-gradient(to right, #c8b6ff, #6a4c93);
-    --gradient-brand: linear-gradient(to right, #c8b6ff, #6a4c93);
+    --gradient-surface: linear-gradient(180deg, hsl(210 40% 4%), hsl(210 30% 8%));
+    --gradient-card: linear-gradient(135deg, hsl(210 40% 6%), hsl(210 30% 10%));
+    --gradient-primary: linear-gradient(to right, #7dd3fc, #38bdf8);
+    --gradient-brand: linear-gradient(to right, #7dd3fc, #38bdf8);
 
-    --logo-stop-1: #c8b6ff;
-    --logo-stop-2: #6a4c93;
-    --logo-stop-light-1: #8c73b3;
-    --logo-stop-light-2: #b5a3e0;
+    --logo-stop-1: #7dd3fc;
+    --logo-stop-2: #38bdf8;
+    --logo-stop-light-1: #bae6fd;
+    --logo-stop-light-2: #7dd3fc;
 
-    --sidebar-background: 216 45% 8%;
-    --sidebar-foreground: 210 80% 85%;
-    --sidebar-primary: 212 100% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 216 35% 14%;
-    --sidebar-accent-foreground: 210 80% 85%;
-    --sidebar-border: 216 30% 18%;
-    --sidebar-ring: 212 100% 48%;
+    --sidebar-background: 210 40% 6%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 200 80% 60%;
+    --sidebar-primary-foreground: 210 40% 4%;
+    --sidebar-accent: 210 30% 12%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 210 30% 16%;
+    --sidebar-ring: 200 80% 60%;
   }
 
   .theme-twitter {
@@ -160,6 +160,16 @@
 
   body {
     @apply bg-background text-foreground font-body antialiased transition-colors duration-300;
+  }
+  
+  .light body, :root body {
+    background: linear-gradient(to bottom, #F0F8FF, #F8FAFC, #FFFFFF);
+    background-attachment: fixed;
+  }
+  
+  .dark body {
+    background: linear-gradient(to bottom, hsl(210 40% 4%), hsl(210 30% 6%), hsl(210 30% 8%));
+    background-attachment: fixed;
   }
 
   h1, h2, h3, h4, h5, h6 {

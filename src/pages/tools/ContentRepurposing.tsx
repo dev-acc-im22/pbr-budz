@@ -9,6 +9,7 @@ const ContentRepurposing = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [result, setResult] = useState("");
   const [activeTab, setActiveTab] = useState("youtube");
+  const [sidebarTab, setSidebarTab] = useState("new");
   const [tone, setTone] = useState("Professional");
 
   const handleGenerate = async () => {
@@ -30,18 +31,27 @@ const ContentRepurposing = () => {
       <Navbar />
       <main className="flex-1 container mx-auto px-4 py-24 max-w-7xl flex gap-8">
         {/* Sidebar */}
-        <aside className="w-64 hidden lg:flex flex-col gap-6">
+        <aside className="w-72 shrink-0 hidden lg:flex flex-col gap-6">
           <div className="bg-card border border-border/50 rounded-xl p-4">
             <h3 className="font-bold text-sm mb-4 text-muted-foreground uppercase tracking-wider">Menu</h3>
             <nav className="space-y-2">
-              <button className="w-full flex items-center gap-3 px-3 py-2 bg-primary/10 text-primary rounded-lg font-medium text-sm">
-                <Sparkles className="w-4 h-4" /> New Repurpose
+              <button 
+                onClick={() => setSidebarTab("new")}
+                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-sm transition-colors whitespace-nowrap ${sidebarTab === 'new' ? 'bg-gradient-to-r from-primary to-primary/80 text-primary-foreground font-bold shadow-md border border-transparent' : 'bg-transparent text-muted-foreground hover:bg-secondary hover:text-foreground border border-transparent'}`}
+              >
+                <Sparkles className="w-4 h-4 shrink-0" /> <span className="truncate">New Repurpose</span>
               </button>
-              <button className="w-full flex items-center gap-3 px-3 py-2 text-muted-foreground hover:bg-muted rounded-lg font-medium text-sm transition-colors">
-                <History className="w-4 h-4" /> History
+              <button 
+                onClick={() => setSidebarTab("history")}
+                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-sm transition-colors whitespace-nowrap ${sidebarTab === 'history' ? 'bg-gradient-to-r from-primary to-primary/80 text-primary-foreground font-bold shadow-md border border-transparent' : 'bg-transparent text-muted-foreground hover:bg-secondary hover:text-foreground border border-transparent'}`}
+              >
+                <History className="w-4 h-4 shrink-0" /> <span className="truncate">History</span>
               </button>
-              <button className="w-full flex items-center gap-3 px-3 py-2 text-muted-foreground hover:bg-muted rounded-lg font-medium text-sm transition-colors">
-                <Settings className="w-4 h-4" /> Settings
+              <button 
+                onClick={() => setSidebarTab("settings")}
+                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-sm transition-colors whitespace-nowrap ${sidebarTab === 'settings' ? 'bg-gradient-to-r from-primary to-primary/80 text-primary-foreground font-bold shadow-md border border-transparent' : 'bg-transparent text-muted-foreground hover:bg-secondary hover:text-foreground border border-transparent'}`}
+              >
+                <Settings className="w-4 h-4 shrink-0" /> <span className="truncate">Settings</span>
               </button>
             </nav>
           </div>

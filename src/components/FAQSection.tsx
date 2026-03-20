@@ -39,7 +39,7 @@ const FAQSection = () => {
     <section className="py-24">
       <div className="container mx-auto px-4 max-w-3xl">
         <div className="text-center mb-16">
-          <h2 className="font-heading font-bold text-3xl md:text-5xl mb-4">
+          <h2 className="font-heading font-bold text-3xl md:text-5xl mb-4 text-foreground">
             Frequently Asked <span className="bg-gradient-to-r from-violet-600 via-purple-500 to-fuchsia-500 dark:from-violet-400 dark:via-purple-400 dark:to-fuchsia-400 bg-clip-text text-transparent">Questions</span>
           </h2>
           <p className="text-muted-foreground">
@@ -57,7 +57,7 @@ const FAQSection = () => {
                 onClick={() => setOpenIndex(openIndex === i ? null : i)}
                 className="w-full flex items-center justify-between px-6 py-5 text-left"
               >
-                <span className="font-heading font-semibold text-sm pr-4">{faq.q}</span>
+                <span className="font-heading font-semibold text-sm pr-4 text-foreground">{faq.q}</span>
                 <ChevronDown
                   className={`h-5 w-5 shrink-0 text-muted-foreground transition-transform ${
                     openIndex === i ? "rotate-180" : ""

@@ -1,16 +1,9 @@
 import { Sparkles, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
-const heroBg = "https://images.unsplash.com/photo-1557683316-973673baf926?auto=format&fit=crop&w=1920&q=80";
 
 const HeroSection = () => {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
-      {/* Background */}
-      <div className="absolute inset-0">
-        <img src={heroBg} alt="" className="w-full h-full object-cover opacity-30" referrerPolicy="no-referrer" />
-        <div className="absolute inset-0 bg-gradient-surface opacity-80" />
-      </div>
-
       <div className="relative z-10 container mx-auto px-4 text-center max-w-4xl">
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass text-sm text-accent font-medium mb-8 animate-fade-in-up">
           <Sparkles className="h-4 w-4" />
